@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.moa.dao.push.PushDao">
+
+    <resultMap id="pushResultMap" type="com.moa.domain.Push">
+        <id property="pushId" column="PUSH_ID"/>
+        <result property="receiverId" column="RECEIVER_ID"/>
+        <result property="pushCode" column="PUSH_CODE"/>
+        <result property="title" column="TITLE"/>
+        <result property="content" column="CONTENT"/>
+        <result property="moduleId" column="MODULE_ID"/>
+        <result property="moduleType" column="MODULE_TYPE"/>
+        <result property="sentAt" column="SENT_AT"/>
+        <result property="readAt" column="READ_AT"/>
+        <result property="isRead" column="IS_READ"/>
+        <result property="isDeleted" column="IS_DELETED"/>
+    </resultMap>
+
+    <resultMap id="pushCodeResultMap" type="com.moa.domain.PushCode">
+        <id property="pushCodeId" column="PUSH_CODE_ID"/>
+        <result property="codeName" column="CODE_NAME"/>
+        <result property="titleTemplate" column="TITLE_TEMPLATE"/>
+        <result property="contentTemplate" column="CONTENT_TEMPLATE"/>
+        <result property="createdAt" column="CREATED_AT"/>
+    </resultMap>
+
+    <insert id="addPush" parameterType="com.moa.domain.Push">
+        INSERT INTO PUSH (
+            RECEIVER_ID,
+            PUSH_CODE,
+            TITLE,
+            CONTENT,
+            MODULE_ID,
+            MODULE_TYPE
+        ) VALUES (
+            #{receiverId},
+            #{pushCode},
+            #{title},
+            #{content},
+            #{moduleId},
+            #{moduleType}
+        )
+    </insert>
+
+    <select id="getPushCodeByName" resultMap="pushCodeResultMap">
+        SELECT 
+            PUSH_CODE_ID,
+            CODE_NAME,
+            TITLE_TEMPLATE,
+            CONTENT_TEMPLATE,
+            CREATED_AT
+        FROM PUSH_CODE
+        WHERE CODE_NAME = #{codeName}
+    </select>
+
+    <select id="getPushList" resultMap="pushResultMap">
+        SELECT 
+            PUSH_ID,
+            RECEIVER_ID,
+            PUSH_CODE,
+            TITLE,
+            CONTENT,
+            MODULE_ID,
+            MODULE_TYPE,
+            SENT_AT,
+            READ_AT,
+            IS_READ,
+            IS_DELETED
+        FROM PUSH
+        WHERE RECEIVER_ID = #{receiverId}
+        AND IS_DELETED = 'N'
+        ORDER BY SENT_AT DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="getPushTotalCount" resultType="int">
+        SELECT COUNT(*)
+        FROM PUSH
+        WHERE RECEIVER_ID = #{receiverId}
+        AND IS_DELETED = 'N'
+    </select>
+
+    <select id="getPush" resultMap="pushResultMap">
+        SELECT 
+            PUSH_ID,
+            RECEIVER_ID,
+            PUSH_CODE,
+            TITLE,
+            CONTENT,
+            MODULE_ID,
+            MODULE_TYPE,
+            SENT_AT,
+            READ_AT,
+            IS_READ,
+            IS_DELETED
+        FROM PUSH
+        WHERE PUSH_ID = #{pushId}
+    </select>
+
+    <update id="markAsRead">
+        UPDATE PUSH
+        SET 
+            IS_READ = 'Y',
+            READ_AT = NOW()
+        WHERE PUSH_ID = #{pushId}
+    </update>
+
+    <update id="markAsDeleted">
+        UPDATE PUSH
+        SET IS_DELETED = 'Y'
+        WHERE PUSH_ID = #{pushId}
+    </update>
+
+    <select id="getUnreadCount" resultType="int">
+        SELECT COUNT(*)
+        FROM PUSH
+        WHERE RECEIVER_ID = #{receiverId}
+        AND IS_READ = 'N'
+        AND IS_DELETED = 'N'
+    </select>
+
+</mapper>

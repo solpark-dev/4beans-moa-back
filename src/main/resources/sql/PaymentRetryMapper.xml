@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.moa.dao.payment.PaymentRetryDao">
+
+    <!-- ResultMap for PaymentRetryHistory -->
+    <resultMap id="PaymentRetryHistoryResultMap" type="com.moa.domain.PaymentRetryHistory">
+        <id property="retryId" column="RETRY_ID"/>
+        <result property="paymentId" column="PAYMENT_ID"/>
+        <result property="partyId" column="PARTY_ID"/>
+        <result property="partyMemberId" column="PARTY_MEMBER_ID"/>
+        <result property="attemptNumber" column="ATTEMPT_NUMBER"/>
+        <result property="attemptDate" column="ATTEMPT_DATE"/>
+        <result property="retryReason" column="RETRY_REASON"/>
+        <result property="retryStatus" column="RETRY_STATUS"/>
+        <result property="nextRetryDate" column="NEXT_RETRY_DATE"/>
+        <result property="errorCode" column="ERROR_CODE"/>
+        <result property="errorMessage" column="ERROR_MESSAGE"/>
+        <result property="createdAt" column="CREATED_AT"/>
+    </resultMap>
+
+    <!-- Insert new retry history -->
+    <insert id="insert" parameterType="com.moa.domain.PaymentRetryHistory"
+            useGeneratedKeys="true" keyProperty="retryId">
+        INSERT INTO PAYMENT_RETRY_HISTORY (
+            PAYMENT_ID,
+            PARTY_ID,
+            PARTY_MEMBER_ID,
+            ATTEMPT_NUMBER,
+            ATTEMPT_DATE,
+            RETRY_REASON,
+            RETRY_STATUS,
+            NEXT_RETRY_DATE,
+            ERROR_CODE,
+            ERROR_MESSAGE
+        ) VALUES (
+            #{paymentId},
+            #{partyId},
+            #{partyMemberId},
+            #{attemptNumber},
+            #{attemptDate},
+            #{retryReason},
+            #{retryStatus},
+            #{nextRetryDate},
+            #{errorCode},
+            #{errorMessage}
+        )
+    </insert>
+
+    <!-- Find retry history by ID -->
+    <select id="findById" resultMap="PaymentRetryHistoryResultMap">
+        SELECT *
+        FROM PAYMENT_RETRY_HISTORY
+        WHERE RETRY_ID = #{retryId}
+    </select>
+
+    <!-- Find all retry history for a payment -->
+    <select id="findByPaymentId" resultMap="PaymentRetryHistoryResultMap">
+        SELECT *
+        FROM PAYMENT_RETRY_HISTORY
+        WHERE PAYMENT_ID = #{paymentId}
+        ORDER BY ATTEMPT_NUMBER ASC
+    </select>
+
+    <!-- Find retries that need to be attempted today -->
+    <select id="findByNextRetryDate" resultMap="PaymentRetryHistoryResultMap">
+        SELECT *
+        FROM PAYMENT_RETRY_HISTORY
+        WHERE RETRY_STATUS = 'FAILED'
+          AND DATE(NEXT_RETRY_DATE) = #{today}
+        ORDER BY NEXT_RETRY_DATE ASC
+    </select>
+
+    <!-- Get latest retry history for a payment -->
+    <select id="findLatestByPaymentId" resultMap="PaymentRetryHistoryResultMap">
+        SELECT *
+        FROM PAYMENT_RETRY_HISTORY
+        WHERE PAYMENT_ID = #{paymentId}
+        ORDER BY ATTEMPT_NUMBER DESC
+        LIMIT 1
+    </select>
+
+</mapper>

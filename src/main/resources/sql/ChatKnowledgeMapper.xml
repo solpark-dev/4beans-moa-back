@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.moa.dao.chat.ChatKnowledgeDao">
+
+	<resultMap id="ChatKnowledgeResultMap"
+		type="com.moa.domain.ChatKnowledge">
+		<id property="id" column="id" />
+		<result property="category" column="category" />
+		<result property="title" column="title" />
+		<result property="question" column="question" />
+		<result property="answer" column="answer" />
+		<result property="keywords" column="keywords" />
+		<result property="updatedAt" column="updated_at" />
+		<result property="embedding" column="embedding" />
+	</resultMap>
+
+	<select id="searchTop" resultMap="ChatKnowledgeResultMap">
+		SELECT
+		id,
+		category,
+		title,
+		question,
+		answer,
+		keywords,
+		updated_at,
+		embedding
+		FROM chatbot_knowledge
+		WHERE
+		question LIKE CONCAT('%', #{keyword}, '%')
+		OR answer LIKE
+		CONCAT('%', #{keyword}, '%')
+		OR keywords LIKE CONCAT('%', #{keyword},
+		'%')
+		ORDER BY updated_at DESC
+		LIMIT #{limit}
+	</select>
+
+	<select id="findAllWithEmbedding"
+		resultMap="ChatKnowledgeResultMap">
+		SELECT
+		id,
+		category,
+		title,
+		question,
+		answer,
+		keywords,
+		updated_at,
+		embedding
+		FROM chatbot_knowledge
+		WHERE embedding IS NOT NULL
+	</select>
+
+	<update id="updateEmbedding">
+		UPDATE chatbot_knowledge
+		SET embedding = #{embedding},
+		updated_at = NOW()
+		WHERE id = #{id}
+	</update>
+
+	<select id="searchByKeyword" resultMap="ChatKnowledgeResultMap">
+		SELECT
+		id,
+		category,
+		title,
+		question,
+		answer,
+		keywords,
+		updated_at,
+		embedding
+		FROM chatbot_knowledge
+		WHERE
+		MATCH(question, answer, keywords) AGAINST(#{keyword} IN BOOLEAN
+		MODE)
+		OR question LIKE CONCAT('%', #{keyword}, '%')
+		OR answer LIKE
+		CONCAT('%', #{keyword}, '%')
+		OR keywords LIKE CONCAT('%', #{keyword},
+		'%')
+		ORDER BY updated_at DESC
+		LIMIT 20
+	</select>
+
+	<insert id="insert" parameterType="com.moa.domain.ChatKnowledge"
+		useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO chatbot_knowledge
+		(category, title, question, answer, keywords, embedding)
+		VALUES
+		(#{category}, #{title}, #{question}, #{answer}, #{keywords},
+		#{embedding})
+	</insert>
+
+</mapper>

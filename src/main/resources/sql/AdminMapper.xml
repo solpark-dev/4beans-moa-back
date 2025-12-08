@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.moa.dao.admin.AdminDao">
+
+	<resultMap id="blacklistMap" type="com.moa.domain.Blacklist">
+		<id property="id" column="BLACKLIST_ID" />
+		<result property="userId" column="USER_ID" />
+		<result property="reason" column="REASON" />
+		<result property="status" column="STATUS" />
+		<result property="regDate" column="REG_DATE" />
+		<result property="releaseDate" column="RELEASE_DATE" />
+	</resultMap>
+
+	<select id="countAdminUsers"
+		parameterType="com.moa.dto.user.request.AdminUserSearchRequest"
+		resultType="long">
+		SELECT COUNT(*)
+		FROM USERS u
+		<where>
+			<if test="q != null and q != ''">
+				AND u.USER_ID LIKE CONCAT('%', #{q}, '%')
+			</if>
+			<if test="status != null and status != ''">
+				AND u.USER_STATUS = #{status}
+			</if>
+			<if test="regDateFrom != null">
+				AND u.REG_DATE >= #{regDateFrom}
+			</if>
+			<if test="regDateTo != null">
+				AND u.REG_DATE &lt;= #{regDateTo}
+			</if>
+		</where>
+	</select>
+
+	<select id="findAdminUsers"
+		parameterType="com.moa.dto.user.request.AdminUserSearchRequest"
+		resultType="com.moa.dto.user.response.AdminUserListItemResponse">
+		SELECT
+		u.USER_ID AS userId,
+		u.NICKNAME AS nickname,
+		u.USER_STATUS AS
+		status,
+		u.LAST_LOGIN_DATE AS lastLoginDate,
+		u.REG_DATE AS regDate,
+		CASE
+		WHEN b.STATUS = 'ACTIVE' THEN 1 ELSE 0 END AS blacklisted
+		FROM USERS u
+		LEFT JOIN BLACKLIST b
+		ON u.USER_ID = b.USER_ID
+		AND b.STATUS = 'ACTIVE'
+		<where>
+			<if test="q != null and q != ''">
+				AND u.USER_ID LIKE CONCAT('%', #{q}, '%')
+			</if>
+
+			<if test="status != null and status != ''">
+				AND u.USER_STATUS = #{status}
+			</if>
+
+			<if test="regDateFrom != null">
+				AND u.REG_DATE &gt;= #{regDateFrom}
+			</if>
+
+			<if test="regDateTo != null">
+				AND u.REG_DATE &lt;= #{regDateTo}
+			</if>
+		</where>
+		ORDER BY u.REG_DATE DESC
+		LIMIT #{size}
+		OFFSET #{offset}
+	</select>
+
+	<insert id="insertBlacklist">
+		INSERT INTO BLACKLIST (USER_ID, REASON, STATUS,
+		REG_DATE)
+		VALUES (#{userId}, #{reason}, 'ACTIVE', NOW())
+	</insert>
+
+	<select id="findActiveBlacklistByUserId"
+		resultMap="blacklistMap">
+		SELECT
+		BLACKLIST_ID,
+		USER_ID,
+		REASON,
+		STATUS,
+		REG_DATE,
+		RELEASE_DATE
+		FROM BLACKLIST
+		WHERE USER_ID = #{userId}
+		AND STATUS =
+		'ACTIVE'
+		ORDER BY
+		REG_DATE DESC
+		LIMIT 1
+	</select>
+
+	<update id="deactivateBlacklist">
+		UPDATE BLACKLIST
+		SET STATUS = 'RELEASED',
+		RELEASE_DATE
+		= NOW(),
+		REASON = CONCAT(REASON, ' / 해제사유: ', #{deleteReason})
+		WHERE
+		USER_ID =
+		#{userId}
+		AND STATUS = 'ACTIVE'
+	</update>
+
+</mapper>

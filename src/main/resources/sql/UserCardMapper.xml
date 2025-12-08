@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.moa.dao.user.UserCardDao">
+
+    <resultMap id="UserCardResultMap" type="com.moa.domain.UserCard">
+        <id property="userId" column="USER_ID"/>
+        <result property="billingKey" column="BILLING_KEY"/>
+        <result property="cardCompany" column="CARD_COMPANY"/>
+        <result property="cardNumber" column="CARD_NUMBER"/>
+        <result property="regDate" column="REG_DATE"/>
+    </resultMap>
+
+    <insert id="insertUserCard" parameterType="com.moa.domain.UserCard">
+        INSERT INTO USER_CARD (
+            USER_ID, BILLING_KEY, CARD_COMPANY, CARD_NUMBER, REG_DATE
+        ) VALUES (
+            #{userId}, #{billingKey}, #{cardCompany}, #{cardNumber}, NOW()
+        )
+    </insert>
+
+    <select id="findByUserId" resultMap="UserCardResultMap">
+        SELECT * FROM USER_CARD WHERE USER_ID = #{userId}
+    </select>
+
+    <delete id="deleteUserCard">
+        DELETE FROM USER_CARD WHERE USER_ID = #{userId}
+    </delete>
+
+</mapper>

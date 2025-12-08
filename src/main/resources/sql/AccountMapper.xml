@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.moa.dao.account.AccountDao">
+
+    <resultMap id="AccountResultMap" type="com.moa.domain.Account">
+        <id property="accountId" column="ACCOUNT_ID"/>
+        <result property="userId" column="USER_ID"/>
+        <result property="bankCode" column="BANK_CODE"/>
+        <result property="bankName" column="BANK_NAME"/>
+        <result property="accountNumber" column="ACCOUNT_NUMBER"/>
+        <result property="accountHolder" column="ACCOUNT_HOLDER"/>
+        <result property="isVerified" column="IS_VERIFIED"/>
+        <result property="regDate" column="REG_DATE"/>
+        <result property="verifyDate" column="VERIFY_DATE"/>
+    </resultMap>
+
+    <insert id="insertAccount" parameterType="com.moa.domain.Account" useGeneratedKeys="true" keyProperty="accountId" keyColumn="ACCOUNT_ID">
+        INSERT INTO ACCOUNT (
+            USER_ID, BANK_CODE, BANK_NAME, ACCOUNT_NUMBER, ACCOUNT_HOLDER, IS_VERIFIED, REG_DATE
+        ) VALUES (
+            #{userId}, #{bankCode}, #{bankName}, #{accountNumber}, #{accountHolder}, #{isVerified}, NOW()
+        )
+    </insert>
+
+    <select id="findByUserId" resultMap="AccountResultMap">
+        SELECT * FROM ACCOUNT WHERE USER_ID = #{userId}
+    </select>
+
+    <update id="updateVerifyStatus">
+        UPDATE ACCOUNT
+        SET IS_VERIFIED = #{isVerified},
+            VERIFY_DATE = NOW()
+        WHERE ACCOUNT_ID = #{accountId}
+    </update>
+
+    <select id="findById" resultMap="AccountResultMap">
+        SELECT * FROM ACCOUNT WHERE ACCOUNT_ID = #{accountId}
+    </select>
+
+</mapper>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.moa.dao.subscription.SubscriptionDao">
+
+    <resultMap id="subscriptionResultMap" type="Subscription">
+        <result property="subscriptionId" column="subscription_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="productId" column="product_id"/>
+        <result property="subscriptionStatus" column="subscription_status"/>
+        <result property="startDate" column="start_date"/>
+        <result property="endDate" column="end_date"/>
+        <result property="cancelReason" column="cancel_reason"/>
+        <result property="cancelDate" column="cancel_date"/>
+    </resultMap>
+
+    <insert id="addSubscription" parameterType="Subscription" useGeneratedKeys="true" keyProperty="subscriptionId">
+        INSERT INTO subscription (user_id, product_id, subscription_status, start_date, end_date, cancel_reason, cancel_date)
+        VALUES (#{userId}, #{productId}, #{subscriptionStatus}, #{startDate}, #{endDate}, #{cancelReason}, #{cancelDate})
+    </insert>
+
+    <select id="getSubscription" parameterType="int" resultMap="subscriptionResultMap">
+        SELECT subscription_id, user_id, product_id, subscription_status, start_date, end_date, cancel_reason, cancel_date
+        FROM subscription
+        WHERE subscription_id = #{subscriptionId}
+    </select>
+
+    <select id="getSubscriptionList" resultMap="subscriptionResultMap">
+        SELECT subscription_id, user_id, product_id, subscription_status, start_date, end_date, cancel_reason, cancel_date
+        FROM subscription
+        ORDER BY subscription_id DESC
+    </select>
+
+    <update id="updateSubscription" parameterType="Subscription">
+        UPDATE subscription
+        SET subscription_status = #{subscriptionStatus},
+            end_date = #{endDate},
+            cancel_reason = #{cancelReason},
+            cancel_date = #{cancelDate}
+        WHERE subscription_id = #{subscriptionId}
+    </update>
+
+</mapper>

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.moa.dao.refund.RefundRetryHistoryDao">
+
+    <!-- ResultMap 정의 -->
+    <resultMap id="RefundRetryHistoryResultMap" type="com.moa.domain.RefundRetryHistory">
+        <id property="retryId" column="RETRY_ID"/>
+        <result property="depositId" column="DEPOSIT_ID"/>
+        <result property="attemptNumber" column="ATTEMPT_NUMBER"/>
+        <result property="attemptDate" column="ATTEMPT_DATE"/>
+        <result property="retryStatus" column="RETRY_STATUS"/>
+        <result property="nextRetryDate" column="NEXT_RETRY_DATE"/>
+        <result property="errorCode" column="ERROR_CODE"/>
+        <result property="errorMessage" column="ERROR_MESSAGE"/>
+        <result property="refundAmount" column="REFUND_AMOUNT"/>
+        <result property="refundReason" column="REFUND_REASON"/>
+        <result property="createdAt" column="CREATED_AT"/>
+        <result property="updatedAt" column="UPDATED_AT"/>
+    </resultMap>
+
+    <!-- 환불 재시도 이력 삽입 -->
+    <insert id="insertRefundRetry" parameterType="com.moa.domain.RefundRetryHistory"
+            useGeneratedKeys="true" keyProperty="retryId" keyColumn="RETRY_ID">
+        INSERT INTO REFUND_RETRY_HISTORY (
+            DEPOSIT_ID,
+            ATTEMPT_NUMBER,
+            ATTEMPT_DATE,
+            RETRY_STATUS,
+            NEXT_RETRY_DATE,
+            ERROR_CODE,
+            ERROR_MESSAGE,
+            REFUND_AMOUNT,
+            REFUND_REASON,
+            CREATED_AT
+        ) VALUES (
+            #{depositId},
+            #{attemptNumber},
+            #{attemptDate},
+            #{retryStatus},
+            #{nextRetryDate},
+            #{errorCode},
+            #{errorMessage},
+            #{refundAmount},
+            #{refundReason},
+            NOW()
+        )
+    </insert>
+
+    <!-- ID로 조회 -->
+    <select id="findById" parameterType="int" resultMap="RefundRetryHistoryResultMap">
+        SELECT * FROM REFUND_RETRY_HISTORY WHERE RETRY_ID = #{retryId}
+    </select>
+
+    <!-- 보증금 ID로 조회 -->
+    <select id="findByDepositId" parameterType="int" resultMap="RefundRetryHistoryResultMap">
+        SELECT * FROM REFUND_RETRY_HISTORY 
+        WHERE DEPOSIT_ID = #{depositId}
+        ORDER BY ATTEMPT_DATE DESC
+    </select>
+
+    <!-- 재시도 대기 중인 목록 조회 -->
+    <select id="findPendingRetries" resultMap="RefundRetryHistoryResultMap">
+        SELECT * FROM REFUND_RETRY_HISTORY
+        WHERE RETRY_STATUS IN ('PENDING', 'FAILED')
+          AND NEXT_RETRY_DATE IS NOT NULL
+          AND NEXT_RETRY_DATE <![CDATA[<=]]> NOW()
+          AND ATTEMPT_NUMBER <![CDATA[<]]> 4
+        ORDER BY CREATED_AT ASC
+    </select>
+
+    <!-- 재시도 상태 업데이트 -->
+    <update id="updateRetryStatus" parameterType="com.moa.domain.RefundRetryHistory">
+        UPDATE REFUND_RETRY_HISTORY
+        SET
+            ATTEMPT_NUMBER = #{attemptNumber},
+            ATTEMPT_DATE = #{attemptDate},
+            RETRY_STATUS = #{retryStatus},
+            NEXT_RETRY_DATE = #{nextRetryDate},
+            ERROR_CODE = #{errorCode},
+            ERROR_MESSAGE = #{errorMessage},
+            UPDATED_AT = NOW()
+        WHERE RETRY_ID = #{retryId}
+    </update>
+
+    <!-- 보증금 ID로 마지막 재시도 이력 조회 -->
+    <select id="findLatestByDepositId" parameterType="int" resultMap="RefundRetryHistoryResultMap">
+        SELECT * FROM REFUND_RETRY_HISTORY
+        WHERE DEPOSIT_ID = #{depositId}
+        ORDER BY ATTEMPT_DATE DESC
+        LIMIT 1
+    </select>
+
+</mapper>

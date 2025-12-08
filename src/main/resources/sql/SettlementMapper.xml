@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.moa.dao.settlement.SettlementDao">
+
+    <resultMap id="SettlementResultMap" type="com.moa.domain.Settlement">
+        <id property="settlementId" column="SETTLEMENT_ID"/>
+        <result property="partyId" column="PARTY_ID"/>
+        <result property="partyLeaderId" column="PARTY_LEADER_ID"/>
+        <result property="accountId" column="ACCOUNT_ID"/>
+        <result property="settlementMonth" column="SETTLEMENT_MONTH"/>
+        <result property="settlementType" column="SETTLEMENT_TYPE"/>
+        <result property="totalAmount" column="TOTAL_AMOUNT"/>
+        <result property="commissionRate" column="COMMISSION_RATE"/>
+        <result property="commissionAmount" column="COMMISSION_AMOUNT"/>
+        <result property="netAmount" column="NET_AMOUNT"/>
+        <result property="settlementStatus" column="SETTLEMENT_STATUS"/>
+        <result property="settlementDate" column="SETTLEMENT_DATE"/>
+        <result property="bankTranId" column="BANK_TRAN_ID"/>
+        <result property="regDate" column="REG_DATE"/>
+    </resultMap>
+
+    <resultMap id="SettlementResponseResultMap" type="com.moa.dto.settlement.response.SettlementResponse">
+        <id property="settlementId" column="SETTLEMENT_ID"/>
+        <result property="partyId" column="PARTY_ID"/>
+        <result property="partyLeaderId" column="PARTY_LEADER_ID"/>
+        <result property="settlementMonth" column="SETTLEMENT_MONTH"/>
+        <result property="totalAmount" column="TOTAL_AMOUNT"/>
+        <result property="netAmount" column="NET_AMOUNT"/>
+        <result property="settlementStatus" column="SETTLEMENT_STATUS"/>
+        <result property="settlementDate" column="SETTLEMENT_DATE"/>
+    </resultMap>
+
+    <insert id="insertSettlement" parameterType="com.moa.domain.Settlement" useGeneratedKeys="true" keyProperty="settlementId" keyColumn="SETTLEMENT_ID">
+        INSERT INTO SETTLEMENT (
+            PARTY_ID, PARTY_LEADER_ID, ACCOUNT_ID, SETTLEMENT_MONTH,
+            SETTLEMENT_TYPE, TOTAL_AMOUNT, COMMISSION_RATE, COMMISSION_AMOUNT,
+            NET_AMOUNT, SETTLEMENT_STATUS, REG_DATE
+        ) VALUES (
+            #{partyId}, #{partyLeaderId}, #{accountId}, #{settlementMonth},
+            #{settlementType}, #{totalAmount}, #{commissionRate}, #{commissionAmount},
+            #{netAmount}, #{settlementStatus}, NOW()
+        )
+    </insert>
+
+    <update id="updateSettlementStatus">
+        UPDATE SETTLEMENT
+        SET SETTLEMENT_STATUS = #{status},
+            SETTLEMENT_DATE = CASE WHEN #{status} = 'COMPLETED' THEN NOW() ELSE SETTLEMENT_DATE END,
+            BANK_TRAN_ID = #{bankTranId}
+        WHERE SETTLEMENT_ID = #{settlementId}
+    </update>
+
+    <select id="findByLeaderId" resultMap="SettlementResponseResultMap">
+        SELECT * FROM SETTLEMENT WHERE PARTY_LEADER_ID = #{leaderId} ORDER BY REG_DATE DESC
+    </select>
+
+    <select id="findByPartyIdAndMonth" resultMap="SettlementResultMap">
+        SELECT * FROM SETTLEMENT WHERE PARTY_ID = #{partyId} AND SETTLEMENT_MONTH = #{settlementMonth}
+    </select>
+
+    <select id="findById" parameterType="int" resultMap="SettlementResultMap">
+        SELECT * FROM SETTLEMENT WHERE SETTLEMENT_ID = #{settlementId}
+    </select>
+
+    <select id="findFailedSettlements" resultMap="SettlementResultMap">
+        SELECT * FROM SETTLEMENT
+        WHERE SETTLEMENT_STATUS = 'FAILED'
+        ORDER BY REG_DATE ASC
+    </select>
+
+</mapper>

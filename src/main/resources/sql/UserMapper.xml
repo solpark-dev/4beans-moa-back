@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.moa.dao.user.UserDao">
+
+	<resultMap id="userMap" type="com.moa.domain.User">
+		<id property="userId" column="USER_ID" />
+		<result property="password" column="PASSWORD" />
+		<result property="nickname" column="NICKNAME" />
+		<result property="phone" column="PHONE" />
+		<result property="profileImage" column="PROFILE_IMAGE" />
+		<result property="role" column="ROLE" />
+		<result property="status" column="USER_STATUS"
+			javaType="com.moa.domain.enums.UserStatus" />
+		<result property="regDate" column="REG_DATE" />
+		<result property="ci" column="CI" />
+		<result property="passCertifiedAt" column="PASS_CERTIFIED_AT" />
+		<result property="lastLoginDate" column="LAST_LOGIN_DATE" />
+		<result property="loginFailCount" column="LOGIN_FAIL_COUNT" />
+		<result property="unlockScheduledAt"
+			column="UNLOCK_SCHEDULED_AT" />
+		<result property="deleteDate" column="DELETE_DATE" />
+		<result property="deleteType" column="DELETE_TYPE" />
+		<result property="deleteDetail" column="DELETE_DETAIL" />
+		<result property="agreeMarketing" column="AGREE_MARKETING" />
+	</resultMap>
+
+	<insert id="insertUser">
+		INSERT INTO USERS
+		(
+		USER_ID,
+		PASSWORD,
+		NICKNAME,
+		PHONE,
+		PROFILE_IMAGE,
+		ROLE,
+		USER_STATUS,
+		REG_DATE,
+		CI,
+		PASS_CERTIFIED_AT,
+		LAST_LOGIN_DATE,
+		LOGIN_FAIL_COUNT,
+		UNLOCK_SCHEDULED_AT,
+		DELETE_DATE,
+		DELETE_TYPE,
+		DELETE_DETAIL
+		)
+		VALUES
+		(
+		#{userId},
+		#{password},
+		#{nickname},
+		#{phone},
+		#{profileImage},
+		#{role},
+		#{status},
+		NOW(),
+		#{ci},
+		#{passCertifiedAt},
+		#{lastLoginDate},
+		#{loginFailCount},
+		#{unlockScheduledAt},
+		#{deleteDate},
+		#{deleteType},
+		#{deleteDetail}
+		)
+	</insert>
+
+	<select id="findByUserId" resultMap="userMap">
+		SELECT *
+		FROM USERS
+		WHERE
+		USER_ID = #{userId}
+		AND DELETE_DATE IS NULL
+	</select>
+
+	<select id="findUserIdByPhone" resultType="string">
+		SELECT USER_ID
+		FROM
+		USERS
+		WHERE PHONE = #{phone}
+		AND DELETE_DATE IS NULL
+	</select>
+
+	<select id="existsByUserId" resultType="int">
+		SELECT COUNT(1)
+		FROM USERS
+		WHERE USER_ID = #{userId}
+	</select>
+
+	<select id="existsByNickname" resultType="int">
+		SELECT COUNT(1)
+		FROM
+		USERS
+		WHERE NICKNAME = #{nickname}
+		AND DELETE_DATE IS NULL
+	</select>
+
+	<update id="updateUserStatus">
+		UPDATE USERS
+		SET USER_STATUS = #{status}
+		WHERE USER_ID
+		= #{userId}
+		AND DELETE_DATE IS NULL
+	</update>
+
+	<update id="updateLastLoginDate">
+		UPDATE USERS
+		SET LAST_LOGIN_DATE = NOW()
+		WHERE USER_ID
+		= #{userId}
+		AND DELETE_DATE IS NULL
+	</update>
+
+	<update id="updatePassword">
+		UPDATE USERS
+		SET PASSWORD = #{password}
+		WHERE USER_ID =
+		#{userId}
+		AND DELETE_DATE IS NULL
+	</update>
+
+	<update id="updateUserProfile">
+		UPDATE USERS
+		SET
+		NICKNAME = #{nickname},
+		PHONE =
+		#{phone},
+		PROFILE_IMAGE = #{profileImage},
+		AGREE_MARKETING =
+		#{agreeMarketing}
+		WHERE USER_ID = #{userId}
+		AND DELETE_DATE IS NULL
+	</update>
+
+	<update id="softDeleteUser">
+		UPDATE USERS
+		SET
+		USER_STATUS = #{status},
+		DELETE_TYPE =
+		#{deleteType},
+		DELETE_DETAIL = #{deleteDetail},
+		DELETE_DATE = NOW()
+		WHERE USER_ID = #{userId}
+	</update>
+
+	<update id="restoreUser">
+		UPDATE USERS
+		SET USER_STATUS = 'ACTIVE',
+		DELETE_DATE =
+		NULL,
+		DELETE_TYPE = NULL,
+		DELETE_DETAIL = NULL
+		WHERE USER_ID = #{userId}
+	</update>
+
+
+	<select id="findUserList" resultMap="userMap">
+		SELECT *
+		FROM USERS
+		WHERE 1 = 1
+
+		<if
+			test="condition != null and condition != '' and q != null and q.trim() != ''">
+			<choose>
+				<when test="condition == 'userId'">
+					AND USER_ID LIKE CONCAT('%', #{q}, '%')
+				</when>
+				<when test="condition == 'nickname'">
+					AND NICKNAME LIKE CONCAT('%', #{q}, '%')
+				</when>
+			</choose>
+		</if>
+
+		<choose>
+			<when test="filter == null or filter == ''">
+				AND DELETE_DATE IS NULL
+			</when>
+			<when test="filter == 'WITHDRAW'">
+				AND USER_STATUS = 'WITHDRAW'
+				AND DELETE_DATE IS NOT
+				NULL
+			</when>
+			<otherwise>
+				AND DELETE_DATE IS NULL
+				AND USER_STATUS = #{filter}
+			</otherwise>
+		</choose>
+
+		ORDER BY REG_DATE DESC
+		LIMIT #{limit} OFFSET #{offset}
+	</select>
+
+	<select id="countUserList" resultType="long">
+		SELECT COUNT(1)
+		FROM USERS
+		WHERE 1 = 1
+
+		<if
+			test="condition != null and condition != '' and q != null and q.trim() != ''">
+			<choose>
+				<when test="condition == 'userId'">
+					AND USER_ID LIKE CONCAT('%', #{q}, '%')
+				</when>
+				<when test="condition == 'nickname'">
+					AND NICKNAME LIKE CONCAT('%', #{q}, '%')
+				</when>
+			</choose>
+		</if>
+
+		<choose>
+			<when test="filter == null or filter == ''">
+				AND DELETE_DATE IS NULL
+			</when>
+			<when test="filter == 'WITHDRAW'">
+				AND USER_STATUS = 'WITHDRAW'
+				AND DELETE_DATE IS NOT
+				NULL
+			</when>
+			<otherwise>
+				AND DELETE_DATE IS NULL
+				AND USER_STATUS = #{filter}
+			</otherwise>
+		</choose>
+	</select>
+
+	<update id="increaseLoginFailCount">
+		UPDATE USERS
+		SET LOGIN_FAIL_COUNT = LOGIN_FAIL_COUNT +
+		1
+		WHERE USER_ID = #{userId}
+		AND DELETE_DATE IS NULL
+	</update>
+
+	<select id="getFailCount" resultType="int">
+		SELECT LOGIN_FAIL_COUNT
+		FROM USERS
+		WHERE USER_ID = #{userId}
+		AND DELETE_DATE IS NULL
+	</select>
+
+	<update id="blockUser">
+		UPDATE USERS
+		SET
+		USER_STATUS = 'BLOCK',
+		UNLOCK_SCHEDULED_AT = #{unlockTime}
+		WHERE USER_ID = #{userId}
+		AND
+		DELETE_DATE IS NULL
+	</update>
+
+	<update id="resetLoginFailCount">
+		UPDATE USERS
+		SET
+		LOGIN_FAIL_COUNT = 0,
+		UNLOCK_SCHEDULED_AT = NULL
+		WHERE USER_ID = #{userId}
+		AND DELETE_DATE IS
+		NULL
+	</update>
+
+	<update id="updateProfileImage">
+		UPDATE USERS
+		SET PROFILE_IMAGE = #{imageUrl}
+		WHERE
+		USER_ID = #{userId}
+		AND DELETE_DATE IS NULL
+	</update>
+
+	<select id="findByResetToken" resultMap="userMap">
+		SELECT *
+		FROM USERS
+		WHERE
+		RESET_TOKEN = #{token}
+	</select>
+
+	<update id="savePasswordResetToken">
+		UPDATE USERS
+		SET RESET_TOKEN = #{token}
+		WHERE USER_ID =
+		#{userId}
+	</update>
+
+	<update id="clearPasswordResetToken">
+		UPDATE USERS
+		SET RESET_TOKEN = NULL
+		WHERE USER_ID =
+		#{userId}
+	</update>
+
+	<select id="existsByPhone" resultType="int">
+		SELECT COUNT(1)
+		FROM USERS
+		WHERE PHONE = #{phone}
+		AND DELETE_DATE IS NULL
+	</select>
+
+	<select id="findByUserIdIncludeDeleted" parameterType="string"
+		resultMap="userMap">
+		SELECT *
+		FROM users
+		WHERE user_id = #{userId}
+	</select>
+
+</mapper>

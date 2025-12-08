@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.moa.dao.settlement.SettlementDetailDao">
+
+    <resultMap id="SettlementDetailResultMap" type="com.moa.domain.SettlementDetail">
+        <id property="detailId" column="DETAIL_ID"/>
+        <result property="settlementId" column="SETTLEMENT_ID"/>
+        <result property="paymentId" column="PAYMENT_ID"/>
+        <result property="partyMemberId" column="PARTY_MEMBER_ID"/>
+        <result property="userId" column="USER_ID"/>
+        <result property="paymentAmount" column="PAYMENT_AMOUNT"/>
+        <result property="regDate" column="REG_DATE"/>
+    </resultMap>
+
+    <resultMap id="SettlementDetailResponseResultMap" type="com.moa.dto.settlement.response.SettlementDetailResponse">
+        <id property="detailId" column="DETAIL_ID"/>
+        <result property="settlementId" column="SETTLEMENT_ID"/>
+        <result property="paymentId" column="PAYMENT_ID"/>
+        <result property="userId" column="USER_ID"/>
+        <result property="userNickname" column="USER_NICKNAME"/>
+        <result property="paymentAmount" column="PAYMENT_AMOUNT"/>
+        <result property="regDate" column="REG_DATE"/>
+    </resultMap>
+
+    <insert id="insertSettlementDetail" parameterType="com.moa.domain.SettlementDetail">
+        INSERT INTO SETTLEMENT_DETAIL (
+            SETTLEMENT_ID, PAYMENT_ID, PARTY_MEMBER_ID, USER_ID, PAYMENT_AMOUNT, REG_DATE
+        ) VALUES (
+            #{settlementId}, #{paymentId}, #{partyMemberId}, #{userId}, #{paymentAmount}, NOW()
+        )
+    </insert>
+
+    <select id="findBySettlementId" resultMap="SettlementDetailResponseResultMap">
+        SELECT
+            SD.*,
+            U.NICKNAME AS USER_NICKNAME
+        FROM SETTLEMENT_DETAIL SD
+        INNER JOIN USERS U ON SD.USER_ID = U.USER_ID
+        WHERE SD.SETTLEMENT_ID = #{settlementId}
+    </select>
+
+</mapper>

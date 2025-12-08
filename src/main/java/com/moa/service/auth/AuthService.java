@@ -1,0 +1,17 @@
+package com.moa.service.auth;
+
+import com.moa.dto.auth.TokenResponse;
+import com.moa.dto.user.request.LoginRequest;
+import com.moa.dto.user.request.UserCreateRequest;
+
+public interface AuthService {
+
+	TokenResponse login(LoginRequest request);
+
+	TokenResponse refresh(String refreshToken);
+
+	void logout(String accessToken, String refreshToken);
+
+	void verifyEmail(String token);
+
+}

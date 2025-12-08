@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.moa.dao.community.CommunityDao">
+
+    <resultMap id="communityResultMap" type="com.moa.domain.Community">
+        <id property="communityId" column="COMMUNITY_ID"/>
+        <result property="userId" column="USER_ID"/>
+        <result property="communityCodeId" column="COMMUNITY_CODE_ID"/>
+        <result property="title" column="TITLE"/>
+        <result property="content" column="CONTENT"/>
+        <result property="createdAt" column="CREATED_AT"/>
+        <result property="viewCount" column="VIEW_COUNT"/>
+        <result property="fileOriginal" column="FILE_ORIGINAL"/>
+        <result property="fileUuid" column="FILE_UUID"/>
+        <result property="answerContent" column="ANSWER_CONTENT"/>
+        <result property="answeredAt" column="ANSWERED_AT"/>
+        <result property="answerStatus" column="ANSWER_STATUS"/>
+        <result property="nickname" column="NICKNAME"/>
+        <result property="category" column="CATEGORY"/>
+        <result property="codeName" column="CODE_NAME"/>
+    </resultMap>
+
+    <select id="getNoticeList" resultMap="communityResultMap">
+        SELECT 
+            c.COMMUNITY_ID,
+            c.USER_ID,
+            c.COMMUNITY_CODE_ID,
+            c.TITLE,
+            c.CONTENT,
+            c.CREATED_AT,
+            c.VIEW_COUNT,
+            cc.CATEGORY,
+            cc.CODE_NAME
+        FROM COMMUNITY c
+        INNER JOIN COMMUNITY_CODE cc ON c.COMMUNITY_CODE_ID = cc.COMMUNITY_CODE_ID
+        WHERE cc.CATEGORY = 'POST'
+        AND cc.CODE_NAME NOT IN ('FAQ')
+        ORDER BY c.CREATED_AT DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="getNoticeTotalCount" resultType="int">
+        SELECT COUNT(*)
+        FROM COMMUNITY c
+        INNER JOIN COMMUNITY_CODE cc ON c.COMMUNITY_CODE_ID = cc.COMMUNITY_CODE_ID
+        WHERE cc.CATEGORY = 'POST'
+        AND cc.CODE_NAME NOT IN ('FAQ')
+    </select>
+
+    <select id="getNotice" resultMap="communityResultMap">
+        SELECT 
+            c.COMMUNITY_ID,
+            c.USER_ID,
+            c.COMMUNITY_CODE_ID,
+            c.TITLE,
+            c.CONTENT,
+            c.CREATED_AT,
+            c.VIEW_COUNT,
+            cc.CATEGORY,
+            cc.CODE_NAME
+        FROM COMMUNITY c
+        INNER JOIN COMMUNITY_CODE cc ON c.COMMUNITY_CODE_ID = cc.COMMUNITY_CODE_ID
+        WHERE c.COMMUNITY_ID = #{communityId}
+    </select>
+
+    <insert id="addNotice" parameterType="com.moa.domain.Community">
+        INSERT INTO COMMUNITY (
+            USER_ID,
+            COMMUNITY_CODE_ID,
+            TITLE,
+            CONTENT
+        ) VALUES (
+            #{userId},
+            #{communityCodeId},
+            #{title},
+            #{content}
+        )
+    </insert>
+
+    <update id="updateNotice" parameterType="com.moa.domain.Community">
+        UPDATE COMMUNITY
+        SET 
+            TITLE = #{title},
+            CONTENT = #{content}
+        WHERE COMMUNITY_ID = #{communityId}
+    </update>
+
+    <update id="incrementViewCount">
+        UPDATE COMMUNITY
+        SET VIEW_COUNT = VIEW_COUNT + 1
+        WHERE COMMUNITY_ID = #{communityId}
+    </update>
+
+    <select id="searchNotice" resultMap="communityResultMap">
+        SELECT 
+            c.COMMUNITY_ID,
+            c.USER_ID,
+            c.COMMUNITY_CODE_ID,
+            c.TITLE,
+            c.CONTENT,
+            c.CREATED_AT,
+            c.VIEW_COUNT,
+            cc.CATEGORY,
+            cc.CODE_NAME
+        FROM COMMUNITY c
+        INNER JOIN COMMUNITY_CODE cc ON c.COMMUNITY_CODE_ID = cc.COMMUNITY_CODE_ID
+        WHERE cc.CATEGORY = 'POST'
+        AND cc.CODE_NAME NOT IN ('FAQ')
+        AND (c.TITLE LIKE CONCAT('%', #{keyword}, '%')
+             OR c.CONTENT LIKE CONCAT('%', #{keyword}, '%'))
+        ORDER BY c.CREATED_AT DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="searchNoticeTotalCount" resultType="int">
+        SELECT COUNT(*)
+        FROM COMMUNITY c
+        INNER JOIN COMMUNITY_CODE cc ON c.COMMUNITY_CODE_ID = cc.COMMUNITY_CODE_ID
+        WHERE cc.CATEGORY = 'POST'
+        AND cc.CODE_NAME NOT IN ('FAQ')
+        AND (c.TITLE LIKE CONCAT('%', #{keyword}, '%')
+             OR c.CONTENT LIKE CONCAT('%', #{keyword}, '%'))
+    </select>
+
+    <select id="getFaqList" resultMap="communityResultMap">
+        SELECT 
+            c.COMMUNITY_ID,
+            c.USER_ID,
+            c.COMMUNITY_CODE_ID,
+            c.TITLE,
+            c.CONTENT,
+            c.CREATED_AT,
+            c.VIEW_COUNT,
+            cc.CATEGORY,
+            cc.CODE_NAME
+        FROM COMMUNITY c
+        INNER JOIN COMMUNITY_CODE cc ON c.COMMUNITY_CODE_ID = cc.COMMUNITY_CODE_ID
+        WHERE cc.CATEGORY = 'POST'
+        AND cc.CODE_NAME = 'FAQ'
+        ORDER BY c.CREATED_AT DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="getFaqTotalCount" resultType="int">
+        SELECT COUNT(*)
+        FROM COMMUNITY c
+        INNER JOIN COMMUNITY_CODE cc ON c.COMMUNITY_CODE_ID = cc.COMMUNITY_CODE_ID
+        WHERE cc.CATEGORY = 'POST'
+        AND cc.CODE_NAME = 'FAQ'
+    </select>
+
+    <select id="getFaq" resultMap="communityResultMap">
+        SELECT 
+            c.COMMUNITY_ID,
+            c.USER_ID,
+            c.COMMUNITY_CODE_ID,
+            c.TITLE,
+            c.CONTENT,
+            c.CREATED_AT,
+            c.VIEW_COUNT,
+            cc.CATEGORY,
+            cc.CODE_NAME
+        FROM COMMUNITY c
+        INNER JOIN COMMUNITY_CODE cc ON c.COMMUNITY_CODE_ID = cc.COMMUNITY_CODE_ID
+        WHERE c.COMMUNITY_ID = #{communityId}
+    </select>
+
+    <insert id="addFaq" parameterType="com.moa.domain.Community">
+        INSERT INTO COMMUNITY (
+            USER_ID,
+            COMMUNITY_CODE_ID,
+            TITLE,
+            CONTENT
+        ) VALUES (
+            #{userId},
+            #{communityCodeId},
+            #{title},
+            #{content}
+        )
+    </insert>
+
+    <update id="updateFaq" parameterType="com.moa.domain.Community">
+        UPDATE COMMUNITY
+        SET 
+            TITLE = #{title},
+            CONTENT = #{content}
+        WHERE COMMUNITY_ID = #{communityId}
+    </update>
+
+    <select id="searchFaq" resultMap="communityResultMap">
+        SELECT 
+            c.COMMUNITY_ID,
+            c.USER_ID,
+            c.COMMUNITY_CODE_ID,
+            c.TITLE,
+            c.CONTENT,
+            c.CREATED_AT,
+            c.VIEW_COUNT,
+            cc.CATEGORY,
+            cc.CODE_NAME
+        FROM COMMUNITY c
+        INNER JOIN COMMUNITY_CODE cc ON c.COMMUNITY_CODE_ID = cc.COMMUNITY_CODE_ID
+        WHERE cc.CATEGORY = 'POST'
+        AND cc.CODE_NAME = 'FAQ'
+        AND (c.TITLE LIKE CONCAT('%', #{keyword}, '%')
+             OR c.CONTENT LIKE CONCAT('%', #{keyword}, '%'))
+        ORDER BY c.CREATED_AT DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="searchFaqTotalCount" resultType="int">
+        SELECT COUNT(*)
+        FROM COMMUNITY c
+        INNER JOIN COMMUNITY_CODE cc ON c.COMMUNITY_CODE_ID = cc.COMMUNITY_CODE_ID
+        WHERE cc.CATEGORY = 'POST'
+        AND cc.CODE_NAME = 'FAQ'
+        AND (c.TITLE LIKE CONCAT('%', #{keyword}, '%')
+             OR c.CONTENT LIKE CONCAT('%', #{keyword}, '%'))
+    </select>
+
+    <select id="getMyInquiryList" resultMap="communityResultMap">
+        SELECT 
+            c.COMMUNITY_ID,
+            c.USER_ID,
+            c.COMMUNITY_CODE_ID,
+            c.TITLE,
+            c.CONTENT,
+            c.CREATED_AT,
+            c.FILE_ORIGINAL,
+            c.FILE_UUID,
+            c.ANSWER_CONTENT,
+            c.ANSWERED_AT,
+            c.ANSWER_STATUS,
+            cc.CATEGORY,
+            cc.CODE_NAME
+        FROM COMMUNITY c
+        INNER JOIN COMMUNITY_CODE cc ON c.COMMUNITY_CODE_ID = cc.COMMUNITY_CODE_ID
+        WHERE cc.CATEGORY = 'INQUIRY'
+        AND c.USER_ID = #{userId}
+        ORDER BY c.CREATED_AT DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="getMyInquiryTotalCount" resultType="int">
+        SELECT COUNT(*)
+        FROM COMMUNITY c
+        INNER JOIN COMMUNITY_CODE cc ON c.COMMUNITY_CODE_ID = cc.COMMUNITY_CODE_ID
+        WHERE cc.CATEGORY = 'INQUIRY'
+        AND c.USER_ID = #{userId}
+    </select>
+
+    <select id="getInquiryList" resultMap="communityResultMap">
+        SELECT 
+            c.COMMUNITY_ID,
+            c.USER_ID,
+            c.COMMUNITY_CODE_ID,
+            c.TITLE,
+            c.CONTENT,
+            c.CREATED_AT,
+            c.FILE_ORIGINAL,
+            c.FILE_UUID,
+            c.ANSWER_CONTENT,
+            c.ANSWERED_AT,
+            c.ANSWER_STATUS,
+            cc.CATEGORY,
+            cc.CODE_NAME
+        FROM COMMUNITY c
+        INNER JOIN COMMUNITY_CODE cc ON c.COMMUNITY_CODE_ID = cc.COMMUNITY_CODE_ID
+        WHERE cc.CATEGORY = 'INQUIRY'
+        ORDER BY c.CREATED_AT DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="getInquiryTotalCount" resultType="int">
+        SELECT COUNT(*)
+        FROM COMMUNITY c
+        INNER JOIN COMMUNITY_CODE cc ON c.COMMUNITY_CODE_ID = cc.COMMUNITY_CODE_ID
+        WHERE cc.CATEGORY = 'INQUIRY'
+    </select>
+
+	<select id="getInquiry" resultMap="communityResultMap">
+	    SELECT 
+	        c.COMMUNITY_ID,
+	        c.USER_ID,
+	        c.COMMUNITY_CODE_ID,
+	        c.TITLE,
+	        c.CONTENT,
+	        c.CREATED_AT,
+	        c.FILE_ORIGINAL,
+	        c.FILE_UUID,
+	        c.ANSWER_CONTENT,
+	        c.ANSWERED_AT,
+	        c.ANSWER_STATUS,
+	        cc.CATEGORY,
+	        cc.CODE_NAME,
+	        u.NICKNAME
+	    FROM COMMUNITY c
+	    INNER JOIN COMMUNITY_CODE cc ON c.COMMUNITY_CODE_ID = cc.COMMUNITY_CODE_ID
+	    INNER JOIN USERS u ON c.USER_ID = u.USER_ID
+	    WHERE c.COMMUNITY_ID = #{communityId}
+	</select>
+
+    <insert id="addInquiry" parameterType="com.moa.domain.Community">
+        INSERT INTO COMMUNITY (
+            USER_ID,
+            COMMUNITY_CODE_ID,
+            TITLE,
+            CONTENT,
+            FILE_ORIGINAL,
+            FILE_UUID
+        ) VALUES (
+            #{userId},
+            #{communityCodeId},
+            #{title},
+            #{content},
+            #{fileOriginal},
+            #{fileUuid}
+        )
+    </insert>
+
+    <update id="addAnswer">
+        UPDATE COMMUNITY
+        SET 
+            ANSWER_CONTENT = #{answerContent},
+            ANSWERED_AT = NOW(),
+            ANSWER_STATUS = '답변완료'
+        WHERE COMMUNITY_ID = #{communityId}
+    </update>
+
+    <update id="updateAnswer">
+        UPDATE COMMUNITY
+        SET 
+            ANSWER_CONTENT = #{answerContent},
+            ANSWERED_AT = NOW()
+        WHERE COMMUNITY_ID = #{communityId}
+    </update>
+
+</mapper>

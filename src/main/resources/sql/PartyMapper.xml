@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.moa.dao.party.PartyDao">
+
+	<!-- ResultMap: Party 기본 매핑 -->
+	<resultMap id="PartyResultMap" type="com.moa.domain.Party">
+		<id property="partyId" column="PARTY_ID"/>
+		<result property="productId" column="PRODUCT_ID"/>
+		<result property="partyLeaderId" column="PARTY_LEADER_ID"/>
+		<result property="partyStatus" column="PARTY_STATUS"/>
+		<result property="maxMembers" column="MAX_MEMBERS"/>
+		<result property="currentMembers" column="CURRENT_MEMBERS"/>
+		<result property="monthlyFee" column="MONTHLY_FEE"/>
+		<result property="ottId" column="OTT_ID"/>
+		<result property="ottPassword" column="OTT_PASSWORD"/>
+		<result property="accountId" column="ACCOUNT_ID"/>
+		<result property="regDate" column="REG_DATE"/>
+		<result property="startDate" column="START_DATE"/>
+		<result property="endDate" column="END_DATE"/>
+		<result property="leaderDepositId" column="LEADER_DEPOSIT_ID"/>
+	</resultMap>
+
+	<!-- ResultMap: PartyDetailResponse (JOIN) -->
+	<resultMap id="PartyDetailResponseMap" type="com.moa.dto.party.response.PartyDetailResponse">
+		<!-- 파티 정보 -->
+		<result property="partyId" column="PARTY_ID"/>
+		<result property="partyLeaderId" column="PARTY_LEADER_ID"/>
+		<result property="partyStatus" column="PARTY_STATUS"/>
+		<result property="maxMembers" column="MAX_MEMBERS"/>
+		<result property="currentMembers" column="CURRENT_MEMBERS"/>
+		<result property="monthlyFee" column="MONTHLY_FEE"/>
+		<result property="ottId" column="OTT_ID"/>
+		<result property="ottPassword" column="OTT_PASSWORD"/>
+		<result property="regDate" column="REG_DATE"/>
+		<result property="startDate" column="START_DATE"/>
+
+		<!-- 상품 정보 (PARTY → PRODUCT 조인) -->
+		<result property="productId" column="PRODUCT_ID"/>
+		<result property="productName" column="PRODUCT_NAME"/>
+		<result property="productImage" column="IMAGE"/>
+		<result property="price" column="PRICE"/>
+
+		<!-- 방장 정보 -->
+		<result property="leaderNickname" column="LEADER_NICKNAME"/>
+		<result property="leaderProfileImage" column="LEADER_PROFILE_IMAGE"/>
+	</resultMap>
+
+	<!-- ResultMap: PartyListResponse (JOIN) -->
+	<resultMap id="PartyListResponseMap" type="com.moa.dto.party.response.PartyListResponse">
+		<result property="partyId" column="PARTY_ID"/>
+		<result property="partyStatus" column="PARTY_STATUS"/>
+		<result property="maxMembers" column="MAX_MEMBERS"/>
+		<result property="currentMembers" column="CURRENT_MEMBERS"/>
+		<result property="monthlyFee" column="MONTHLY_FEE"/>
+		<result property="regDate" column="REG_DATE"/>
+
+		<result property="productId" column="PRODUCT_ID"/>
+		<result property="productName" column="PRODUCT_NAME"/>
+		<result property="productImage" column="IMAGE"/>
+
+		<result property="partyLeaderId" column="PARTY_LEADER_ID"/>
+		<result property="leaderNickname" column="LEADER_NICKNAME"/>
+		<result property="remainingSlots" column="REMAINING_SLOTS"/>
+	</resultMap>
+
+	<!-- 파티 생성 -->
+	<insert id="insertParty" parameterType="com.moa.domain.Party" useGeneratedKeys="true" keyProperty="partyId">
+		INSERT INTO PARTY (
+			PRODUCT_ID,
+			PARTY_LEADER_ID,
+			PARTY_STATUS,
+			MAX_MEMBERS,
+			CURRENT_MEMBERS,
+			MONTHLY_FEE,
+			OTT_ID,
+			OTT_PASSWORD,
+			ACCOUNT_ID,
+			REG_DATE,
+			START_DATE
+		) VALUES (
+					 #{productId},
+					 #{partyLeaderId},
+					 #{partyStatus},
+					 #{maxMembers},
+					 #{currentMembers},
+					 #{monthlyFee},
+					 #{ottId},
+					 #{ottPassword},
+					 #{accountId},
+					 #{regDate},
+					 #{startDate}
+				 )
+	</insert>
+
+	<!-- 파티 ID로 조회 -->
+	<select id="findById" resultMap="PartyResultMap">
+		SELECT *
+		FROM PARTY
+		WHERE PARTY_ID = #{partyId}
+	</select>
+
+	<!-- 파티 상세 조회 (JOIN) -->
+	<select id="findDetailById" resultMap="PartyDetailResponseMap">
+		SELECT
+			P.PARTY_ID,
+			P.PRODUCT_ID,
+			P.PARTY_LEADER_ID,
+			P.PARTY_STATUS,
+			P.MAX_MEMBERS,
+			P.CURRENT_MEMBERS,
+			P.MONTHLY_FEE,
+			P.OTT_ID,
+			P.OTT_PASSWORD,
+			P.REG_DATE,
+			P.START_DATE,
+
+			PR.PRODUCT_ID,
+			PR.PRODUCT_NAME,
+			PR.IMAGE,
+			PR.PRICE,
+
+			U.NICKNAME AS LEADER_NICKNAME,
+			U.PROFILE_IMAGE AS LEADER_PROFILE_IMAGE
+		FROM PARTY P
+				 LEFT JOIN PRODUCT PR ON P.PRODUCT_ID = PR.PRODUCT_ID
+				 INNER JOIN USERS U ON P.PARTY_LEADER_ID = U.USER_ID
+		WHERE P.PARTY_ID = #{partyId}
+	</select>
+
+	<!-- 파티 목록 조회 (페이징, 필터링) -->
+	<select id="findPartyList" resultMap="PartyListResponseMap">
+		SELECT
+		P.PARTY_ID,
+		P.PRODUCT_ID,
+		P.PARTY_LEADER_ID,
+		P.PARTY_STATUS,
+		P.MAX_MEMBERS,
+		P.CURRENT_MEMBERS,
+		P.MONTHLY_FEE,
+		P.REG_DATE,
+
+		PR.PRODUCT_ID,
+		PR.PRODUCT_NAME,
+		PR.IMAGE,
+
+		U.NICKNAME AS LEADER_NICKNAME,
+
+		(P.MAX_MEMBERS - P.CURRENT_MEMBERS) AS REMAINING_SLOTS
+		FROM PARTY P
+		LEFT JOIN PRODUCT PR ON P.PRODUCT_ID = PR.PRODUCT_ID
+		INNER JOIN USERS U ON P.PARTY_LEADER_ID = U.USER_ID
+		<where>
+			<if test="productId != null">
+				AND PR.PRODUCT_ID = #{productId}
+			</if>
+			<if test="partyStatus != null">
+				AND P.PARTY_STATUS = #{partyStatus}
+			</if>
+			<if test="keyword != null and keyword != ''">
+				AND (PR.PRODUCT_NAME LIKE CONCAT('%', #{keyword}, '%')
+				OR U.NICKNAME LIKE CONCAT('%', #{keyword}, '%'))
+			</if>
+		</where>
+		ORDER BY P.REG_DATE DESC
+		LIMIT #{size} OFFSET #{offset}
+	</select>
+
+	<!-- 파티 전체 정보 업데이트 -->
+	<update id="updateParty" parameterType="com.moa.domain.Party">
+		UPDATE PARTY
+		SET
+			PRODUCT_ID = #{productId},
+			PARTY_LEADER_ID = #{partyLeaderId},
+			PARTY_STATUS = #{partyStatus},
+			MAX_MEMBERS = #{maxMembers},
+			CURRENT_MEMBERS = #{currentMembers},
+			MONTHLY_FEE = #{monthlyFee},
+			OTT_ID = #{ottId},
+			OTT_PASSWORD = #{ottPassword},
+			ACCOUNT_ID = #{accountId},
+			START_DATE = #{startDate},
+			END_DATE = #{endDate},
+			LEADER_DEPOSIT_ID = #{leaderDepositId}
+		WHERE PARTY_ID = #{partyId}
+	</update>
+
+	<!-- OTT 계정 정보 수정 -->
+	<update id="updateOttAccount">
+		UPDATE PARTY
+		SET
+			OTT_ID = #{ottId},
+			OTT_PASSWORD = #{ottPassword}
+		WHERE PARTY_ID = #{partyId}
+	</update>
+
+	<!-- 파티 상태 변경 -->
+	<update id="updatePartyStatus">
+		UPDATE PARTY
+		SET
+			PARTY_STATUS = #{status}
+		WHERE PARTY_ID = #{partyId}
+	</update>
+
+	<!-- 파티 현재 인원 증가 -->
+	<update id="incrementCurrentMembers">
+		UPDATE PARTY
+		SET
+			CURRENT_MEMBERS = CURRENT_MEMBERS + 1
+		WHERE PARTY_ID = #{partyId}
+		  AND CURRENT_MEMBERS <![CDATA[ < ]]> MAX_MEMBERS
+	</update>
+
+	<!-- 파티 현재 인원 감소 -->
+	<update id="decrementCurrentMembers">
+		UPDATE PARTY
+		SET
+			CURRENT_MEMBERS = CURRENT_MEMBERS - 1
+		WHERE PARTY_ID = #{partyId}
+		  AND CURRENT_MEMBERS > 0
+	</update>
+
+	<!-- 내가 가입한 모든 파티 조회 (방장 + 멤버) -->
+	<select id="findMyParties" resultMap="PartyListResponseMap">
+		SELECT
+			P.PARTY_ID,
+			P.PRODUCT_ID,
+			P.PARTY_LEADER_ID,
+			P.PARTY_STATUS,
+			P.MAX_MEMBERS,
+			P.CURRENT_MEMBERS,
+			P.MONTHLY_FEE,
+			P.REG_DATE,
+
+			PR.PRODUCT_ID,
+			PR.PRODUCT_NAME,
+			PR.IMAGE,
+
+			U.NICKNAME AS LEADER_NICKNAME,
+
+			(P.MAX_MEMBERS - P.CURRENT_MEMBERS) AS REMAINING_SLOTS
+		FROM PARTY P
+				 LEFT JOIN PRODUCT PR ON P.PRODUCT_ID = PR.PRODUCT_ID
+				 INNER JOIN USERS U ON P.PARTY_LEADER_ID = U.USER_ID
+		WHERE P.PARTY_LEADER_ID = #{userId}
+
+		UNION
+
+		SELECT
+			P.PARTY_ID,
+			P.PRODUCT_ID,
+			P.PARTY_LEADER_ID,
+			P.PARTY_STATUS,
+			P.MAX_MEMBERS,
+			P.CURRENT_MEMBERS,
+			P.MONTHLY_FEE,
+			P.REG_DATE,
+
+			PR.PRODUCT_ID,
+			PR.PRODUCT_NAME,
+			PR.IMAGE,
+
+			U.NICKNAME AS LEADER_NICKNAME,
+
+			(P.MAX_MEMBERS - P.CURRENT_MEMBERS) AS REMAINING_SLOTS
+		FROM PARTY P
+				 INNER JOIN PARTY_MEMBER PM ON P.PARTY_ID = PM.PARTY_ID
+				 LEFT JOIN PRODUCT PR ON P.PRODUCT_ID = PR.PRODUCT_ID
+				 INNER JOIN USERS U ON P.PARTY_LEADER_ID = U.USER_ID
+		WHERE PM.USER_ID = #{userId}
+		  AND PM.MEMBER_STATUS = 'ACTIVE'
+
+		ORDER BY REG_DATE DESC
+	</select>
+
+	<!-- 내가 방장인 파티 목록 조회 -->
+	<select id="findMyLeadingParties" resultMap="PartyListResponseMap">
+		SELECT
+			P.PARTY_ID,
+			P.PRODUCT_ID,
+			P.PARTY_LEADER_ID,
+			P.PARTY_STATUS,
+			P.MAX_MEMBERS,
+			P.CURRENT_MEMBERS,
+			P.MONTHLY_FEE,
+			P.REG_DATE,
+
+			PR.PRODUCT_ID,
+			PR.PRODUCT_NAME,
+			PR.IMAGE,
+
+			U.NICKNAME AS LEADER_NICKNAME,
+
+			(P.MAX_MEMBERS - P.CURRENT_MEMBERS) AS REMAINING_SLOTS
+		FROM PARTY P
+				 LEFT JOIN PRODUCT PR ON P.PRODUCT_ID = PR.PRODUCT_ID
+				 INNER JOIN USERS U ON P.PARTY_LEADER_ID = U.USER_ID
+		WHERE P.PARTY_LEADER_ID = #{userId}
+		ORDER BY P.REG_DATE DESC
+	</select>
+
+	<!-- 내가 멤버로 참여중인 파티 목록 조회 (방장 제외) -->
+	<select id="findMyParticipatingParties" resultMap="PartyListResponseMap">
+		SELECT
+			P.PARTY_ID,
+			P.PRODUCT_ID,
+			P.PARTY_LEADER_ID,
+			P.PARTY_STATUS,
+			P.MAX_MEMBERS,
+			P.CURRENT_MEMBERS,
+			P.MONTHLY_FEE,
+			P.REG_DATE,
+
+			PR.PRODUCT_ID,
+			PR.PRODUCT_NAME,
+			PR.IMAGE,
+
+			U.NICKNAME AS LEADER_NICKNAME,
+
+			(P.MAX_MEMBERS - P.CURRENT_MEMBERS) AS REMAINING_SLOTS
+		FROM PARTY P
+				 INNER JOIN PARTY_MEMBER PM ON P.PARTY_ID = PM.PARTY_ID
+				 LEFT JOIN PRODUCT PR ON P.PRODUCT_ID = PR.PRODUCT_ID
+				 INNER JOIN USERS U ON P.PARTY_LEADER_ID = U.USER_ID
+		WHERE PM.USER_ID = #{userId}
+		  AND PM.MEMBER_STATUS = 'ACTIVE'
+		  AND P.PARTY_LEADER_ID != #{userId}
+		ORDER BY P.REG_DATE DESC
+	</select>
+
+	<!-- 활성 상태인 모든 파티 조회 (정산용) -->
+	<select id="findActiveParties" resultMap="PartyResultMap">
+		SELECT * FROM PARTY WHERE PARTY_STATUS = 'ACTIVE'
+	</select>
+
+	<!-- Find active parties by payment day (supports 29/30/31 edge cases) -->
+	<select id="findPartiesByPaymentDay" resultMap="PartyResultMap">
+		SELECT *
+		FROM PARTY
+		WHERE PARTY_STATUS = 'ACTIVE'
+		  AND START_DATE IS NOT NULL
+		  AND (
+			  -- Normal case: payment day matches party start day
+			  DAY(START_DATE) = #{currentDay}
+
+			  OR
+
+			  -- Edge case: party starts on 29/30/31, but current month is shorter
+			  -- Example: party starts on Jan 31, today is Feb 28 (last day)
+			  (DAY(START_DATE) > #{lastDayOfMonth}
+			   AND #{currentDay} = #{lastDayOfMonth})
+		  )
+	</select>
+
+</mapper>

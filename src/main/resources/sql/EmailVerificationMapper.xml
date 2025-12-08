@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.moa.dao.user.EmailVerificationDao">
+
+	<resultMap id="EmailVerificationMap"
+		type="com.moa.domain.EmailVerification">
+		<id column="ID" property="id" />
+		<result column="USER_ID" property="userId" />
+		<result column="TOKEN" property="token" />
+		<result column="EXPIRES_AT" property="expiresAt" />
+		<result column="VERIFIED_AT" property="verifiedAt" />
+		<result column="CREATED_AT" property="createdAt" />
+	</resultMap>
+
+	<insert id="insert"
+		parameterType="com.moa.domain.EmailVerification">
+		INSERT INTO EMAIL_VERIFICATION (
+		USER_ID,
+		TOKEN,
+		EXPIRES_AT,
+		CREATED_AT
+		) VALUES (
+		#{userId},
+		#{token},
+		#{expiresAt},
+		NOW()
+		)
+	</insert>
+
+	<select id="findByToken" resultMap="EmailVerificationMap">
+		SELECT
+		ID,
+		USER_ID,
+		TOKEN,
+		EXPIRES_AT,
+		VERIFIED_AT,
+		CREATED_AT
+		FROM EMAIL_VERIFICATION
+		WHERE TOKEN =
+		#{token}
+	</select>
+
+	<update id="updateVerifiedAt">
+		UPDATE EMAIL_VERIFICATION
+		SET VERIFIED_AT = NOW()
+		WHERE TOKEN = #{token}
+	</update>
+
+	<delete id="expirePreviousTokens">
+		DELETE FROM EMAIL_VERIFICATION
+		WHERE USER_ID =
+		#{userId}
+	</delete>
+
+</mapper>
