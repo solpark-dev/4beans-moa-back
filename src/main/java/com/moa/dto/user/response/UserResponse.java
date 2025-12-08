@@ -26,8 +26,9 @@ public class UserResponse {
 	private LocalDate lastLoginDate;
 	private String loginProvider;
 	private List<OAuthConnectionResponse> oauthConnections;
-	private boolean agreeMarketing;
-	private boolean blacklisted;
+	private Boolean agreeMarketing;
+	private Boolean blacklisted;
+	private Boolean otpEnabled;
 
 	public static UserResponse from(User user) {
 		return from(user, null);
@@ -36,14 +37,25 @@ public class UserResponse {
 	public static UserResponse from(User user, List<OAuthAccount> oauthAccounts) {
 		List<OAuthConnectionResponse> connections = null;
 		if (oauthAccounts != null && !oauthAccounts.isEmpty()) {
-			connections = oauthAccounts.stream().map(OAuthConnectionResponse::from).collect(Collectors.toList());
+			connections = oauthAccounts.stream()
+					.map(OAuthConnectionResponse::from)
+					.collect(Collectors.toList());
 		}
 
-		return UserResponse.builder().userId(user.getUserId()).nickname(user.getNickname()).phone(user.getPhone())
-				.profileImage(user.getProfileImage()).status(user.getStatus() != null ? user.getStatus().name() : null)
-				.role(user.getRole()).regDate(user.getRegDate() != null ? user.getRegDate().toLocalDate() : null)
+		return UserResponse.builder()
+				.userId(user.getUserId())
+				.nickname(user.getNickname())
+				.phone(user.getPhone())
+				.profileImage(user.getProfileImage())
+				.status(user.getStatus() != null ? user.getStatus().name() : null)
+				.role(user.getRole())
+				.regDate(user.getRegDate() != null ? user.getRegDate().toLocalDate() : null)
 				.lastLoginDate(user.getLastLoginDate() != null ? user.getLastLoginDate().toLocalDate() : null)
-				.loginProvider(null).oauthConnections(connections).agreeMarketing(user.isAgreeMarketing())
-				.blacklisted(false).build();
+				.loginProvider(null)
+				.oauthConnections(connections)
+				.agreeMarketing(user.getAgreeMarketing())
+				.blacklisted(false)
+				.otpEnabled(user.getOtpEnabled())
+				.build();
 	}
 }

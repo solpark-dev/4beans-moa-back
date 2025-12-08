@@ -1,10 +1,7 @@
 package com.moa.web.user;
 
-import java.util.HashMap;
 import java.util.Map;
 
-import com.moa.domain.Account;
-import com.moa.domain.UserCard;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +17,8 @@ import com.moa.common.exception.BusinessException;
 import com.moa.common.exception.ErrorCode;
 import com.moa.dao.account.AccountDao;
 import com.moa.dao.user.UserCardDao;
+import com.moa.domain.Account;
+import com.moa.domain.UserCard;
 import com.moa.dto.user.request.CommonCheckRequest;
 import com.moa.dto.user.request.DeleteUserRequest;
 import com.moa.dto.user.request.PasswordConfirmRequest;
@@ -30,7 +29,6 @@ import com.moa.dto.user.request.PasswordUpdateRequest;
 import com.moa.dto.user.request.UserCreateRequest;
 import com.moa.dto.user.request.UserUpdateRequest;
 import com.moa.dto.user.response.CommonCheckResponse;
-import com.moa.dto.user.response.UserListResponse;
 import com.moa.dto.user.response.UserResponse;
 import com.moa.service.passauth.PassAuthService;
 import com.moa.service.user.UserService;
@@ -47,9 +45,8 @@ public class UserRestController {
 	private final UserCardDao userCardDao;
 	private final com.moa.service.payment.TossPaymentService tossPaymentService;
 
-    public UserRestController(UserService userService, PassAuthService passAuthService,
-                              AccountDao accountDao, UserCardDao userCardDao,
-                              com.moa.service.payment.TossPaymentService tossPaymentService) {
+	public UserRestController(UserService userService, PassAuthService passAuthService, AccountDao accountDao,
+			UserCardDao userCardDao, com.moa.service.payment.TossPaymentService tossPaymentService) {
 		this.userService = userService;
 		this.passAuthService = passAuthService;
 		this.accountDao = accountDao;
@@ -138,7 +135,6 @@ public class UserRestController {
 		return ApiResponse.success(userService.uploadProfileImage(userId, file));
 	}
 
-
 	@PostMapping("/checkPasswordFormat")
 	public ApiResponse<Void> checkPasswordFormat(@RequestBody PasswordFormatCheckRequest request) {
 		userService.validatePasswordRule(request.getPassword());
@@ -168,8 +164,20 @@ public class UserRestController {
 
 	@PostMapping("/pass/verify")
 	public ApiResponse<Map<String, Object>> verifyPassAuth(@RequestBody Map<String, Object> body) throws Exception {
+
 		String impUid = (String) body.get("imp_uid");
+		String userId = (String) body.get("userId");
+
+		if (userId == null || userId.isBlank()) {
+			throw new BusinessException(ErrorCode.INVALID_INPUT_VALUE, "userId가 필요합니다.");
+		}
+
 		Map<String, Object> data = passAuthService.verifyCertification(impUid);
+
+		String phone = (String) data.get("phone");
+		String ci = (String) data.get("ci");
+
+		userService.unlockByCertification(userId, phone, ci);
 
 		return ApiResponse.success(data);
 	}
@@ -184,6 +192,16 @@ public class UserRestController {
 		return ApiResponse.success(Map.of("email", userId));
 	}
 
+	@PostMapping("/pass/verify-find-id")
+	public ApiResponse<Map<String, Object>> verifyPassAuthForFindId(@RequestBody Map<String, Object> body)
+			throws Exception {
+
+		String impUid = (String) body.get("imp_uid");
+		Map<String, Object> data = passAuthService.verifyCertification(impUid);
+
+		return ApiResponse.success(data);
+	}
+
 	/**
 	 * 내 정산 계좌 조회 GET /api/users/me/account
 	 */
@@ -196,75 +214,67 @@ public class UserRestController {
 		return ApiResponse.success(accountDao.findByUserId(userId).orElse(null));
 	}
 
-    /**
-     * 내 결제 카드 조회
-     * GET /api/users/me/card
-     */
-    @GetMapping("/me/card")
-    public ApiResponse<UserCard> getMyCard() {
-        String userId = getCurrentUserId();
-        if (userId == null) {
-            throw new BusinessException(ErrorCode.UNAUTHORIZED, "로그인이 필요합니다.");
-        }
-        return ApiResponse.success(userCardDao.findByUserId(userId).orElse(null));
-    }
+	/**
+	 * 내 결제 카드 조회 GET /api/users/me/card
+	 */
+	@GetMapping("/me/card")
+	public ApiResponse<UserCard> getMyCard() {
+		String userId = getCurrentUserId();
+		if (userId == null) {
+			throw new BusinessException(ErrorCode.UNAUTHORIZED, "로그인이 필요합니다.");
+		}
+		return ApiResponse.success(userCardDao.findByUserId(userId).orElse(null));
+	}
 
-    /**
-     * 결제 카드 등록/수정 (Toss Payments 빌링키)
-     * POST /api/users/me/card
-     */
-    @PostMapping("/me/card")
-    public ApiResponse<UserCard> registerCard(@RequestBody Map<String, String> request) {
-        String userId = getCurrentUserId();
-        if (userId == null) {
-            throw new BusinessException(ErrorCode.UNAUTHORIZED, "로그인이 필요합니다.");
-        }
+	/**
+	 * 결제 카드 등록/수정 (Toss Payments 빌링키) POST /api/users/me/card
+	 */
+	@PostMapping("/me/card")
+	public ApiResponse<UserCard> registerCard(@RequestBody Map<String, String> request) {
+		String userId = getCurrentUserId();
+		if (userId == null) {
+			throw new BusinessException(ErrorCode.UNAUTHORIZED, "로그인이 필요합니다.");
+		}
 
-        String billingKey = request.get("billingKey");
-        String cardCompany = request.get("cardCompany");
-        String cardNumber = request.get("cardNumber");
+		String billingKey = request.get("billingKey");
+		String cardCompany = request.get("cardCompany");
+		String cardNumber = request.get("cardNumber");
 
-        if (billingKey == null || billingKey.isEmpty()) {
-            throw new BusinessException(ErrorCode.INVALID_INPUT_VALUE, "빌링키가 필요합니다.");
-        }
+		if (billingKey == null || billingKey.isEmpty()) {
+			throw new BusinessException(ErrorCode.INVALID_INPUT_VALUE, "빌링키가 필요합니다.");
+		}
 
-        // 기존 카드 삭제 (있는 경우)
-        userCardDao.deleteUserCard(userId);
+		// 기존 카드 삭제 (있는 경우)
+		userCardDao.deleteUserCard(userId);
 
-        // 새 카드 등록
-        UserCard userCard = UserCard.builder()
-                .userId(userId)
-                .billingKey(billingKey)
-                .cardCompany(cardCompany)
-                .cardNumber(cardNumber)
-                .regDate(java.time.LocalDateTime.now())
-                .build();
+		// 새 카드 등록
+		UserCard userCard = UserCard.builder().userId(userId).billingKey(billingKey).cardCompany(cardCompany)
+				.cardNumber(cardNumber).regDate(java.time.LocalDateTime.now()).build();
 
-        userCardDao.insertUserCard(userCard);
+		userCardDao.insertUserCard(userCard);
 
-        return ApiResponse.success(userCard);
-    }
+		return ApiResponse.success(userCard);
+	}
 
-    /**
-     * 빌링키 발급 (Toss Payments 인증키로 빌링키 발급)
-     * POST /api/users/me/billing-key/issue
-     */
-    @PostMapping("/me/billing-key/issue")
-    public ApiResponse<Map<String, Object>> issueBillingKey(@RequestBody Map<String, String> request) {
-        String userId = getCurrentUserId();
-        if (userId == null) {
-            throw new BusinessException(ErrorCode.UNAUTHORIZED, "로그인이 필요합니다.");
-        }
+	/**
+	 * 빌링키 발급 (Toss Payments 인증키로 빌링키 발급) POST /api/users/me/billing-key/issue
+	 */
+	@PostMapping("/me/billing-key/issue")
+	public ApiResponse<Map<String, Object>> issueBillingKey(@RequestBody Map<String, String> request) {
+		String userId = getCurrentUserId();
+		if (userId == null) {
+			throw new BusinessException(ErrorCode.UNAUTHORIZED, "로그인이 필요합니다.");
+		}
 
-        String authKey = request.get("authKey");
-        if (authKey == null || authKey.isEmpty()) {
-            throw new BusinessException(ErrorCode.INVALID_INPUT_VALUE, "인증키가 필요합니다.");
-        }
+		String authKey = request.get("authKey");
+		if (authKey == null || authKey.isEmpty()) {
+			throw new BusinessException(ErrorCode.INVALID_INPUT_VALUE, "인증키가 필요합니다.");
+		}
 
-        // Toss Payments API를 통해 빌링키 발급 (서버에서 안전하게 처리)
-        Map<String, Object> billingData = tossPaymentService.issueBillingKey(authKey, userId);
+		// Toss Payments API를 통해 빌링키 발급 (서버에서 안전하게 처리)
+		Map<String, Object> billingData = tossPaymentService.issueBillingKey(authKey, userId);
 
-        return ApiResponse.success(billingData);
-    }
+		return ApiResponse.success(billingData);
+	}
 
 }

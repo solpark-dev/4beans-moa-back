@@ -155,89 +155,74 @@ public class UserServiceImpl implements UserService {
 	@Transactional(noRollbackFor = BusinessException.class)
 	public UserResponse addUser(UserCreateRequest request) {
 
-	    boolean isSocial = request.getProvider() != null && !request.getProvider().isBlank()
-	            && request.getProviderUserId() != null && !request.getProviderUserId().isBlank();
+		boolean isSocial = request.getProvider() != null && !request.getProvider().isBlank()
+				&& request.getProviderUserId() != null && !request.getProviderUserId().isBlank();
 
-	    userAddValidator.validateForSignup(request);
+		userAddValidator.validateForSignup(request);
 
-	    if (userDao.existsByPhone(request.getPhone()) > 0) {
-	        if (!isSocial) {
-	            throw new BusinessException(ErrorCode.DUPLICATED_PHONE, "이미 사용중인 휴대폰번호입니다.");
-	        }
-	        String provider = request.getProvider();
-	        String providerUserId = request.getProviderUserId();
-	        String phone = request.getPhone();
-	        Optional<String> existingUserIdOpt = userDao.findUserIdByPhone(phone);
-	        if (existingUserIdOpt.isEmpty()) {
-	            throw new BusinessException(ErrorCode.CONFLICT, "휴대폰번호로 회원을 찾을 수 없습니다.");
-	        }
-	        String existingUserId = existingUserIdOpt.get();
-	        OAuthAccount existing = oauthAccountService.getOAuthByProvider(provider, providerUserId);
-	        if (existing != null && !existing.getUserId().equals(existingUserId)) {
-	            throw new BusinessException(ErrorCode.CONFLICT, "이미 다른 계정과 연결된 소셜 계정입니다.");
-	        }
-	        oauthAccountService.connectOAuthAccount(existingUserId, provider, providerUserId);
-	        User existingUser = userDao.findByUserId(existingUserId)
-	                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
-	        return UserResponse.from(existingUser);
-	    }
+		if (userDao.existsByPhone(request.getPhone()) > 0) {
+			if (!isSocial) {
+				throw new BusinessException(ErrorCode.DUPLICATED_PHONE, "이미 사용중인 휴대폰번호입니다.");
+			}
+			String provider = request.getProvider();
+			String providerUserId = request.getProviderUserId();
+			String phone = request.getPhone();
+			Optional<String> existingUserIdOpt = userDao.findUserIdByPhone(phone);
+			if (existingUserIdOpt.isEmpty()) {
+				throw new BusinessException(ErrorCode.CONFLICT, "휴대폰번호로 회원을 찾을 수 없습니다.");
+			}
+			String existingUserId = existingUserIdOpt.get();
+			OAuthAccount existing = oauthAccountService.getOAuthByProvider(provider, providerUserId);
+			if (existing != null && !existing.getUserId().equals(existingUserId)) {
+				throw new BusinessException(ErrorCode.CONFLICT, "이미 다른 계정과 연결된 소셜 계정입니다.");
+			}
+			oauthAccountService.connectOAuthAccount(existingUserId, provider, providerUserId);
+			User existingUser = userDao.findByUserId(existingUserId)
+					.orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+			return UserResponse.from(existingUser);
+		}
 
-	    String profileImageUrl = null;
-	    if (request.getProfileImageBase64() != null && !request.getProfileImageBase64().isBlank()) {
-	        profileImageUrl = saveProfileImageFromBase64(request.getProfileImageBase64());
-	    }
+		String profileImageUrl = null;
+		if (request.getProfileImageBase64() != null && !request.getProfileImageBase64().isBlank()) {
+			profileImageUrl = saveProfileImageFromBase64(request.getProfileImageBase64());
+		}
 
-	    LocalDateTime now = LocalDateTime.now();
-	    LocalDateTime passCertifiedAt = null;
-	    if (request.getCi() != null && !request.getCi().isBlank()) {
-	        passCertifiedAt = now;
-	    }
+		LocalDateTime now = LocalDateTime.now();
+		LocalDateTime passCertifiedAt = null;
+		if (request.getCi() != null && !request.getCi().isBlank()) {
+			passCertifiedAt = now;
+		}
 
-	    User user = User.builder()
-	            .userId(request.getUserId().toLowerCase())
-	            .password(isSocial ? null : passwordEncoder.encode(request.getPassword()))
-	            .nickname(request.getNickname())
-	            .phone(request.getPhone())
-	            .profileImage(profileImageUrl)
-	            .role("USER")
-	            .status(isSocial ? UserStatus.ACTIVE : UserStatus.PENDING)
-	            .regDate(now)
-	            .ci(request.getCi())
-	            .passCertifiedAt(passCertifiedAt)
-	            .loginFailCount(0)
-	            .build();
+		User user = User.builder().userId(request.getUserId().toLowerCase())
+				.password(isSocial ? null : passwordEncoder.encode(request.getPassword()))
+				.nickname(request.getNickname()).phone(request.getPhone()).profileImage(profileImageUrl).role("USER")
+				.status(isSocial ? UserStatus.ACTIVE : UserStatus.PENDING).regDate(now).ci(request.getCi())
+				.passCertifiedAt(passCertifiedAt).loginFailCount(0).build();
 
-	    userDao.insertUser(user);
+		userDao.insertUser(user);
 
-	    if (!isSocial) {
-	        emailVerificationDao.expirePreviousTokens(user.getUserId());
+		if (!isSocial) {
+			emailVerificationDao.expirePreviousTokens(user.getUserId());
 
-	        String token = UUID.randomUUID().toString();
+			String token = UUID.randomUUID().toString();
 
-	        EmailVerification emailVerification = EmailVerification.builder()
-	                .userId(user.getUserId())
-	                .token(token)
-	                .expiresAt(LocalDateTime.now().plusHours(24))
-	                .build();
+			EmailVerification emailVerification = EmailVerification.builder().userId(user.getUserId()).token(token)
+					.expiresAt(LocalDateTime.now().plusHours(24)).build();
 
-	        emailVerificationDao.insert(emailVerification);
+			emailVerificationDao.insert(emailVerification);
 
-	        emailService.sendSignupVerificationEmail(user.getUserId(), user.getNickname(), token);
-	    }
+			emailService.sendSignupVerificationEmail(user.getUserId(), user.getNickname(), token);
+		}
 
-	    if (isSocial) {
-	        OAuthAccount account = OAuthAccount.builder()
-	                .oauthId(UUID.randomUUID().toString())
-	                .provider(request.getProvider())
-	                .providerUserId(request.getProviderUserId())
-	                .userId(user.getUserId())
-	                .build();
-	        oauthAccountService.addOAuthAccount(account);
-	    }
+		if (isSocial) {
+			OAuthAccount account = OAuthAccount.builder().oauthId(UUID.randomUUID().toString())
+					.provider(request.getProvider()).providerUserId(request.getProviderUserId())
+					.userId(user.getUserId()).build();
+			oauthAccountService.addOAuthAccount(account);
+		}
 
-	    return UserResponse.from(user);
+		return UserResponse.from(user);
 	}
-
 
 	@Override
 	@Transactional(readOnly = true)
@@ -382,6 +367,35 @@ public class UserServiceImpl implements UserService {
 		}
 
 		userDao.restoreUser(userId);
+	}
+
+	@Override
+	public void unlockByCertification(String userId, String phone, String ci) {
+		User user = userDao.findByUserIdIncludeDeleted(userId)
+				.orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+		if (user.getStatus() == UserStatus.WITHDRAW) {
+			throw new BusinessException(ErrorCode.ACCOUNT_WITHDRAW);
+		}
+
+		if (adminDao.findActiveBlacklistByUserId(userId) != null) {
+			throw new BusinessException(ErrorCode.ACCOUNT_BLOCKED);
+		}
+
+		if (user.getPhone() == null || !user.getPhone().equals(phone)) {
+			throw new BusinessException(ErrorCode.UNAUTHORIZED, "본인인증 정보가 계정 정보와 일치하지 않습니다.");
+		}
+
+		if (user.getCi() != null && ci != null && !user.getCi().equals(ci)) {
+			throw new BusinessException(ErrorCode.UNAUTHORIZED, "본인인증 정보가 계정 정보와 일치하지 않습니다.");
+		}
+
+		if (user.getStatus() != UserStatus.BLOCK) {
+			throw new BusinessException(ErrorCode.CONFLICT, "잠금 상태의 계정이 아닙니다.");
+		}
+
+		userDao.updateUserStatus(userId, UserStatus.ACTIVE);
+		userDao.resetLoginFailCount(userId);
 	}
 
 	private String saveProfileImageFromBase64(String base64) {
