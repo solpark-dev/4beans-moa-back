@@ -30,8 +30,10 @@ public class User {
 	private LocalDateTime lastLoginDate;
 	private int loginFailCount;
 	private LocalDateTime unlockScheduledAt;
-    private LocalDateTime deleteDate;
+	private LocalDateTime deleteDate;
 	private String deleteType;
 	private String deleteDetail;
-	private boolean agreeMarketing;
+	private Boolean agreeMarketing;
+	private String otpSecret;
+	private Boolean otpEnabled;
 }

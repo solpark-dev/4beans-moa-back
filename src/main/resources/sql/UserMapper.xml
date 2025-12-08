@@ -24,6 +24,8 @@
 		<result property="deleteType" column="DELETE_TYPE" />
 		<result property="deleteDetail" column="DELETE_DETAIL" />
 		<result property="agreeMarketing" column="AGREE_MARKETING" />
+		<result property="otpSecret" column="OTP_SECRET" />
+		<result property="otpEnabled" column="OTP_ENABLED" />
 	</resultMap>
 
 	<insert id="insertUser">
@@ -302,5 +304,27 @@
 		FROM users
 		WHERE user_id = #{userId}
 	</select>
+
+	<update id="updateOtpSettings">
+		UPDATE users
+		SET otp_secret = #{otpSecret},
+		otp_enabled = #{otpEnabled}
+		WHERE user_id = #{userId}
+	</update>
+
+	<select id="findOtpSecret" resultType="string">
+		SELECT otp_secret
+		FROM
+		users
+		WHERE user_id = #{userId}
+	</select>
+
+	<select id="isOtpEnabled" resultType="boolean">
+		SELECT otp_enabled
+		FROM
+		users
+		WHERE user_id = #{userId}
+	</select>
+
 
 </mapper>

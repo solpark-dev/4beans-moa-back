@@ -9,8 +9,6 @@ import org.apache.ibatis.annotations.Param;
 
 import com.moa.domain.User;
 import com.moa.domain.enums.UserStatus;
-import com.moa.dto.user.request.AdminUserSearchRequest;
-import com.moa.dto.user.response.AdminUserListItemResponse;
 
 @Mapper
 public interface UserDao {
@@ -62,5 +60,12 @@ public interface UserDao {
 			@Param("offset") int offset, @Param("limit") int limit);
 
 	long countUserList(@Param("condition") String condition, @Param("q") String q, @Param("filter") String filter);
+
+	int updateOtpSettings(@Param("userId") String userId, @Param("otpSecret") String otpSecret,
+			@Param("otpEnabled") boolean otpEnabled);
+
+	String findOtpSecret(@Param("userId") String userId);
+
+	Boolean isOtpEnabled(@Param("userId") String userId);
 
 }
