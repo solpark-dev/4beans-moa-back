@@ -18,6 +18,7 @@ USE moa;
 
 SET FOREIGN_KEY_CHECKS = 0;
 
+TRUNCATE TABLE SETTLEMENT_DETAIL;
 TRUNCATE TABLE SETTLEMENT_RETRY_HISTORY;
 TRUNCATE TABLE REFUND_RETRY_HISTORY;
 TRUNCATE TABLE PAYMENT_RETRY_HISTORY;
@@ -189,8 +190,18 @@ INSERT INTO USERS (
     LOGIN_FAIL_COUNT, UNLOCK_SCHEDULED_AT,
     DELETE_DATE, DELETE_TYPE, DELETE_DETAIL, AGREE_MARKETING
 ) VALUES
+-- 슈퍼관리자 (BCrypt: 1!)
 ('admin@admin.com', '$2a$10$r4WvD.fkTss4amaWwy7/dOV1SmwrMM.GocYPXsfgTL4td2mqrHZP6', '슈퍼관리자', '01099999999', '/img/profile/super_admin.png', 'ADMIN', 'ACTIVE', '2024-01-01 00:00:00', 'CI_SUPER_ADMIN', '2024-01-01 00:00:00', '2024-12-03 09:00:00', 0, NULL, NULL, NULL, NULL, 1),
+
+-- 일반관리자 (BCrypt: 1!)
 ('admin@moa.com', '$2a$10$r4WvD.fkTss4amaWwy7/dOV1SmwrMM.GocYPXsfgTL4td2mqrHZP6', '관리자', '01000000000', '/img/profile/admin.png', 'ADMIN', 'ACTIVE', '2024-01-01 00:00:00', 'CI_ADMIN_001', '2024-01-01 00:00:00', '2024-12-03 08:00:00', 0, NULL, NULL, NULL, NULL, 1),
+
+-- 테스트계정 (BCrypt: 1!)
+('admintest', '$2a$10$r4WvD.fkTss4amaWwy7/dOV1SmwrMM.GocYPXsfgTL4td2mqrHZP6', '테스트관리자1', '01000000000', NULL, 'ADMIN', 'ACTIVE', '2024-01-01 00:00:00', 'CI_ADMIN_011', '2024-01-01 00:00:00', '2024-12-03 08:00:00', 0, NULL, NULL, NULL, NULL, 1),
+
+('usertest1', '$2a$10$r4WvD.fkTss4amaWwy7/dOV1SmwrMM.GocYPXsfgTL4td2mqrHZP6', '테스트사용자1', '01010010001', NULL, 'USER', 'ACTIVE', '2024-03-01 10:30:00', 'CI_USER_1', '2024-03-01 10:30:00', '2024-11-28 14:20:00', 0, NULL, NULL, NULL, NULL, 1),
+('usertest2', '$2a$10$r4WvD.fkTss4amaWwy7/dOV1SmwrMM.GocYPXsfgTL4td2mqrHZP6', '테스트사용자2', '01010010001', NULL, 'USER', 'ACTIVE', '2024-03-01 10:30:00', 'CI_USER_2', '2024-03-01 10:30:00', '2024-11-28 14:20:00', 0, NULL, NULL, NULL, NULL, 1),
+-- 일반회원 20명 (BCrypt: user1234!)
 ('user001@gmail.com', '$2a$10$r4WvD.fkTss4amaWwy7/dOV1SmwrMM.GocYPXsfgTL4td2mqrHZP6', '사용자001', '01010010001', NULL, 'USER', 'ACTIVE', '2024-03-01 10:30:00', 'CI_USER_001', '2024-03-01 10:30:00', '2024-11-28 14:20:00', 0, NULL, NULL, NULL, NULL, 1),
 ('user002@naver.com', '$2a$10$r4WvD.fkTss4amaWwy7/dOV1SmwrMM.GocYPXsfgTL4td2mqrHZP6', '사용자002', '01010010002', NULL, 'USER', 'ACTIVE', '2024-03-05 11:00:00', 'CI_USER_002', '2024-03-05 11:00:00', '2024-11-29 09:15:00', 0, NULL, NULL, NULL, NULL, 0),
 ('user003@daum.net', '$2a$10$r4WvD.fkTss4amaWwy7/dOV1SmwrMM.GocYPXsfgTL4td2mqrHZP6', '사용자003', '01010010003', NULL, 'USER', 'ACTIVE', '2024-03-10 14:20:00', 'CI_USER_003', '2024-03-10 14:20:00', '2024-11-30 16:45:00', 0, NULL, NULL, NULL, NULL, 1),
@@ -471,6 +482,31 @@ INSERT INTO SETTLEMENT (
 (3, 3, 'user005@naver.com', 5, '2024-05', 7900, 1185, 6715, 'COMPLETED', '2024-06-05 11:00:00', 'T202406050003'),
 (4, 4, 'user007@gmail.com', 7, '2024-06', 13900, 2085, 11815, 'COMPLETED', '2024-07-05 11:00:00', 'T202407050001'),
 (5, 5, 'user009@daum.net', 9, '2024-06', 29000, 4350, 24650, 'COMPLETED', '2024-07-05 11:30:00', 'T202407050002');
+
+-- SETTLEMENT_DETAIL: 정산 상세 20건
+INSERT INTO SETTLEMENT_DETAIL (
+    SETTLEMENT_ID, PAYMENT_ID, PARTY_MEMBER_ID, USER_ID, PAYMENT_AMOUNT
+) VALUES
+(1, 1, 1, 'user001@gmail.com', 4250),
+(1, 2, 2, 'user002@naver.com', 4250),
+(1, 3, 3, 'user011@naver.com', 4250),
+(1, 4, 4, 'user012@daum.net', 4250),
+(2, 5, 5, 'user003@daum.net', 2725),
+(2, 6, 6, 'user004@gmail.com', 2725),
+(2, 7, 7, 'user013@gmail.com', 2725),
+(2, 8, 8, 'user014@naver.com', 2725),
+(3, 9, 9, 'user005@naver.com', 1975),
+(3, 10, 10, 'user006@daum.net', 1975),
+(3, 11, 11, 'user015@daum.net', 1975),
+(3, 12, 12, 'user016@gmail.com', 1975),
+(4, 13, 13, 'user007@gmail.com', 3475),
+(4, 14, 14, 'user008@naver.com', 3475),
+(4, 15, 15, 'user017@naver.com', 3475),
+(4, 16, 16, 'user018@daum.net', 3475),
+(5, 17, 17, 'user009@daum.net', 7250),
+(5, 18, 18, 'user010@gmail.com', 7250),
+(5, 19, 19, 'user019@gmail.com', 7250),
+(5, 20, 20, 'user020@naver.com', 7250);
 
 -- ============================================
 -- 7-1. 보증금 환불 재시도 이력
