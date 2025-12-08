@@ -29,6 +29,7 @@ public class UserResponse {
 	private Boolean agreeMarketing;
 	private Boolean blacklisted;
 	private Boolean otpEnabled;
+	private String provider;
 
 	public static UserResponse from(User user) {
 		return from(user, null);
@@ -56,6 +57,7 @@ public class UserResponse {
 				.agreeMarketing(user.getAgreeMarketing())
 				.blacklisted(false)
 				.otpEnabled(user.getOtpEnabled())
+				.provider(user.getProvider())
 				.build();
 	}
 }

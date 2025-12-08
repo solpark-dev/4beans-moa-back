@@ -168,16 +168,14 @@ public class UserRestController {
 		String impUid = (String) body.get("imp_uid");
 		String userId = (String) body.get("userId");
 
-		if (userId == null || userId.isBlank()) {
-			throw new BusinessException(ErrorCode.INVALID_INPUT_VALUE, "userId가 필요합니다.");
-		}
-
 		Map<String, Object> data = passAuthService.verifyCertification(impUid);
 
-		String phone = (String) data.get("phone");
-		String ci = (String) data.get("ci");
+		if (userId != null && !userId.isBlank()) {
+			String phone = (String) data.get("phone");
+			String ci = (String) data.get("ci");
 
-		userService.unlockByCertification(userId, phone, ci);
+			userService.unlockByCertification(userId, phone, ci);
+		}
 
 		return ApiResponse.success(data);
 	}
@@ -275,6 +273,22 @@ public class UserRestController {
 		Map<String, Object> billingData = tossPaymentService.issueBillingKey(authKey, userId);
 
 		return ApiResponse.success(billingData);
+	}
+
+	@PostMapping("/me/oauth/connect")
+	public ApiResponse<Void> connectSocialAccount(@RequestBody Map<String, String> request) {
+
+		String userId = getCurrentUserId();
+		if (userId == null) {
+			throw new BusinessException(ErrorCode.UNAUTHORIZED, "로그인이 필요합니다.");
+		}
+
+		String provider = request.get("provider");
+		String providerUserId = request.get("providerUserId");
+
+//		userService.connectSocialAccount(userId, provider, providerUserId);
+
+		return ApiResponse.success(null);
 	}
 
 }

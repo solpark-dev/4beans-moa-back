@@ -193,11 +193,20 @@ public class UserServiceImpl implements UserService {
 			passCertifiedAt = now;
 		}
 
-		User user = User.builder().userId(request.getUserId().toLowerCase())
+		User user = User.builder()
+				.userId(request.getUserId().toLowerCase())
 				.password(isSocial ? null : passwordEncoder.encode(request.getPassword()))
-				.nickname(request.getNickname()).phone(request.getPhone()).profileImage(profileImageUrl).role("USER")
-				.status(isSocial ? UserStatus.ACTIVE : UserStatus.PENDING).regDate(now).ci(request.getCi())
-				.passCertifiedAt(passCertifiedAt).loginFailCount(0).build();
+				.nickname(request.getNickname())
+				.phone(request.getPhone())
+				.profileImage(profileImageUrl)
+				.role("USER")
+				.status(isSocial ? UserStatus.ACTIVE : UserStatus.PENDING)
+				.regDate(now)
+				.ci(request.getCi())
+				.passCertifiedAt(passCertifiedAt)
+				.loginFailCount(0)
+				.provider(isSocial ? request.getProvider() : null)
+				.build();
 
 		userDao.insertUser(user);
 

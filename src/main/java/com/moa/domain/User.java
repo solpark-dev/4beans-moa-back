@@ -36,4 +36,5 @@ public class User {
 	private Boolean agreeMarketing;
 	private String otpSecret;
 	private Boolean otpEnabled;
+	private String provider;
 }

@@ -26,6 +26,7 @@
 		<result property="agreeMarketing" column="AGREE_MARKETING" />
 		<result property="otpSecret" column="OTP_SECRET" />
 		<result property="otpEnabled" column="OTP_ENABLED" />
+		<result property="provider" column="PROVIDER" />
 	</resultMap>
 
 	<insert id="insertUser">
@@ -46,8 +47,8 @@
 		UNLOCK_SCHEDULED_AT,
 		DELETE_DATE,
 		DELETE_TYPE,
-		DELETE_DETAIL
-		)
+		DELETE_DETAIL,
+		PROVIDER )
 		VALUES
 		(
 		#{userId},
@@ -65,8 +66,8 @@
 		#{unlockScheduledAt},
 		#{deleteDate},
 		#{deleteType},
-		#{deleteDetail}
-		)
+		#{deleteDetail},
+		#{provider} )
 	</insert>
 
 	<select id="findByUserId" resultMap="userMap">
