@@ -21,10 +21,12 @@ import com.moa.dto.auth.UnlockAccountRequest;
 import com.moa.dto.user.request.LoginRequest;
 import com.moa.dto.user.response.LoginResponse;
 import com.moa.service.auth.AuthService;
+import com.moa.service.auth.LoginHistoryService;
 import com.moa.service.auth.OtpService;
 import com.moa.service.passauth.PassAuthService;
 import com.moa.service.user.UserService;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -37,15 +39,54 @@ public class AuthRestController {
 	private final OtpService otpService;
 	private final PassAuthService passAuthService;
 	private final UserService userService;
+	private final LoginHistoryService loginHistoryService;
 
 	@PostMapping("/login")
-	public ApiResponse<LoginResponse> login(@RequestBody @Valid LoginRequest request) {
-		return ApiResponse.success(authService.login(request));
+	public ApiResponse<LoginResponse> login(@RequestBody @Valid LoginRequest request, HttpServletRequest httpRequest) {
+
+		String clientIp = extractClientIp(httpRequest);
+		String userAgent = httpRequest.getHeader("User-Agent");
+		String loginType = "PASSWORD";
+
+		try {
+			LoginResponse response = authService.login(request);
+
+			String userId = extractUserIdFromLoginRequest(request);
+			if (userId == null || userId.isBlank()) {
+				userId = response.getUserId();
+			}
+
+			loginHistoryService.recordSuccess(userId, loginType, clientIp, userAgent);
+
+			return ApiResponse.success(response);
+		} catch (BusinessException e) {
+			String userId = extractUserIdFromLoginRequest(request);
+			loginHistoryService.recordFailure(userId, loginType, clientIp, userAgent, e.getMessage());
+			throw e;
+		}
 	}
 
 	@PostMapping("/login/otp-verify")
-	public ApiResponse<TokenResponse> verifyLoginOtp(@RequestBody @Valid OtpLoginVerifyRequest request) {
-		return ApiResponse.success(authService.verifyLoginOtp(request));
+	public ApiResponse<TokenResponse> verifyLoginOtp(@RequestBody @Valid OtpLoginVerifyRequest request,
+			HttpServletRequest httpRequest) {
+		String clientIp = extractClientIp(httpRequest);
+		String userAgent = httpRequest.getHeader("User-Agent");
+		String loginType = "OTP";
+
+		TokenResponse tokenResponse = authService.verifyLoginOtp(request);
+
+		String userId = request.getUserId();
+		if (userId == null || userId.isBlank()) {
+			userId = SecurityContextHolder.getContext().getAuthentication() != null
+					? SecurityContextHolder.getContext().getAuthentication().getName()
+					: null;
+		}
+
+		if (userId != null && !userId.isBlank()) {
+			loginHistoryService.recordSuccess(userId, loginType, clientIp, userAgent);
+		}
+
+		return ApiResponse.success(tokenResponse);
 	}
 
 	@PostMapping("/refresh")
@@ -113,5 +154,29 @@ public class AuthRestController {
 		userService.unlockByCertification(request.getUserId(), phone, ci);
 
 		return ApiResponse.success(null);
+	}
+
+	private String extractClientIp(HttpServletRequest request) {
+		String ip = request.getHeader("X-Forwarded-For");
+		if (ip != null && !ip.isBlank()) {
+			int commaIndex = ip.indexOf(',');
+			if (commaIndex > 0) {
+				return ip.substring(0, commaIndex).trim();
+			}
+			return ip.trim();
+		}
+		ip = request.getHeader("X-Real-IP");
+		if (ip != null && !ip.isBlank()) {
+			return ip.trim();
+		}
+		return request.getRemoteAddr();
+	}
+
+	private String extractUserIdFromLoginRequest(LoginRequest request) {
+		try {
+			return request.getUserId();
+		} catch (Exception e) {
+			return null;
+		}
 	}
 }

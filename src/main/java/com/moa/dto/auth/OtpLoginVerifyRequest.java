@@ -13,4 +13,5 @@ public class OtpLoginVerifyRequest {
 
 	@NotBlank
 	private String code;
+	private String userId;
 }
