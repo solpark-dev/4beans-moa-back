@@ -18,7 +18,6 @@ USE moa;
 
 SET FOREIGN_KEY_CHECKS = 0;
 
-TRUNCATE TABLE SETTLEMENT_DETAIL;
 TRUNCATE TABLE SETTLEMENT_RETRY_HISTORY;
 TRUNCATE TABLE REFUND_RETRY_HISTORY;
 TRUNCATE TABLE PAYMENT_RETRY_HISTORY;
@@ -482,31 +481,6 @@ INSERT INTO SETTLEMENT (
 (3, 3, 'user005@naver.com', 5, '2024-05', 7900, 1185, 6715, 'COMPLETED', '2024-06-05 11:00:00', 'T202406050003'),
 (4, 4, 'user007@gmail.com', 7, '2024-06', 13900, 2085, 11815, 'COMPLETED', '2024-07-05 11:00:00', 'T202407050001'),
 (5, 5, 'user009@daum.net', 9, '2024-06', 29000, 4350, 24650, 'COMPLETED', '2024-07-05 11:30:00', 'T202407050002');
-
--- SETTLEMENT_DETAIL: 정산 상세 20건
-INSERT INTO SETTLEMENT_DETAIL (
-    SETTLEMENT_ID, PAYMENT_ID, PARTY_MEMBER_ID, USER_ID, PAYMENT_AMOUNT
-) VALUES
-(1, 1, 1, 'user001@gmail.com', 4250),
-(1, 2, 2, 'user002@naver.com', 4250),
-(1, 3, 3, 'user011@naver.com', 4250),
-(1, 4, 4, 'user012@daum.net', 4250),
-(2, 5, 5, 'user003@daum.net', 2725),
-(2, 6, 6, 'user004@gmail.com', 2725),
-(2, 7, 7, 'user013@gmail.com', 2725),
-(2, 8, 8, 'user014@naver.com', 2725),
-(3, 9, 9, 'user005@naver.com', 1975),
-(3, 10, 10, 'user006@daum.net', 1975),
-(3, 11, 11, 'user015@daum.net', 1975),
-(3, 12, 12, 'user016@gmail.com', 1975),
-(4, 13, 13, 'user007@gmail.com', 3475),
-(4, 14, 14, 'user008@naver.com', 3475),
-(4, 15, 15, 'user017@naver.com', 3475),
-(4, 16, 16, 'user018@daum.net', 3475),
-(5, 17, 17, 'user009@daum.net', 7250),
-(5, 18, 18, 'user010@gmail.com', 7250),
-(5, 19, 19, 'user019@gmail.com', 7250),
-(5, 20, 20, 'user020@naver.com', 7250);
 
 -- ============================================
 -- 7-1. 보증금 환불 재시도 이력
