@@ -24,6 +24,15 @@ public interface DepositDao {
 
     List<DepositResponse> findByPartyId(@Param("partyId") Integer partyId);
 
+    /**
+     * 파티 ID와 사용자 ID로 보증금 조회
+     *
+     * @param partyId 파티 ID
+     * @param userId  사용자 ID
+     * @return 보증금 (PAID 상태만)
+     */
+    Optional<Deposit> findByPartyIdAndUserId(@Param("partyId") Integer partyId, @Param("userId") String userId);
+
     int updateDeposit(Deposit deposit);
 
     /**

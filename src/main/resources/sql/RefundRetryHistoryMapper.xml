@@ -8,6 +8,7 @@
     <resultMap id="RefundRetryHistoryResultMap" type="com.moa.domain.RefundRetryHistory">
         <id property="retryId" column="RETRY_ID"/>
         <result property="depositId" column="DEPOSIT_ID"/>
+        <result property="tossPaymentKey" column="TOSS_PAYMENT_KEY"/>
         <result property="attemptNumber" column="ATTEMPT_NUMBER"/>
         <result property="attemptDate" column="ATTEMPT_DATE"/>
         <result property="retryStatus" column="RETRY_STATUS"/>
@@ -26,6 +27,7 @@
             useGeneratedKeys="true" keyProperty="retryId" keyColumn="RETRY_ID">
         INSERT INTO REFUND_RETRY_HISTORY (
             DEPOSIT_ID,
+            TOSS_PAYMENT_KEY,
             ATTEMPT_NUMBER,
             ATTEMPT_DATE,
             RETRY_STATUS,
@@ -38,6 +40,7 @@
             CREATED_AT
         ) VALUES (
             #{depositId},
+            #{tossPaymentKey, jdbcType=VARCHAR},
             #{attemptNumber},
             #{attemptDate},
             #{retryStatus},

@@ -297,6 +297,15 @@
         WHERE ORDER_ID = #{orderId}
     </select>
 
+    <!-- 파티 멤버 ID + 결제 유형으로 조회 (환불용) -->
+    <select id="findByPartyMemberIdAndType" resultMap="PaymentResultMap">
+        SELECT *
+        FROM PAYMENT
+        WHERE PARTY_MEMBER_ID = #{partyMemberId}
+          AND PAYMENT_TYPE = #{paymentType}
+        LIMIT 1
+    </select>
+
     <!-- ====================================== -->
     <!-- UPDATE -->
     <!-- ====================================== -->

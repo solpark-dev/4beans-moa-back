@@ -76,6 +76,7 @@ public class DepositServiceImpl implements DepositService {
                 .depositAmount(amount)
                 .depositStatus(DepositStatus.PENDING)
                 .transactionDate(LocalDateTime.now())
+                .paymentDate(LocalDateTime.now())
                 .tossPaymentKey(request.getTossPaymentKey())
                 .orderId(request.getOrderId())
                 .build();
@@ -168,6 +169,12 @@ public class DepositServiceImpl implements DepositService {
     @Transactional(readOnly = true)
     public List<DepositResponse> getPartyDeposits(Integer partyId) {
         return depositDao.findByPartyId(partyId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Deposit findByPartyIdAndUserId(Integer partyId, String userId) {
+        return depositDao.findByPartyIdAndUserId(partyId, userId).orElse(null);
     }
 
     @Override

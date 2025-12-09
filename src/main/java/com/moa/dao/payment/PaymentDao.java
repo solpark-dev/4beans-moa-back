@@ -32,4 +32,8 @@ public interface PaymentDao {
         int updatePaymentStatus(
                         @Param("paymentId") Integer paymentId,
                         @Param("status") String status);
+
+        Optional<Payment> findByPartyMemberIdAndType(
+                        @Param("partyMemberId") Integer partyMemberId,
+                        @Param("paymentType") String paymentType);
 }

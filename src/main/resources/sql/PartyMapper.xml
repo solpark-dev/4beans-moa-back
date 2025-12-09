@@ -19,7 +19,6 @@
 		<result property="regDate" column="REG_DATE"/>
 		<result property="startDate" column="START_DATE"/>
 		<result property="endDate" column="END_DATE"/>
-		<result property="leaderDepositId" column="LEADER_DEPOSIT_ID"/>
 	</resultMap>
 
 	<!-- ResultMap: PartyDetailResponse (JOIN) -->
@@ -80,7 +79,8 @@
 			OTT_PASSWORD,
 			ACCOUNT_ID,
 			REG_DATE,
-			START_DATE
+			START_DATE,
+			END_DATE
 		) VALUES (
 					 #{productId},
 					 #{partyLeaderId},
@@ -92,7 +92,8 @@
 					 #{ottPassword},
 					 #{accountId},
 					 #{regDate},
-					 #{startDate}
+					 #{startDate},
+					 #{endDate}
 				 )
 	</insert>
 
@@ -117,6 +118,7 @@
 			P.OTT_PASSWORD,
 			P.REG_DATE,
 			P.START_DATE,
+			P.END_DATE,
 
 			PR.PRODUCT_ID,
 			PR.PRODUCT_NAME,
@@ -185,8 +187,7 @@
 			OTT_PASSWORD = #{ottPassword},
 			ACCOUNT_ID = #{accountId},
 			START_DATE = #{startDate},
-			END_DATE = #{endDate},
-			LEADER_DEPOSIT_ID = #{leaderDepositId}
+			END_DATE = #{endDate}
 		WHERE PARTY_ID = #{partyId}
 	</update>
 

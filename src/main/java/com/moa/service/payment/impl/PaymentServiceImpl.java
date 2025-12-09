@@ -99,6 +99,8 @@ public class PaymentServiceImpl implements PaymentService {
                                 .tossPaymentKey(request.getTossPaymentKey())
                                 .orderId(request.getOrderId())
                                 .targetMonth(targetMonth)
+                                .cardNumber("UNAVAILABLE")
+                                .cardCompany("TOSS")
                                 .build();
 
                 // 6. DB 저장
@@ -179,6 +181,8 @@ public class PaymentServiceImpl implements PaymentService {
                                 .tossPaymentKey(request.getTossPaymentKey())
                                 .orderId(request.getOrderId())
                                 .targetMonth(targetMonth)
+                                .cardNumber("UNAVAILABLE")
+                                .cardCompany("TOSS")
                                 .build();
 
                 // 2. DB 저장
@@ -221,6 +225,8 @@ public class PaymentServiceImpl implements PaymentService {
                                 .tossPaymentKey(request.getTossPaymentKey())
                                 .orderId(request.getOrderId())
                                 .targetMonth(targetMonth)
+                                .cardNumber("UNAVAILABLE")
+                                .cardCompany("TOSS")
                                 .build();
 
                 // 5. DB 저장
@@ -360,6 +366,39 @@ public class PaymentServiceImpl implements PaymentService {
                                         payment.getTargetMonth(),
                                         e.getMessage()));
                 }
+        }
+
+        @Override
+        @Transactional
+        public void refundPayment(Integer partyId, Integer partyMemberId, String reason) {
+                // 1. 초기 결제(INITIAL) 내역 조회
+                Payment payment = paymentDao.findByPartyMemberIdAndType(partyMemberId, "INITIAL")
+                                .orElse(null);
+
+                if (payment == null) {
+                        // 결제 내역이 없으면 무시 (보증금만 낸 경우 등)
+                        return;
+                }
+
+                // 2. 이미 환불되었는지 확인
+                if (payment.getPaymentStatus() == PaymentStatus.REFUNDED) {
+                        return;
+                }
+
+                // 3. Toss Payments 결제 취소 API 호출
+                try {
+                        tossPaymentService.cancelPayment(
+                                        payment.getTossPaymentKey(),
+                                        reason,
+                                        payment.getPaymentAmount());
+                } catch (Exception e) {
+                        // 환불 실패 시 로그 남기고 예외 던짐
+                        throw new BusinessException(ErrorCode.INTERNAL_ERROR, "결제 환불 실패: " + e.getMessage());
+                }
+
+                // 4. 상태 업데이트
+                payment.setPaymentStatus(PaymentStatus.REFUNDED);
+                paymentDao.updatePaymentStatus(payment.getPaymentId(), "REFUNDED");
         }
 
         private LocalDateTime calculateNextRetryTime(int attemptNumber) {

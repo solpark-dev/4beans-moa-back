@@ -13,8 +13,6 @@
 		<result property="memberStatus" column="MEMBER_STATUS"/>
 		<result property="joinDate" column="JOIN_DATE"/>
 		<result property="withdrawDate" column="WITHDRAW_DATE"/>
-		<result property="depositId" column="DEPOSIT_ID"/>
-		<result property="firstPaymentId" column="FIRST_PAYMENT_ID"/>
 	</resultMap>
 
 	<!-- ResultMap: PartyMemberResponse (JOIN) -->
@@ -103,9 +101,7 @@
 		SET
 			MEMBER_ROLE = #{memberRole},
 			MEMBER_STATUS = #{memberStatus},
-			WITHDRAW_DATE = #{withdrawDate},
-			DEPOSIT_ID = #{depositId},
-			FIRST_PAYMENT_ID = #{firstPaymentId}
+			WITHDRAW_DATE = #{withdrawDate}
 		WHERE PARTY_MEMBER_ID = #{partyMemberId}
 	</update>
 

@@ -80,6 +80,15 @@ public interface DepositService {
         List<DepositResponse> getPartyDeposits(Integer partyId);
 
         /**
+         * 파티 ID와 사용자 ID로 보증금 조회
+         *
+         * @param partyId 파티 ID
+         * @param userId  사용자 ID
+         * @return 보증금 (PAID 상태, 없으면 null)
+         */
+        Deposit findByPartyIdAndUserId(Integer partyId, String userId);
+
+        /**
          * 보증금 전액 환불
          *
          * @param depositId 보증금 ID

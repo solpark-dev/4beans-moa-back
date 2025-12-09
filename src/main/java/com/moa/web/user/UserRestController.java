@@ -242,6 +242,11 @@ public class UserRestController {
 			throw new BusinessException(ErrorCode.INVALID_INPUT_VALUE, "빌링키가 필요합니다.");
 		}
 
+		// 카드번호 마지막 4자리만 저장 (마스킹 문자 * 포함)
+		if (cardNumber != null && cardNumber.length() > 4) {
+			cardNumber = cardNumber.substring(cardNumber.length() - 4);
+		}
+
 		// 기존 카드 삭제 (있는 경우)
 		userCardDao.deleteUserCard(userId);
 
@@ -286,7 +291,7 @@ public class UserRestController {
 		String provider = request.get("provider");
 		String providerUserId = request.get("providerUserId");
 
-//		userService.connectSocialAccount(userId, provider, providerUserId);
+		// userService.connectSocialAccount(userId, provider, providerUserId);
 
 		return ApiResponse.success(null);
 	}

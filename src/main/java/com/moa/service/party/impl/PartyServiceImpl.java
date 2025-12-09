@@ -16,7 +16,6 @@ import com.moa.dao.product.ProductDao;
 import com.moa.domain.Deposit;
 import com.moa.domain.Party;
 import com.moa.domain.PartyMember;
-import com.moa.domain.Payment;
 import com.moa.domain.Product;
 import com.moa.domain.enums.MemberStatus;
 import com.moa.domain.enums.PartyStatus;
@@ -97,7 +96,7 @@ public class PartyServiceImpl implements PartyService {
             product.setPrice(10000); // 기본값
         }
 
-        int monthlyFee = product.getPrice();
+        int monthlyFee = product.getPrice() / request.getMaxMembers();
 
         // 3. Party 엔티티 생성
         Party party = Party.builder()
@@ -173,11 +172,12 @@ public class PartyServiceImpl implements PartyService {
         PartyMember leaderMember = partyMemberDao.findByPartyIdAndUserId(partyId, userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.PARTY_MEMBER_NOT_FOUND));
 
-        // 5. 보증금 금액 = 월구독료 전액
-        int depositAmount = party.getMonthlyFee();
+        // 5. 보증금 금액 = 월구독료 전액 (상품 원가)
+        // monthlyFee는 1인당 금액이므로, 전체 상품 가격 = monthlyFee * maxMembers
+        int depositAmount = party.getMonthlyFee() * party.getMaxMembers();
 
         // 6. 보증금 생성 (결제 처리)
-        Deposit deposit = depositService.createDeposit(
+        depositService.createDeposit(
                 partyId,
                 leaderMember.getPartyMemberId(),
                 userId,
@@ -195,15 +195,14 @@ public class PartyServiceImpl implements PartyService {
                 targetMonth,
                 paymentRequest);
 
-        // 7. PARTY_MEMBER 업데이트 (상태 + depositId)
-        // 주의: 방장은 월 결제를 하지 않으므로 firstPaymentId는 null로 유지
+        // 7. PARTY_MEMBER 업데이트 (상태만 변경)
+        // 보증금 정보는 DEPOSIT 테이블에서 userId+partyId로 조회
         leaderMember.setMemberStatus(MemberStatus.ACTIVE);
-        leaderMember.setDepositId(deposit.getDepositId());
         partyMemberDao.updatePartyMember(leaderMember);
 
-        // 8. PARTY 업데이트 (상태 + leaderDepositId)
+        // 8. PARTY 업데이트 (상태만 변경)
+        // 방장 보증금 정보는 DEPOSIT 테이블에서 partyId+partyLeaderId로 조회
         party.setPartyStatus(PartyStatus.RECRUITING);
-        party.setLeaderDepositId(deposit.getDepositId());
         partyDao.updateParty(party);
 
         // 9. 업데이트된 파티 정보 반환
@@ -224,10 +223,16 @@ public class PartyServiceImpl implements PartyService {
             if (response.getPartyLeaderId().equals(userId)) {
                 isMember = true;
             } else {
-                // 멤버인지 확인
-                isMember = partyMemberDao.findByPartyIdAndUserId(partyId, userId)
-                        .map(member -> member.getMemberStatus() == MemberStatus.ACTIVE)
-                        .orElse(false);
+                // 멤버인지 확인 및 상태 저장
+                partyMemberDao.findByPartyIdAndUserId(partyId, userId)
+                        .ifPresent(member -> {
+                            response.setMemberStatus(member.getMemberStatus());
+                        });
+
+                // 활성 멤버인 경우에만 멤버 권한 부여
+                if (response.getMemberStatus() == MemberStatus.ACTIVE) {
+                    isMember = true;
+                }
             }
         }
 
@@ -340,8 +345,8 @@ public class PartyServiceImpl implements PartyService {
             throw new BusinessException(ErrorCode.PARTY_FULL);
         }
 
-        // 6. 인당 요금 계산 (1/N)
-        int fee = calculatePerPersonFee(party.getMonthlyFee(), party.getMaxMembers());
+        // 6. 인당 요금 (monthlyFee는 이미 1인당 금액으로 저장되어 있음)
+        int fee = party.getMonthlyFee();
 
         // 7. PARTY_MEMBER 생성 (PENDING_PAYMENT)
         PartyMember partyMember = PartyMember.builder()
@@ -369,9 +374,8 @@ public class PartyServiceImpl implements PartyService {
         }
 
         // 9. 보증금 기록 생성
-        Deposit deposit;
         try {
-            deposit = depositService.createDepositWithoutConfirm(
+            depositService.createDepositWithoutConfirm(
                     partyId,
                     partyMember.getPartyMemberId(),
                     userId,
@@ -394,7 +398,7 @@ public class PartyServiceImpl implements PartyService {
 
         // 10. 첫 달 결제 생성
         String targetMonth = party.getStartDate().format(DateTimeFormatter.ofPattern("yyyy-MM"));
-        Payment firstPayment = paymentService.createInitialPaymentWithoutConfirm(
+        paymentService.createInitialPaymentWithoutConfirm(
                 partyId,
                 partyMember.getPartyMemberId(),
                 userId,
@@ -402,10 +406,9 @@ public class PartyServiceImpl implements PartyService {
                 targetMonth,
                 paymentRequest);
 
-        // 11. PARTY_MEMBER 업데이트
+        // 11. PARTY_MEMBER 업데이트 (상태만 변경)
+        // 보증금/결제 정보는 DEPOSIT, PAYMENT 테이블에서 조회
         partyMember.setMemberStatus(MemberStatus.ACTIVE);
-        partyMember.setDepositId(deposit.getDepositId());
-        partyMember.setFirstPaymentId(firstPayment.getPaymentId());
         partyMemberDao.updatePartyMember(partyMember);
 
         // 12. 최대 인원 도달 시 ACTIVE로 전환
@@ -466,16 +469,27 @@ public class PartyServiceImpl implements PartyService {
         }
 
         // 7. 보증금 처리 (정책에 따라 환불/부분환불/몰수)
-        if (member.getDepositId() != null) {
+        // PARTY_MEMBER 테이블에 DEPOSIT_ID가 없으므로 DEPOSIT 테이블에서 조회
+        Deposit memberDeposit = depositService.findByPartyIdAndUserId(partyId, userId);
+        if (memberDeposit != null) {
             try {
-                depositService.processWithdrawalRefund(member.getDepositId(), party);
+                depositService.processWithdrawalRefund(memberDeposit.getDepositId(), party);
             } catch (Exception e) {
                 // 환불 실패 시 로그만 남기고 계속 진행 (추후 수동 처리)
                 System.err.println("보증금 처리 실패: " + e.getMessage());
             }
         }
 
-        // 8. 파티 상태 업데이트 (ACTIVE → RECRUITING으로 변경 가능)
+        // 8. 파티 시작 전이면 구독료(월 분담금) 환불
+        if (party.getStartDate().isAfter(LocalDateTime.now())) {
+            try {
+                paymentService.refundPayment(partyId, member.getPartyMemberId(), "파티 시작 전 탈퇴 (구독료 환불)");
+            } catch (Exception e) {
+                System.err.println("구독료 환불 실패: " + e.getMessage());
+            }
+        }
+
+        // 9. 파티 상태 업데이트 (ACTIVE → RECRUITING으로 변경 가능)
         Party updatedParty = partyDao.findById(partyId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.PARTY_NOT_FOUND));
 
@@ -516,11 +530,6 @@ public class PartyServiceImpl implements PartyService {
             throw new BusinessException(ErrorCode.START_DATE_REQUIRED);
         }
         // OTT ID/PW 검증 제거 (생성 시점에는 선택 사항)
-    }
-
-    private int calculatePerPersonFee(int monthlyFee, int maxMembers) {
-        // 일반 파티원: 정수 나눗셈 (버림)
-        return monthlyFee / maxMembers;
     }
 
     private int calculateLastMemberFee(int monthlyFee, int maxMembers) {

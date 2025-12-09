@@ -38,57 +38,63 @@ public class SecurityConfig {
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-	    http
-	        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-	        .csrf(csrf -> csrf.disable())
-	        .formLogin(login -> login.disable())
-	        .httpBasic(basic -> basic.disable())
-	        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-	        .securityContext(security -> security.requireExplicitSave(false))
-	        .rememberMe(remember -> remember.disable())
-	        .exceptionHandling(exception -> exception
-	            .authenticationEntryPoint(jwtAuthenticationEntryPoint)
-	            .accessDeniedHandler(jwtAccessDeniedHandler)
-	        )
-	        .authorizeHttpRequests(auth -> auth
-	            .requestMatchers(
-	                "/api/auth/**",
-	                "/api/oauth/kakao/callback",
-	                "/api/oauth/google/callback",
-	                "/api/oauth/kakao/auth",
-	                "/api/oauth/google/auth",
-	                "/api/chatbot/**",
-	                "/api/users/join",
-	                "/api/users/add",
-	                "/api/users/check",
-	                "/api/users/find-id",
-	                "/api/users/pass/**",
-	                "/api/users/resetPwd/**",
-	                "/api/auth/verify-email",
-	                "/swagger-ui/**",
-	                "/v3/api-docs/**",
-	                "/uploads/**",
-	                "/api/community/**" //커뮤니티 추가
-	            ).permitAll()
-	            
-	            // ========== 커뮤니티 권한 설정 세분화==========
-	            .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/community/notice/**").permitAll()
-	            .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/community/faq/**").permitAll()
-	            .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/community/notice/**").hasAuthority("ADMIN")
-	            .requestMatchers(org.springframework.http.HttpMethod.PUT, "/api/community/notice/**").hasAuthority("ADMIN")
-	            .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/community/faq/**").hasAuthority("ADMIN")
-	            .requestMatchers(org.springframework.http.HttpMethod.PUT, "/api/community/faq/**").hasAuthority("ADMIN")
-	            .requestMatchers("/api/community/inquiry/**").authenticated() // 문의 로그인한 사용자만 접근 가능
-	            // ========== 커뮤니티 권한 설정 끝 ==========
-            
-	            .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
-                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/product/**").permitAll()
-	            .requestMatchers("/api/oauth/**").authenticated()
-	            .requestMatchers("/api/users/me").authenticated()	            
-	            .anyRequest().authenticated()
-	        )
-	        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+		http
+				.cors(cors -> cors.configurationSource(corsConfigurationSource()))
+				.csrf(csrf -> csrf.disable())
+				.formLogin(login -> login.disable())
+				.httpBasic(basic -> basic.disable())
+				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+				.securityContext(security -> security.requireExplicitSave(false))
+				.rememberMe(remember -> remember.disable())
+				.exceptionHandling(exception -> exception
+						.authenticationEntryPoint(jwtAuthenticationEntryPoint)
+						.accessDeniedHandler(jwtAccessDeniedHandler))
+				.authorizeHttpRequests(auth -> auth
+						.requestMatchers(
+								"/api/auth/**",
+								"/api/oauth/kakao/callback",
+								"/api/oauth/google/callback",
+								"/api/oauth/kakao/auth",
+								"/api/oauth/google/auth",
+								"/api/chatbot/**",
+								"/api/users/join",
+								"/api/users/add",
+								"/api/users/check",
+								"/api/users/find-id",
+								"/api/users/pass/**",
+								"/api/users/resetPwd/**",
+								"/api/auth/verify-email",
+								"/swagger-ui/**",
+								"/v3/api-docs/**",
+								"/uploads/**",
+								"/api/community/**" // 커뮤니티 추가
+						).permitAll()
 
+						// ========== 커뮤니티 권한 설정 세분화==========
+						.requestMatchers(org.springframework.http.HttpMethod.GET, "/api/community/notice/**")
+						.permitAll()
+						.requestMatchers(org.springframework.http.HttpMethod.GET, "/api/community/faq/**").permitAll()
+						.requestMatchers(org.springframework.http.HttpMethod.POST, "/api/community/notice/**")
+						.hasAuthority("ADMIN")
+						.requestMatchers(org.springframework.http.HttpMethod.PUT, "/api/community/notice/**")
+						.hasAuthority("ADMIN")
+						.requestMatchers(org.springframework.http.HttpMethod.POST, "/api/community/faq/**")
+						.hasAuthority("ADMIN")
+						.requestMatchers(org.springframework.http.HttpMethod.PUT, "/api/community/faq/**")
+						.hasAuthority("ADMIN")
+						.requestMatchers("/api/community/inquiry/**").authenticated() // 문의 로그인한 사용자만 접근 가능
+						// ========== 커뮤니티 권한 설정 끝 ==========
+
+						// 파티 목록 및 상세 조회 권한 설정 (비로그인 허용)
+						.requestMatchers(org.springframework.http.HttpMethod.GET, "/api/parties").permitAll()
+						.requestMatchers(org.springframework.http.HttpMethod.GET, "/api/parties/**").permitAll()
+
+						.requestMatchers("/api/admin/**").hasAuthority("ADMIN")
+						.requestMatchers(org.springframework.http.HttpMethod.GET, "/api/product/**").permitAll()
+						.requestMatchers("/api/oauth/**").authenticated()
+						.requestMatchers("/api/users/me").authenticated()
+						.anyRequest().authenticated())
+				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();
 	}
@@ -103,11 +109,10 @@ public class SecurityConfig {
 		config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
 		config.setAllowedHeaders(Arrays.asList("*", "Authorization", "Refresh-Token"));
 		config.setAllowedOriginPatterns(List.of(
-			    "https://localhost:5173",
-			    "http://localhost:5173",
-			    "http://192.168.*:5173",
-			    "https://192.168.*:5173"
-			));
+				"https://localhost:5173",
+				"http://localhost:5173",
+				"http://192.168.*:5173",
+				"https://192.168.*:5173"));
 		config.setAllowCredentials(true);
 
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

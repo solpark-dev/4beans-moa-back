@@ -105,7 +105,7 @@ public class SettlementScheduler {
                 // 1. 이미 bankTranId가 있으면 API 호출은 성공했으나 DB 업데이트 실패한 것 → 재시도 불가
                 if (settlement.getBankTranId() != null && !settlement.getBankTranId().isEmpty()) {
                     log.warn("Settlement {} has bankTranId but status is FAILED. Manual intervention required.",
-                             settlement.getSettlementId());
+                            settlement.getSettlementId());
                     continue;
                 }
 
@@ -116,7 +116,14 @@ public class SettlementScheduler {
 
                 if (hoursSinceCreation < RETRY_DELAY_HOURS) {
                     log.debug("Settlement {} too recent to retry ({}h < {}h)",
-                              settlement.getSettlementId(), hoursSinceCreation, RETRY_DELAY_HOURS);
+                            settlement.getSettlementId(), hoursSinceCreation, RETRY_DELAY_HOURS);
+                    continue;
+                }
+
+                // 24시간 지난 건은 더 이상 재시도하지 않음 (무한 루프 방지)
+                if (hoursSinceCreation > 24) {
+                    log.warn("Settlement {} retry timed out ({}h > 24h). Stopping retries.",
+                            settlement.getSettlementId(), hoursSinceCreation);
                     continue;
                 }
 
@@ -125,7 +132,7 @@ public class SettlementScheduler {
 
                 // 상태를 PENDING으로 변경하여 재시도 가능하게 함
                 settlementDao.updateSettlementStatus(settlement.getSettlementId(),
-                                                     SettlementStatus.PENDING.name(), null);
+                        SettlementStatus.PENDING.name(), null);
 
                 // 정산 완료 시도
                 settlementService.completeSettlement(settlement.getSettlementId());

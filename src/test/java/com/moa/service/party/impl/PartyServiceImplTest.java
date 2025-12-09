@@ -206,7 +206,7 @@ class PartyServiceImplTest {
 				.partyId(partyId)
 				.productId(1)
 				.partyStatus("RECRUITING")
-				.partyLeaderId(userId)  // 방장 ID 추가
+				.partyLeaderId(userId) // 방장 ID 추가
 				.build();
 
 		given(partyDao.findDetailById(partyId)).willReturn(Optional.of(expectedResponse));
@@ -272,7 +272,8 @@ class PartyServiceImplTest {
 		willDoNothing().given(tossPaymentService).confirmPayment(anyString(), anyString(), anyInt());
 
 		// Mock deposit and payment service calls (WithoutConfirm 메서드 사용)
-		given(depositService.createDepositWithoutConfirm(anyInt(), anyInt(), anyString(), anyInt(), any(PaymentRequest.class)))
+		given(depositService.createDepositWithoutConfirm(anyInt(), anyInt(), anyString(), anyInt(),
+				any(PaymentRequest.class)))
 				.willReturn(com.moa.domain.Deposit.builder().depositId(100).build());
 		given(paymentService.createInitialPaymentWithoutConfirm(anyInt(), anyInt(), anyString(), anyInt(), anyString(),
 				any(PaymentRequest.class)))
@@ -374,7 +375,6 @@ class PartyServiceImplTest {
 				.partyId(partyId)
 				.userId(leaveUserId)
 				.memberStatus(MemberStatus.ACTIVE)
-				.depositId(100)
 				.build();
 
 		given(partyDao.findById(partyId)).willReturn(Optional.of(testParty));
