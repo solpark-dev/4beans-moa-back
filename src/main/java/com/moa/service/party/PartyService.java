@@ -32,7 +32,7 @@ public interface PartyService {
 	 * - 이 단계에서는 보증금 결제하지 않음
 	 * - 별도로 processLeaderDeposit() 호출 필요
 	 *
-	 * @param userId  방장 사용자 ID (로그인 사용자)
+	 * @param userId 방장 사용자 ID (로그인 사용자)
 	 * @param request 파티 생성 요청 (구독 ID, 최대 인원, 시작일, OTT 계정 등)
 	 * @return 생성된 파티 상세 정보
 	 */
@@ -47,15 +47,16 @@ public interface PartyService {
 	 * 3. PARTY_MEMBER 상태 → ACTIVE, depositId 연결
 	 * 4. PARTY 상태 → RECRUITING, leaderDepositId 연결
 	 *
-	 * @param partyId        파티 ID
-	 * @param userId         방장 사용자 ID
+	 * @param partyId 파티 ID
+	 * @param userId 방장 사용자 ID
 	 * @param paymentRequest 결제 요청 정보 (Toss Payments 정보 포함)
 	 * @return 업데이트된 파티 상세 정보
 	 */
 	PartyDetailResponse processLeaderDeposit(
 			Integer partyId,
 			String userId,
-			PaymentRequest paymentRequest);
+			PaymentRequest paymentRequest
+	);
 
 	/**
 	 * 파티 상세 조회
@@ -72,11 +73,11 @@ public interface PartyService {
 	 * - 페이징 처리
 	 * - 상품별, 상태별 필터링 가능
 	 *
-	 * @param productId   상품 ID (선택)
+	 * @param productId 상품 ID (선택)
 	 * @param partyStatus 파티 상태 (선택: RECRUITING, ACTIVE 등)
-	 * @param keyword     검색 키워드 (선택)
-	 * @param page        페이지 번호 (1부터 시작)
-	 * @param size        페이지 크기
+	 * @param keyword 검색 키워드 (선택)
+	 * @param page 페이지 번호 (1부터 시작)
+	 * @param size 페이지 크기
 	 * @return 파티 목록
 	 */
 	List<PartyListResponse> getPartyList(
@@ -84,7 +85,8 @@ public interface PartyService {
 			String partyStatus,
 			String keyword,
 			int page,
-			int size);
+			int size
+	);
 
 	/**
 	 * OTT 계정 정보 수정 (방장 전용)
@@ -92,14 +94,15 @@ public interface PartyService {
 	 * - OTT ID, Password 업데이트
 	 *
 	 * @param partyId 파티 ID
-	 * @param userId  요청 사용자 ID (방장 확인용)
+	 * @param userId 요청 사용자 ID (방장 확인용)
 	 * @param request OTT 계정 정보
 	 * @return 수정된 파티 상세 정보
 	 */
 	PartyDetailResponse updateOttAccount(
 			Integer partyId,
 			String userId,
-			UpdateOttAccountRequest request);
+			UpdateOttAccountRequest request
+	);
 
 	/**
 	 * 파티 참여 (파티원 가입)
@@ -120,15 +123,16 @@ public interface PartyService {
 	 * - 보증금 + 첫 달 구독료를 동시에 결제
 	 * - 결제 실패 시 전체 롤백 (트랜잭션)
 	 *
-	 * @param partyId        파티 ID
-	 * @param userId         참여하는 사용자 ID
+	 * @param partyId 파티 ID
+	 * @param userId 참여하는 사용자 ID
 	 * @param paymentRequest 결제 요청 정보 (통합 결제 금액)
 	 * @return 가입된 멤버 정보
 	 */
 	PartyMemberResponse joinParty(
 			Integer partyId,
 			String userId,
-			PaymentRequest paymentRequest);
+			PaymentRequest paymentRequest
+	);
 
 	/**
 	 * 파티 멤버 목록 조회
@@ -146,7 +150,7 @@ public interface PartyService {
 	 * 호출 시 FEATURE_NOT_AVAILABLE 예외 발생
 	 *
 	 * @param partyId 파티 ID
-	 * @param userId  탈퇴하는 사용자 ID
+	 * @param userId 탈퇴하는 사용자 ID
 	 */
 	void leaveParty(Integer partyId, String userId);
 
@@ -174,48 +178,4 @@ public interface PartyService {
 	 * @return 파티 목록
 	 */
 	List<PartyListResponse> getMyParticipatingParties(String userId);
-
-	/**
-	 * 파티 종료
-	 *
-	 * 프로세스:
-	 * 1. 파티 상태 확인 (ACTIVE 또는 RECRUITING만 종료 가능)
-	 * 2. 모든 활성 멤버의 보증금 결제 취소 (Toss Payments)
-	 * 3. PARTY 상태 → CLOSED
-	 *
-	 * @param partyId 파티 ID
-	 * @param userId  요청자 ID (방장 권한 확인용)
-	 */
-	void closeParty(Integer partyId, String userId);
-
-	/**
-	 * 방장 보증금 결제 재시도
-	 *
-	 * 프로세스:
-	 * 1. 파티 상태 확인 (PENDING_PAYMENT만 재시도 가능)
-	 * 2. 방장 권한 확인
-	 * 3. Toss Payments 결제 처리
-	 * 4. 성공 시 PARTY 상태 → RECRUITING
-	 *
-	 * @param partyId        파티 ID
-	 * @param userId         방장 사용자 ID
-	 * @param paymentRequest 결제 요청 정보
-	 * @return 업데이트된 파티 정보
-	 */
-	PartyDetailResponse retryLeaderDeposit(
-			Integer partyId,
-			String userId,
-			PaymentRequest paymentRequest);
-
-	/**
-	 * 결제 타임아웃으로 인한 파티 취소
-	 *
-	 * 프로세스:
-	 * 1. 파티 상태를 CANCELLED로 변경
-	 * 2. 취소 사유 로깅
-	 *
-	 * @param partyId 파티 ID
-	 * @param reason  취소 사유
-	 */
-	void cancelExpiredParty(Integer partyId, String reason);
 }

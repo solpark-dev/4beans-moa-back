@@ -14,14 +14,18 @@ import com.moa.dao.deposit.DepositDao;
 import com.moa.dao.party.PartyDao;
 import com.moa.dao.payment.PaymentDao;
 import com.moa.dao.settlement.SettlementDao;
+import com.moa.dao.settlement.SettlementDetailDao;
 import com.moa.domain.Account;
 import com.moa.domain.Deposit;
 import com.moa.domain.Party;
 import com.moa.domain.Settlement;
+import com.moa.domain.SettlementDetail;
 import com.moa.domain.enums.SettlementStatus;
 import com.moa.dto.payment.response.PaymentResponse;
+import com.moa.dto.settlement.response.SettlementDetailResponse;
 import com.moa.dto.settlement.response.SettlementResponse;
 import com.moa.service.settlement.SettlementService;
+
 import com.moa.service.openbanking.OpenBankingService;
 
 import lombok.RequiredArgsConstructor;
@@ -34,6 +38,7 @@ import lombok.extern.slf4j.Slf4j;
 public class SettlementServiceImpl implements SettlementService {
 
         private final SettlementDao settlementDao;
+        private final SettlementDetailDao settlementDetailDao;
         private final PaymentDao paymentDao;
         private final PartyDao partyDao;
         private final AccountDao accountDao;
@@ -65,6 +70,8 @@ public class SettlementServiceImpl implements SettlementService {
                 }
 
                 // 정산 기간: 파티 시작일의 day를 기준으로 이전 달 billing cycle 계산
+                // 예: 1월 15일 시작 -> 2월 1일 정산 시 1월 15일 ~ 1월 31일
+                // 3월 1일 정산 시 2월 15일 ~ 3월 14일
                 int billingDay = partyStartDate.getDayOfMonth();
                 LocalDateTime tempStartDate;
                 LocalDateTime tempEndDate;
@@ -75,11 +82,14 @@ public class SettlementServiceImpl implements SettlementService {
                 int targetMonthNum = Integer.parseInt(monthParts[1]);
 
                 // 정산 시작일: targetMonth의 billingDay
+                // 정산 종료일: 다음달의 (billingDay - 1)일
                 if (billingDay == 1) {
+                        // 1일 시작인 경우: 전월 1일 ~ 전월 말일
                         tempStartDate = LocalDateTime.of(targetYear, targetMonthNum, 1, 0, 0, 0);
                         tempEndDate = tempStartDate.plusMonths(1).minusDays(1).withHour(23).withMinute(59)
                                         .withSecond(59);
                 } else {
+                        // billingDay가 2~31인 경우: 전월 billingDay ~ 이번달 (billingDay - 1)
                         tempStartDate = LocalDateTime.of(targetYear, targetMonthNum, billingDay, 0, 0, 0);
                         tempEndDate = tempStartDate.plusMonths(1).minusDays(1).withHour(23).withMinute(59)
                                         .withSecond(59);
@@ -140,9 +150,19 @@ public class SettlementServiceImpl implements SettlementService {
 
                 settlementDao.insertSettlement(settlement);
 
-                // 9. PAYMENT 테이블에 SETTLEMENT_ID 업데이트 (비정규화 - SETTLEMENT_DETAIL 테이블 제거)
+                // 9. SettlementDetail 생성
                 for (PaymentResponse p : targetPayments) {
-                        paymentDao.updateSettlementId(p.getPaymentId(), settlement.getSettlementId());
+                        // N+1 문제 해결: PaymentResponse에 있는 정보 사용
+                        SettlementDetail detail = SettlementDetail.builder()
+                                        .settlementId(settlement.getSettlementId())
+                                        .paymentId(p.getPaymentId())
+                                        .partyMemberId(p.getPartyMemberId())
+                                        .userId(p.getUserId())
+                                        .paymentAmount(p.getPaymentAmount())
+                                        .regDate(LocalDateTime.now())
+                                        .build();
+
+                        settlementDetailDao.insertSettlementDetail(detail);
                 }
 
                 return settlement;
@@ -192,6 +212,7 @@ public class SettlementServiceImpl implements SettlementService {
 
                 } catch (Exception e) {
                         // 8. 실패 시 상태를 FAILED로 변경
+                        // API 호출 성공 후 DB 저장 실패한 경우 bankTranId를 저장하여 이중 지급 방지
                         String finalBankTranId = bankTranId != null ? bankTranId : null;
                         settlementDao.updateSettlementStatus(settlementId, SettlementStatus.FAILED.name(),
                                         finalBankTranId);
@@ -209,14 +230,7 @@ public class SettlementServiceImpl implements SettlementService {
 
         @Override
         @Transactional(readOnly = true)
-        public List<PaymentResponse> getSettlementDetails(Integer settlementId) {
-                // SETTLEMENT_DETAIL 테이블 제거 후 PAYMENT 테이블에서 직접 조회
-                return paymentDao.findBySettlementId(settlementId);
-        }
-        
-        @Override
-        @Transactional(readOnly = true)
-        public List<SettlementResponse> getSettlementHistory(String leaderId, String startDate, String endDate) {
-                return settlementDao.findByLeaderIdWithDateRange(leaderId, startDate, endDate);
+        public List<SettlementDetailResponse> getSettlementDetails(Integer settlementId) {
+                return settlementDetailDao.findBySettlementId(settlementId);
         }
 }

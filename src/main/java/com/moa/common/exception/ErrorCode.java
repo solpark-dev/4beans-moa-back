@@ -61,7 +61,6 @@ public enum ErrorCode {
 	PAYMENT_RETRY_FAILED("PAY501", "결제 재시도에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
 	MAX_RETRY_EXCEEDED("PAY502", "최대 재시도 횟수를 초과했습니다.", HttpStatus.BAD_REQUEST),
 	RETRY_NOT_FOUND("PAY503", "재시도 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
-	INVALID_PAYMENT_STATUS("PAY400", "잘못된 결제 상태입니다.", HttpStatus.BAD_REQUEST),
 
 	// 상품(Product) 관련 에러
 	PRODUCT_NOT_FOUND("PR404", "상품을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),

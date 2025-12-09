@@ -151,30 +151,4 @@ public interface PaymentService {
          * @param attemptNumber Attempt number (1-4)
          */
         void attemptPaymentExecution(Payment payment, int attemptNumber);
-
-        /**
-         * 실패한 결제 수동 재시도
-         * 파티원이 실패한 월 구독료 결제를 수동으로 재시도합니다.
-         *
-         * @param paymentId 결제 ID
-         * @param userId    사용자 ID (결제 소유자 검증용)
-         * @return 재시도 결과 (결제 상세 정보)
-         */
-        PaymentDetailResponse retryFailedPayment(Integer paymentId, String userId);
-
-        /**
-         * 결제 재시도 가능 여부 확인
-         *
-         * @param paymentId 결제 ID
-         * @return 재시도 가능하면 true
-         */
-        boolean canRetryPayment(Integer paymentId);
-
-        /**
-         * 결제 재시도 횟수 조회
-         *
-         * @param paymentId 결제 ID
-         * @return 현재까지의 재시도 횟수
-         */
-        int getRetryAttemptCount(Integer paymentId);
 }

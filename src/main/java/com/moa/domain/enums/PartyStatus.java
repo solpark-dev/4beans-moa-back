@@ -15,8 +15,7 @@ public enum PartyStatus {
 	PENDING_PAYMENT("결제대기"),   // 방장 보증금 결제 대기
 	RECRUITING("모집중"),          // 파티원 모집 중
 	ACTIVE("이용중"),              // 서비스 이용 중 (인원 다 참)
-	CLOSED("종료"),                // 파티 종료
-	CANCELLED("취소됨");           // 결제 타임아웃 등으로 취소됨
+	CLOSED("종료");                // 파티 종료
 
 	private final String description;
 

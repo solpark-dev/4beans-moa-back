@@ -1,4 +1,4 @@
-package com.moa.domain;
+package com.moa.dto.settlement.response;
 
 import java.time.LocalDateTime;
 
@@ -13,14 +13,12 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Account {
-    private Integer accountId;
+public class SettlementDetailResponse {
+    private Integer detailId;
+    private Integer settlementId;
+    private Integer paymentId;
     private String userId;
-    private String bankCode;
-    private String bankName;
-    private String accountNumber;
-    private String accountHolder;
-    private String isVerified; // 'Y' or 'N'
+    private String userNickname; // 추가: 정산 상세 조회 시 필요
+    private Integer paymentAmount;
     private LocalDateTime regDate;
-    private LocalDateTime verifyDate;
 }

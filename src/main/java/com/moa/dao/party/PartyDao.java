@@ -58,31 +58,11 @@ public interface PartyDao {
 	 * - If party starts on 31st and today is Feb 28 (last day), party is included
 	 * - If party starts on 30th and today is Feb 28 (last day), party is included
 	 *
-	 * @param currentDay     Day of month today (1-31)
+	 * @param currentDay Day of month today (1-31)
 	 * @param lastDayOfMonth Last day of current month (28-31)
 	 * @return List of active parties needing payment today
 	 */
 	List<Party> findPartiesByPaymentDay(
 			@Param("currentDay") int currentDay,
 			@Param("lastDayOfMonth") int lastDayOfMonth);
-
-	/**
-	 * 종료일이 지난 활성 파티 조회
-	 *
-	 * @param now 현재 시간
-	 * @return 종료일이 지난 파티 목록
-	 */
-	List<Party> findExpiredActiveParties(@Param("now") java.time.LocalDateTime now);
-
-	/**
-	 * 결제 타임아웃된 파티 조회
-	 * PENDING_PAYMENT 상태이고 생성 시간이 지정된 시간 이전인 파티 조회
-	 *
-	 * @param status 파티 상태 (PENDING_PAYMENT)
-	 * @param timeoutThreshold 타임아웃 기준 시간
-	 * @return 타임아웃된 파티 목록
-	 */
-	List<Party> findExpiredPendingPaymentParties(
-			@Param("status") PartyStatus status,
-			@Param("timeoutThreshold") java.time.LocalDateTime timeoutThreshold);
 }

@@ -10,10 +10,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.moa.common.exception.BusinessException;
 import com.moa.common.exception.ErrorCode;
+import com.moa.dao.partymember.PartyMemberDao;
+import com.moa.dao.party.PartyDao;
 import com.moa.dao.payment.PaymentDao;
 import com.moa.dao.user.UserCardDao;
+import com.moa.domain.Party;
+import com.moa.domain.PartyMember;
 import com.moa.domain.Payment;
 import com.moa.domain.UserCard;
+import com.moa.domain.enums.MemberStatus;
+import com.moa.domain.enums.PartyStatus;
 import com.moa.domain.enums.PaymentStatus;
 import com.moa.dto.payment.request.PaymentRequest;
 import com.moa.dto.payment.response.PaymentDetailResponse;
@@ -40,6 +46,8 @@ import lombok.RequiredArgsConstructor;
 public class PaymentServiceImpl implements PaymentService {
 
         private final PaymentDao paymentDao;
+        private final PartyDao partyDao;
+        private final PartyMemberDao partyMemberDao;
         private final TossPaymentService tossPaymentService;
         private final UserCardDao userCardDao;
         private final PaymentRetryService retryService;
@@ -358,116 +366,5 @@ public class PaymentServiceImpl implements PaymentService {
                 // Exponential backoff: 24h, 48h, 72h
                 int hoursToAdd = 24 * attemptNumber;
                 return LocalDateTime.now().plusHours(hoursToAdd);
-        }
-
-        // ============================================
-        // Manual Retry Methods (User-initiated)
-        // ============================================
-
-        @Override
-        @Transactional
-        public PaymentDetailResponse retryFailedPayment(Integer paymentId, String userId) {
-                // 1. 결제 정보 조회
-                Payment payment = paymentDao.findById(paymentId)
-                                .orElseThrow(() -> new BusinessException(ErrorCode.PAYMENT_NOT_FOUND));
-
-                // 2. 결제 소유자 확인
-                if (!payment.getUserId().equals(userId)) {
-                        throw new BusinessException(ErrorCode.UNAUTHORIZED, "본인의 결제만 재시도할 수 있습니다.");
-                }
-
-                // 3. 결제 상태 확인 (FAILED만 재시도 가능)
-                if (payment.getPaymentStatus() != PaymentStatus.FAILED) {
-                        throw new BusinessException(ErrorCode.INVALID_PAYMENT_STATUS, "실패한 결제만 재시도할 수 있습니다.");
-                }
-
-                // 4. 재시도 횟수 확인
-                int attemptCount = getRetryAttemptCount(paymentId);
-                if (attemptCount >= MAX_RETRY_ATTEMPTS) {
-                        throw new BusinessException(ErrorCode.MAX_RETRY_EXCEEDED, "최대 재시도 횟수를 초과했습니다. 고객센터에 문의해주세요.");
-                }
-
-                // 5. 빌링키 조회
-                UserCard userCard = userCardDao.findByUserId(userId)
-                                .orElseThrow(() -> new BusinessException(ErrorCode.BILLING_KEY_NOT_FOUND));
-
-                // 6. 새 주문 ID 생성
-                String newOrderId = "RETRY_" + paymentId + "_" + System.currentTimeMillis();
-
-                try {
-                        // 7. Toss Payments 빌링키 결제 요청
-                        String paymentKey = tossPaymentService.payWithBillingKey(
-                                        userCard.getBillingKey(),
-                                        newOrderId,
-                                        payment.getPaymentAmount(),
-                                        "MOA 결제 재시도 (" + payment.getTargetMonth() + ")");
-
-                        // 8. 결제 성공 - 상태 업데이트
-                        payment.setPaymentStatus(PaymentStatus.COMPLETED);
-                        payment.setTossPaymentKey(paymentKey);
-                        payment.setOrderId(newOrderId);
-                        payment.setCardNumber(userCard.getCardNumber());
-                        payment.setCardCompany(userCard.getCardCompany());
-                        payment.setPaymentDate(LocalDateTime.now());
-                        paymentDao.updatePaymentStatus(paymentId, "COMPLETED");
-
-                        // 9. 재시도 성공 기록
-                        retryService.recordSuccess(payment, attemptCount + 1);
-
-                        // 10. 성공 이벤트 발행
-                        eventPublisher.publishEvent(new MonthlyPaymentCompletedEvent(
-                                        payment.getPartyId(),
-                                        payment.getPartyMemberId(),
-                                        payment.getUserId(),
-                                        payment.getPaymentAmount(),
-                                        payment.getTargetMonth()));
-
-                } catch (BusinessException e) {
-                        // 11. 결제 실패 - 재시도 기록
-                        LocalDateTime nextRetry = (attemptCount + 1 < MAX_RETRY_ATTEMPTS)
-                                        ? calculateNextRetryTime(attemptCount + 1)
-                                        : null;
-
-                        if (nextRetry != null) {
-                                retryService.recordFailureWithRetry(
-                                                payment,
-                                                attemptCount + 1,
-                                                e.getErrorCode().getCode(),
-                                                e.getMessage(),
-                                                nextRetry);
-                        } else {
-                                retryService.recordPermanentFailure(payment, attemptCount + 1, e);
-                        }
-
-                        throw new BusinessException(ErrorCode.PAYMENT_RETRY_FAILED,
-                                        "결제 재시도에 실패했습니다: " + e.getMessage());
-                }
-
-                // 12. 업데이트된 결제 상세 정보 반환
-                return getPaymentDetail(paymentId);
-        }
-
-        @Override
-        @Transactional(readOnly = true)
-        public boolean canRetryPayment(Integer paymentId) {
-                Payment payment = paymentDao.findById(paymentId).orElse(null);
-                if (payment == null) {
-                        return false;
-                }
-
-                // FAILED 상태이고 재시도 횟수가 4회 미만인 경우에만 재시도 가능
-                return payment.getPaymentStatus() == PaymentStatus.FAILED
-                                && getRetryAttemptCount(paymentId) < MAX_RETRY_ATTEMPTS;
-        }
-
-        @Override
-        @Transactional(readOnly = true)
-        public int getRetryAttemptCount(Integer paymentId) {
-                return retryService.findPendingRetries(java.time.LocalDate.now())
-                                .stream()
-                                .filter(r -> r.getPaymentId().equals(paymentId))
-                                .mapToInt(r -> r.getAttemptNumber())
-                                .max()
-                                .orElse(0);
         }
 }

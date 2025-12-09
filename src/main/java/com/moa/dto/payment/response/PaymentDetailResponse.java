@@ -44,13 +44,4 @@ public class PaymentDetailResponse {
 
     // === 사용자 정보 (JOIN) ===
     private String userNickname;
-
-    // === 재시도 정보 ===
-    private String retryStatus;          // 재시도 상태 (SUCCESS, FAILED)
-    private Integer attemptNumber;       // 현재 시도 횟수
-    private LocalDateTime nextRetryDate; // 다음 재시도 예정일
-    private String retryReason;          // 실패 사유
-    private String errorMessage;         // 에러 메시지
-    private boolean canRetry;            // 재시도 가능 여부
-    private int maxRetryAttempts = 4;    // 최대 재시도 횟수
 }

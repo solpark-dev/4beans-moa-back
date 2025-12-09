@@ -465,61 +465,6 @@ public class PartyServiceImpl implements PartyService {
         return partyDao.findMyParticipatingParties(userId);
     }
 
-    /**
-     * 파티 종료
-     *
-     * 프로세스:
-     * 1. 파티 상태 확인 (ACTIVE 또는 RECRUITING만 종료 가능)
-     * 2. 모든 활성 멤버의 보증금 결제 취소 (Toss Payments)
-     * 3. PARTY 상태 → CLOSED
-     */
-    @Override
-    public void closeParty(Integer partyId, String userId) {
-        log.info("파티 종료 시작: partyId={}, userId={}", partyId, userId);
-
-        // 1. 파티 조회
-        Party party = partyDao.findById(partyId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.PARTY_NOT_FOUND));
-
-        // 2. 방장 권한 확인
-        if (!party.getPartyLeaderId().equals(userId)) {
-            throw new BusinessException(ErrorCode.NOT_PARTY_LEADER);
-        }
-
-        // 3. 파티 상태 확인 (ACTIVE 또는 RECRUITING만 종료 가능)
-        if (party.getPartyStatus() != PartyStatus.ACTIVE
-                && party.getPartyStatus() != PartyStatus.RECRUITING) {
-            throw new BusinessException(ErrorCode.INVALID_PARTY_STATUS);
-        }
-
-        // 4. 모든 PAID 상태 보증금 환불 (결제 취소)
-        List<com.moa.dto.deposit.response.DepositResponse> deposits = depositService.getPartyDeposits(partyId);
-        int refundedCount = 0;
-        int failedCount = 0;
-
-        for (com.moa.dto.deposit.response.DepositResponse deposit : deposits) {
-            if ("PAID".equals(deposit.getDepositStatus())) {
-                try {
-                    depositService.refundDeposit(deposit.getDepositId(), "파티 정상 종료");
-                    refundedCount++;
-                    log.info("보증금 환불 성공: depositId={}", deposit.getDepositId());
-                } catch (Exception e) {
-                    failedCount++;
-                    log.error("보증금 환불 실패: depositId={}, error={}", deposit.getDepositId(), e.getMessage());
-                    // 실패 시 재시도 큐에 등록됨 (RefundRetryHistory)
-                }
-            }
-        }
-
-        // 5. 파티 상태 → CLOSED
-        partyDao.updatePartyStatus(partyId, PartyStatus.CLOSED);
-
-        // 6. 알림 발송 (선택)
-        safeSendPush(() -> sendPartyClosePushToAllMembers(partyId, party));
-
-        log.info("파티 종료 완료: partyId={}, 환불성공={}, 환불실패={}", partyId, refundedCount, failedCount);
-    }
-
     // ========== Private 검증 메서드 ==========
 
     private void validateCreateRequest(PartyCreateRequest request) {
@@ -538,6 +483,12 @@ public class PartyServiceImpl implements PartyService {
     private int calculatePerPersonFee(int monthlyFee, int maxMembers) {
         // 일반 파티원: 정수 나눗셈 (버림)
         return monthlyFee / maxMembers;
+    }
+
+    private int calculateLastMemberFee(int monthlyFee, int maxMembers) {
+        // 마지막 파티원: 나머지 포함
+        int perPersonFee = monthlyFee / maxMembers;
+        return monthlyFee - (perPersonFee * (maxMembers - 1));
     }
 
     // ========== ⭐ Private Push 메서드 (PARTY_JOIN, PARTY_START만) ==========
@@ -580,23 +531,6 @@ public class PartyServiceImpl implements PartyService {
         }
     }
 
-    private void sendPartyClosePushToAllMembers(Integer partyId, Party party) {
-        List<PartyMemberResponse> members = partyMemberDao.findMembersByPartyId(partyId);
-        String productName = getProductName(party.getProductId());
-
-        for (PartyMemberResponse member : members) {
-            TemplatePushRequest pushRequest = TemplatePushRequest.builder()
-                    .receiverId(member.getUserId())
-                    .pushCode(PushCodeType.PARTY_CLOSE.getCode())
-                    .params(Map.of("product_name", productName))
-                    .moduleId(String.valueOf(partyId))
-                    .moduleType(PushCodeType.PARTY_CLOSE.getModuleType())
-                    .build();
-
-            pushService.sendTemplatePush(pushRequest);
-        }
-    }
-
     private String getProductName(Integer productId) {
         try {
             Product product = productDao.getProduct(productId);
@@ -604,83 +538,5 @@ public class PartyServiceImpl implements PartyService {
         } catch (Exception e) {
             return "Unknown Product";
         }
-    }
-
-    // ========== 결제 재시도 및 타임아웃 처리 ==========
-
-    /**
-     * 방장 보증금 결제 재시도
-     *
-     * 프로세스:
-     * 1. 파티 상태 확인 (PENDING_PAYMENT만 재시도 가능)
-     * 2. 방장 권한 확인
-     * 3. Toss Payments 결제 처리
-     * 4. 성공 시 PARTY 상태 → RECRUITING
-     */
-    @Override
-    public PartyDetailResponse retryLeaderDeposit(
-            Integer partyId,
-            String userId,
-            PaymentRequest paymentRequest) {
-
-        // 1. 파티 조회
-        Party party = partyDao.findById(partyId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.PARTY_NOT_FOUND));
-
-        // 2. 방장 권한 확인
-        if (!party.getPartyLeaderId().equals(userId)) {
-            throw new BusinessException(ErrorCode.NOT_PARTY_LEADER);
-        }
-
-        // 3. 파티 상태 확인 (PENDING_PAYMENT만 재시도 가능)
-        if (party.getPartyStatus() != PartyStatus.PENDING_PAYMENT) {
-            throw new BusinessException(ErrorCode.INVALID_PARTY_STATUS,
-                    "결제 대기 상태의 파티만 재시도할 수 있습니다.");
-        }
-
-        // 4. 기존 processLeaderDeposit 로직 재사용
-        return processLeaderDeposit(partyId, userId, paymentRequest);
-    }
-
-    /**
-     * 결제 타임아웃으로 인한 파티 취소
-     *
-     * 프로세스:
-     * 1. 파티 상태를 CANCELLED로 변경
-     * 2. 취소 사유 로깅
-     */
-    @Override
-    public void cancelExpiredParty(Integer partyId, String reason) {
-        log.info("파티 타임아웃 취소: partyId={}, reason={}", partyId, reason);
-
-        // 1. 파티 조회
-        Party party = partyDao.findById(partyId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.PARTY_NOT_FOUND));
-
-        // 2. 이미 취소된 파티인지 확인
-        if (party.getPartyStatus() == PartyStatus.CANCELLED) {
-            log.info("이미 취소된 파티입니다: partyId={}", partyId);
-            return;
-        }
-
-        // 3. PENDING_PAYMENT 상태인지 확인
-        if (party.getPartyStatus() != PartyStatus.PENDING_PAYMENT) {
-            log.warn("PENDING_PAYMENT 상태가 아닌 파티는 타임아웃 취소할 수 없습니다: partyId={}, status={}",
-                    partyId, party.getPartyStatus());
-            return;
-        }
-
-        // 4. 파티 상태를 CANCELLED로 변경
-        partyDao.updatePartyStatus(partyId, PartyStatus.CANCELLED);
-
-        // 5. 파티 멤버(방장) 상태도 INACTIVE로 변경
-        partyMemberDao.findByPartyIdAndUserId(partyId, party.getPartyLeaderId())
-                .ifPresent(member -> {
-                    member.setMemberStatus(MemberStatus.INACTIVE);
-                    member.setWithdrawDate(LocalDateTime.now());
-                    partyMemberDao.updatePartyMember(member);
-                });
-
-        log.info("파티 타임아웃 취소 완료: partyId={}", partyId);
     }
 }

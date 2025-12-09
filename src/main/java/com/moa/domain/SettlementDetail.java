@@ -13,14 +13,12 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class LoginHistory {
-
-	private Long id;
-	private String userId;
-	private LocalDateTime loginAt;
-	private Boolean success;
-	private String loginIp;
-	private String userAgent;
-	private String failReason;
-	private String loginType;
+public class SettlementDetail {
+    private Integer detailId;
+    private Integer settlementId;
+    private Integer paymentId;
+    private Integer partyMemberId;
+    private String userId;
+    private Integer paymentAmount;
+    private LocalDateTime regDate;
 }

@@ -6,19 +6,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.moa.common.exception.ApiResponse;
 import com.moa.common.exception.BusinessException;
 import com.moa.common.exception.ErrorCode;
-import com.moa.dto.party.response.PartyDetailResponse;
-import com.moa.dto.payment.request.PaymentRequest;
 import com.moa.dto.payment.response.PaymentDetailResponse;
 import com.moa.dto.payment.response.PaymentResponse;
-import com.moa.service.party.PartyService;
 import com.moa.service.payment.PaymentService;
 
 /**
@@ -43,11 +38,9 @@ import com.moa.service.payment.PaymentService;
 public class PaymentRestController {
 
     private final PaymentService paymentService;
-    private final PartyService partyService;
 
-    public PaymentRestController(PaymentService paymentService, PartyService partyService) {
+    public PaymentRestController(PaymentService paymentService) {
         this.paymentService = paymentService;
-        this.partyService = partyService;
     }
 
     private String getCurrentUserId() {
@@ -118,57 +111,6 @@ public class PaymentRestController {
     @GetMapping("/party/{partyId}")
     public ApiResponse<List<PaymentResponse>> getPartyPayments(@PathVariable Integer partyId) {
         List<PaymentResponse> response = paymentService.getPartyPayments(partyId);
-        return ApiResponse.success(response);
-    }
-
-    // ========================================
-    // 결제 재시도
-    // ========================================
-
-    /**
-     * 월 구독료 결제 재시도
-     * POST /api/v1/payments/{paymentId}/retry
-     *
-     * 파티원이 실패한 월 구독료 결제를 수동으로 재시도합니다.
-     * - 결제 상태가 FAILED인 경우에만 재시도 가능
-     * - 최대 4회까지 재시도 가능
-     *
-     * @param paymentId 결제 ID
-     * @return 재시도 결과 (결제 상세 정보)
-     */
-    @PostMapping("/{paymentId}/retry")
-    public ApiResponse<PaymentDetailResponse> retryPayment(@PathVariable Integer paymentId) {
-        String userId = getCurrentUserId();
-        if (userId == null) {
-            throw new BusinessException(ErrorCode.UNAUTHORIZED, "로그인이 필요합니다.");
-        }
-
-        PaymentDetailResponse response = paymentService.retryFailedPayment(paymentId, userId);
-        return ApiResponse.success(response);
-    }
-
-    /**
-     * 보증금 결제 재시도 (파티장용)
-     * POST /api/v1/payments/deposit/{partyId}/retry
-     *
-     * 파티장이 실패한 보증금 결제를 재시도합니다.
-     * - 파티 상태가 PENDING_PAYMENT인 경우에만 재시도 가능
-     * - 파티장만 재시도 가능
-     *
-     * @param partyId 파티 ID
-     * @param request 결제 요청 정보 (Toss paymentKey, orderId 등)
-     * @return 재시도 결과 (파티 정보)
-     */
-    @PostMapping("/deposit/{partyId}/retry")
-    public ApiResponse<PartyDetailResponse> retryDepositPayment(
-            @PathVariable Integer partyId,
-            @RequestBody PaymentRequest request) {
-        String userId = getCurrentUserId();
-        if (userId == null) {
-            throw new BusinessException(ErrorCode.UNAUTHORIZED, "로그인이 필요합니다.");
-        }
-
-        PartyDetailResponse response = partyService.retryLeaderDeposit(partyId, userId, request);
         return ApiResponse.success(response);
     }
 }

@@ -3,7 +3,7 @@ package com.moa.service.settlement;
 import java.util.List;
 
 import com.moa.domain.Settlement;
-import com.moa.dto.payment.response.PaymentResponse;
+import com.moa.dto.settlement.response.SettlementDetailResponse;
 import com.moa.dto.settlement.response.SettlementResponse;
 
 /**
@@ -40,20 +40,10 @@ public interface SettlementService {
     List<SettlementResponse> getSettlementsByLeaderId(String leaderId);
 
     /**
-     * 정산 상세 내역 조회 (포함된 결제 내역)
+     * 정산 상세 내역 조회
      *
      * @param settlementId 정산 ID
-     * @return 해당 정산에 포함된 결제 목록
+     * @return 정산 상세 목록 (포함된 결제 내역)
      */
-    List<PaymentResponse> getSettlementDetails(Integer settlementId);
-    
-    /**
-     * 방장별 정산 내역 조회 (기간 필터)
-     *
-     * @param leaderId 방장 사용자 ID
-     * @param startDate 시작일 (YYYY-MM-DD)
-     * @param endDate 종료일 (YYYY-MM-DD)
-     * @return 정산 목록
-     */
-    List<SettlementResponse> getSettlementHistory(String leaderId, String startDate, String endDate);
+    List<SettlementDetailResponse> getSettlementDetails(Integer settlementId);
 }

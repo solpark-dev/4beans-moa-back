@@ -61,11 +61,11 @@ public class OpenBankingService {
         try {
             // redirect_uri는 URL 인코딩 필요
             String encodedRedirectUri = java.net.URLEncoder.encode(config.getCallbackUrl(), "UTF-8");
-
-            // scope는 공백으로 구분 - URLEncoder는 공백을 +로 인코딩하므로 %20으로 교체
-            String encodedScope = java.net.URLEncoder.encode("login inquiry transfer", "UTF-8")
-                    .replace("+", "%20");
-
+            
+            // scope는 공백으로 구분하고 URL 인코딩
+            // 오픈뱅킹 표준: login, inquiry, transfer
+            String encodedScope = java.net.URLEncoder.encode("login inquiry transfer", "UTF-8");
+            
             String authUrl = baseUrl + "?" +
                     "response_type=code" +
                     "&client_id=" + config.getClientId() +
@@ -73,7 +73,7 @@ public class OpenBankingService {
                     "&scope=" + encodedScope +
                     "&state=" + userId +
                     "&auth_type=0";
-
+            
             log.info("=== OpenBanking Auth URL Generation ===");
             log.info("Base URL: {}", baseUrl);
             log.info("Client ID: {}", config.getClientId());
@@ -83,7 +83,7 @@ public class OpenBankingService {
             log.info("State (userId): {}", userId);
             log.info("Full Auth URL: {}", authUrl);
             log.info("=======================================");
-
+            
             return authUrl;
         } catch (java.io.UnsupportedEncodingException e) {
             log.error("URL encoding failed", e);

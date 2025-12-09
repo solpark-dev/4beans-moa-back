@@ -32,16 +32,4 @@ public interface PaymentDao {
         int updatePaymentStatus(
                         @Param("paymentId") Integer paymentId,
                         @Param("status") String status);
-
-        /**
-         * 정산 ID 업데이트 (비정규화 - SETTLEMENT_DETAIL 테이블 제거로 인해 추가)
-         */
-        int updateSettlementId(
-                        @Param("paymentId") Integer paymentId,
-                        @Param("settlementId") Integer settlementId);
-
-        /**
-         * 정산 ID로 결제 내역 조회 (정산 상세 조회용)
-         */
-        List<PaymentResponse> findBySettlementId(@Param("settlementId") Integer settlementId);
 }
