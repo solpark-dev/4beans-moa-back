@@ -20,11 +20,13 @@ import com.moa.dao.user.UserDao;
 import com.moa.domain.EmailVerification;
 import com.moa.domain.User;
 import com.moa.domain.enums.UserStatus;
+import com.moa.dto.auth.BackupCodeLoginRequest;
 import com.moa.dto.auth.OtpLoginVerifyRequest;
 import com.moa.dto.auth.TokenResponse;
 import com.moa.dto.user.request.LoginRequest;
 import com.moa.dto.user.response.LoginResponse;
 import com.moa.service.auth.AuthService;
+import com.moa.service.auth.BackupCodeService;
 import com.moa.service.auth.OtpService;
 
 import lombok.RequiredArgsConstructor;
@@ -40,6 +42,7 @@ public class AuthServiceImpl implements AuthService {
 	private final PasswordEncoder passwordEncoder;
 	private final JwtProvider jwtProvider;
 	private final OtpService otpService;
+	private final BackupCodeService backupCodeService;
 
 	@Override
 	public LoginResponse login(LoginRequest request) {
@@ -170,5 +173,26 @@ public class AuthServiceImpl implements AuthService {
 		} catch (Exception e) {
 			throw new BusinessException(ErrorCode.UNAUTHORIZED, "OTP 토큰이 유효하지 않습니다.");
 		}
+	}
+
+	@Override
+	public TokenResponse verifyLoginBackupCode(BackupCodeLoginRequest request) {
+		String userId = extractUserIdFromOtpToken(request.getOtpToken());
+
+		User user = userDao.findByUserIdIncludeDeleted(userId)
+				.orElseThrow(() -> new BusinessException(ErrorCode.INVALID_LOGIN));
+
+		if (!Boolean.TRUE.equals(user.getOtpEnabled())) {
+			throw new BusinessException(ErrorCode.FORBIDDEN, "OTP가 설정된 계정이 아닙니다.");
+		}
+
+		backupCodeService.verifyForLogin(userId, request.getCode());
+
+		userDao.updateLastLoginDate(userId);
+
+		Authentication authentication = new UsernamePasswordAuthenticationToken(userId, null,
+				List.of(new SimpleGrantedAuthority(user.getRole())));
+
+		return jwtProvider.generateToken(authentication);
 	}
 }

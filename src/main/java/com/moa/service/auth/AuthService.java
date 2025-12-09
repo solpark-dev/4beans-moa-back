@@ -1,5 +1,6 @@
 package com.moa.service.auth;
 
+import com.moa.dto.auth.BackupCodeLoginRequest;
 import com.moa.dto.auth.OtpLoginVerifyRequest;
 import com.moa.dto.auth.TokenResponse;
 import com.moa.dto.user.request.LoginRequest;
@@ -16,4 +17,6 @@ public interface AuthService {
 	void verifyEmail(String token);
 
 	TokenResponse verifyLoginOtp(OtpLoginVerifyRequest request);
+
+	TokenResponse verifyLoginBackupCode(BackupCodeLoginRequest request);
 }

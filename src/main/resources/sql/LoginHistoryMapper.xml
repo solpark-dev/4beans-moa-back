@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.moa.dao.auth.LoginHistoryDao">
+
+	<resultMap id="loginHistoryMap"
+		type="com.moa.domain.LoginHistory">
+		<id property="id" column="ID" />
+		<result property="userId" column="USER_ID" />
+		<result property="loginAt" column="LOGIN_AT" />
+		<result property="success" column="SUCCESS" />
+		<result property="loginIp" column="LOGIN_IP" />
+		<result property="userAgent" column="USER_AGENT" />
+		<result property="failReason" column="FAIL_REASON" />
+		<result property="loginType" column="LOGIN_TYPE" />
+	</resultMap>
+
+	<insert id="insert" parameterType="com.moa.domain.LoginHistory">
+		INSERT INTO LOGIN_HISTORY
+		(
+		USER_ID,
+		LOGIN_AT,
+		SUCCESS,
+		LOGIN_IP,
+		USER_AGENT,
+		FAIL_REASON,
+		LOGIN_TYPE
+		)
+		VALUES
+		(
+		#{userId},
+		#{loginAt},
+		#{success},
+		#{loginIp},
+		#{userAgent},
+		#{failReason},
+		#{loginType}
+		)
+	</insert>
+
+	<select id="findByUserId" resultMap="loginHistoryMap">
+		SELECT
+		ID,
+		USER_ID,
+		LOGIN_AT,
+		SUCCESS,
+		LOGIN_IP,
+		USER_AGENT,
+		FAIL_REASON,
+		LOGIN_TYPE
+		FROM LOGIN_HISTORY
+		WHERE USER_ID = #{userId}
+		ORDER BY LOGIN_AT DESC, ID DESC
+		LIMIT #{limit}
+		OFFSET #{offset}
+	</select>
+
+	<select id="countByUserId" resultType="long">
+		SELECT COUNT(1)
+		FROM
+		LOGIN_HISTORY
+		WHERE USER_ID = #{userId}
+	</select>
+
+</mapper>

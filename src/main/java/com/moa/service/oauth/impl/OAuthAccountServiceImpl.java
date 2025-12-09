@@ -87,4 +87,5 @@ public class OAuthAccountServiceImpl implements OAuthAccountService {
 
 		dao.transferOAuthUser(provider, providerUserId, toUserId);
 	}
+
 }

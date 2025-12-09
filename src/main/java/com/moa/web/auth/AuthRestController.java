@@ -1,8 +1,11 @@
 package com.moa.web.auth;
 
+import java.util.List;
 import java.util.Map;
 
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -13,6 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.moa.common.exception.ApiResponse;
 import com.moa.common.exception.BusinessException;
 import com.moa.common.exception.ErrorCode;
+import com.moa.dto.auth.BackupCodeIssueResponse;
+import com.moa.dto.auth.BackupCodeLoginRequest;
 import com.moa.dto.auth.OtpLoginVerifyRequest;
 import com.moa.dto.auth.OtpSetupResponse;
 import com.moa.dto.auth.OtpVerifyRequest;
@@ -21,10 +26,14 @@ import com.moa.dto.auth.UnlockAccountRequest;
 import com.moa.dto.user.request.LoginRequest;
 import com.moa.dto.user.response.LoginResponse;
 import com.moa.service.auth.AuthService;
+import com.moa.service.auth.BackupCodeService;
+import com.moa.service.auth.LoginHistoryService;
 import com.moa.service.auth.OtpService;
 import com.moa.service.passauth.PassAuthService;
 import com.moa.service.user.UserService;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -37,15 +46,72 @@ public class AuthRestController {
 	private final OtpService otpService;
 	private final PassAuthService passAuthService;
 	private final UserService userService;
+	private final LoginHistoryService loginHistoryService;
+	private final BackupCodeService backupCodeService;
 
 	@PostMapping("/login")
-	public ApiResponse<LoginResponse> login(@RequestBody @Valid LoginRequest request) {
-		return ApiResponse.success(authService.login(request));
+	public ApiResponse<LoginResponse> login(@RequestBody @Valid LoginRequest request,
+	                                        HttpServletRequest httpRequest,
+	                                        HttpServletResponse httpResponse) {
+
+	    String clientIp = extractClientIp(httpRequest);
+	    String userAgent = httpRequest.getHeader("User-Agent");
+	    String loginType = "PASSWORD";
+
+	    try {
+	        LoginResponse response = authService.login(request);
+
+	        String userId = extractUserIdFromLoginRequest(request);
+	        if (userId == null || userId.isBlank()) {
+	            userId = response.getUserId();
+	        }
+
+	        loginHistoryService.recordSuccess(userId, loginType, clientIp, userAgent);
+	        ResponseCookie accessCookie = ResponseCookie.from("ACCESS_TOKEN", response.getAccessToken())
+	                .httpOnly(true)
+	                .secure(true)
+	                .sameSite("None")
+	                .path("/")
+	                .maxAge(response.getAccessTokenExpiresIn())
+	                .build();
+
+	        ResponseCookie refreshCookie = ResponseCookie.from("REFRESH_TOKEN", response.getRefreshToken())
+	                .httpOnly(true)
+	                .secure(true)
+	                .sameSite("None")
+	                .path("/")
+	                .maxAge(60 * 60 * 24 * 14)
+	                .build();
+
+	        httpResponse.addHeader("Set-Cookie", accessCookie.toString());
+	        httpResponse.addHeader("Set-Cookie", refreshCookie.toString());
+
+	        return ApiResponse.success(response);
+
+	    } catch (BusinessException e) {
+	        String userId = extractUserIdFromLoginRequest(request);
+	        loginHistoryService.recordFailure(userId, loginType, clientIp, userAgent, e.getMessage());
+	        throw e;
+	    }
 	}
 
+
 	@PostMapping("/login/otp-verify")
-	public ApiResponse<TokenResponse> verifyLoginOtp(@RequestBody @Valid OtpLoginVerifyRequest request) {
-		return ApiResponse.success(authService.verifyLoginOtp(request));
+	public ApiResponse<TokenResponse> verifyLoginOtp(@RequestBody @Valid OtpLoginVerifyRequest request,
+			HttpServletRequest httpRequest) {
+
+		String clientIp = extractClientIp(httpRequest);
+		String userAgent = httpRequest.getHeader("User-Agent");
+		String loginType = "OTP";
+		String userId = request.getUserId();
+		if (userId == null || userId.isBlank()) {
+			throw new BusinessException(ErrorCode.BAD_REQUEST, "userId가 필요합니다.");
+		}
+
+		TokenResponse tokenResponse = authService.verifyLoginOtp(request);
+		loginHistoryService.recordSuccess(userId, loginType, clientIp, userAgent);
+
+		return ApiResponse.success(tokenResponse);
 	}
 
 	@PostMapping("/refresh")
@@ -76,6 +142,43 @@ public class AuthRestController {
 	public ApiResponse<Void> verifyOtp(@RequestBody @Valid OtpVerifyRequest request) {
 		otpService.verify(request);
 		return ApiResponse.success(null);
+	}
+
+	@PostMapping("/otp/backup/issue")
+	public ApiResponse<BackupCodeIssueResponse> issueBackupCodes() {
+		List<String> codes = backupCodeService.issueForCurrentUser();
+		BackupCodeIssueResponse response = BackupCodeIssueResponse.builder().codes(codes).issued(true).build();
+		return ApiResponse.success(response);
+	}
+
+	@PostMapping("/login/backup-verify")
+	public ApiResponse<TokenResponse> verifyLoginBackup(@RequestBody @Valid BackupCodeLoginRequest request,
+			HttpServletRequest httpRequest) {
+		String clientIp = extractClientIp(httpRequest);
+		String userAgent = httpRequest.getHeader("User-Agent");
+		String loginType = "OTP_BACKUP";
+
+		TokenResponse tokenResponse = authService.verifyLoginBackupCode(request);
+
+		String userId = request.getUserId();
+		if (userId == null || userId.isBlank()) {
+			userId = SecurityContextHolder.getContext().getAuthentication() != null
+					? SecurityContextHolder.getContext().getAuthentication().getName()
+					: null;
+		}
+
+		if (userId != null && !userId.isBlank()) {
+			loginHistoryService.recordSuccess(userId, loginType, clientIp, userAgent);
+		}
+
+		return ApiResponse.success(tokenResponse);
+	}
+
+	@GetMapping("/otp/backup/list")
+	public ApiResponse<BackupCodeIssueResponse> getBackupCodeList() {
+		boolean issued = backupCodeService.hasBackupCodesForCurrentUser();
+		BackupCodeIssueResponse response = BackupCodeIssueResponse.builder().codes(List.of()).issued(issued).build();
+		return ApiResponse.success(response);
 	}
 
 	@PostMapping("/otp/disable")
@@ -114,4 +217,29 @@ public class AuthRestController {
 
 		return ApiResponse.success(null);
 	}
+
+	private String extractClientIp(HttpServletRequest request) {
+		String ip = request.getHeader("X-Forwarded-For");
+		if (ip != null && !ip.isBlank()) {
+			int commaIndex = ip.indexOf(',');
+			if (commaIndex > 0) {
+				return ip.substring(0, commaIndex).trim();
+			}
+			return ip.trim();
+		}
+		ip = request.getHeader("X-Real-IP");
+		if (ip != null && !ip.isBlank()) {
+			return ip.trim();
+		}
+		return request.getRemoteAddr();
+	}
+
+	private String extractUserIdFromLoginRequest(LoginRequest request) {
+		try {
+			return request.getUserId();
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
 }

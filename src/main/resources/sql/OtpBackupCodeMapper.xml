@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.moa.dao.user.OtpBackupCodeDao">
+
+	<resultMap id="OtpBackupCodeMap"
+		type="com.moa.domain.OtpBackupCode">
+		<id column="ID" property="id" />
+		<result column="USER_ID" property="userId" />
+		<result column="CODE_HASH" property="codeHash" />
+		<result column="USED" property="used" />
+		<result column="CREATED_AT" property="createdAt" />
+		<result column="USED_AT" property="usedAt" />
+	</resultMap>
+
+	<insert id="insert">
+		INSERT INTO USER_OTP_BACKUP_CODE (USER_ID, CODE_HASH)
+		VALUES (#{userId}, #{codeHash})
+	</insert>
+
+	<select id="findValidCodes" resultMap="OtpBackupCodeMap">
+		SELECT
+		ID,
+		USER_ID,
+		CODE_HASH,
+		USED,
+		CREATED_AT,
+		USED_AT
+		FROM USER_OTP_BACKUP_CODE
+		WHERE USER_ID = #{userId}
+		AND USED = 0
+	</select>
+
+	<update id="markUsed">
+		UPDATE USER_OTP_BACKUP_CODE
+		SET USED = 1,
+		USED_AT = NOW()
+		WHERE ID = #{id}
+	</update>
+
+	<delete id="deleteAllByUserId">
+		DELETE FROM USER_OTP_BACKUP_CODE
+		WHERE USER_ID = #{userId}
+	</delete>
+
+</mapper>

@@ -30,6 +30,7 @@ import com.moa.dto.user.request.UserCreateRequest;
 import com.moa.dto.user.request.UserUpdateRequest;
 import com.moa.dto.user.response.CommonCheckResponse;
 import com.moa.dto.user.response.UserResponse;
+import com.moa.service.oauth.OAuthAccountService;
 import com.moa.service.passauth.PassAuthService;
 import com.moa.service.user.UserService;
 
@@ -43,15 +44,19 @@ public class UserRestController {
 	private final PassAuthService passAuthService;
 	private final AccountDao accountDao;
 	private final UserCardDao userCardDao;
+	private final OAuthAccountService oauthService;
 	private final com.moa.service.payment.TossPaymentService tossPaymentService;
 
 	public UserRestController(UserService userService, PassAuthService passAuthService, AccountDao accountDao,
-			UserCardDao userCardDao, com.moa.service.payment.TossPaymentService tossPaymentService) {
+			UserCardDao userCardDao, com.moa.service.payment.TossPaymentService tossPaymentService,
+			OAuthAccountService oauthService) {
 		this.userService = userService;
 		this.passAuthService = passAuthService;
 		this.accountDao = accountDao;
 		this.userCardDao = userCardDao;
+		this.oauthService = oauthService;
 		this.tossPaymentService = tossPaymentService;
+
 	}
 
 	private String getCurrentUserId() {
@@ -286,7 +291,11 @@ public class UserRestController {
 		String provider = request.get("provider");
 		String providerUserId = request.get("providerUserId");
 
-//		userService.connectSocialAccount(userId, provider, providerUserId);
+		if (provider == null || providerUserId == null) {
+			throw new BusinessException(ErrorCode.INVALID_PARAMETER, "provider 또는 providerUserId 누락");
+		}
+
+		oauthService.connectOAuthAccount(userId, provider, providerUserId);
 
 		return ApiResponse.success(null);
 	}

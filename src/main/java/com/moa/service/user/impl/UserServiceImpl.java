@@ -193,19 +193,11 @@ public class UserServiceImpl implements UserService {
 			passCertifiedAt = now;
 		}
 
-		User user = User.builder()
-				.userId(request.getUserId().toLowerCase())
+		User user = User.builder().userId(request.getUserId().toLowerCase())
 				.password(isSocial ? null : passwordEncoder.encode(request.getPassword()))
-				.nickname(request.getNickname())
-				.phone(request.getPhone())
-				.profileImage(profileImageUrl)
-				.role("USER")
-				.status(isSocial ? UserStatus.ACTIVE : UserStatus.PENDING)
-				.regDate(now)
-				.ci(request.getCi())
-				.passCertifiedAt(passCertifiedAt)
-				.loginFailCount(0)
-				.provider(isSocial ? request.getProvider() : null)
+				.nickname(request.getNickname()).phone(request.getPhone()).profileImage(profileImageUrl).role("USER")
+				.status(isSocial ? UserStatus.ACTIVE : UserStatus.PENDING).regDate(now).ci(request.getCi())
+				.passCertifiedAt(passCertifiedAt).loginFailCount(0).provider(isSocial ? request.getProvider() : null)
 				.build();
 
 		userDao.insertUser(user);
@@ -242,6 +234,48 @@ public class UserServiceImpl implements UserService {
 
 		request.setSize(size);
 		request.setOffset(offset);
+
+		List<String> dbSortList = new java.util.ArrayList<>();
+
+		if (request.getSort() != null && !request.getSort().isBlank()) {
+			String[] sortParams = request.getSort().split(",");
+
+			for (int i = 0; i < sortParams.length; i += 2) {
+				if (i + 1 >= sortParams.length)
+					break;
+
+				String property = sortParams[i];
+				String direction = sortParams[i + 1].toUpperCase();
+
+				if (!"ASC".equals(direction) && !"DESC".equals(direction)) {
+					direction = "DESC";
+				}
+
+				String dbColumn = null;
+				switch (property) {
+				case "lastLoginDate":
+					dbColumn = "u.LAST_LOGIN_DATE";
+					break;
+				case "regDate":
+					dbColumn = "u.REG_DATE";
+					break;
+				case "userId":
+					dbColumn = "u.USER_ID";
+					break;
+				case "status":
+					dbColumn = "u.USER_STATUS";
+					break;
+				default:
+					continue;
+				}
+
+				if (dbColumn != null) {
+					dbSortList.add(dbColumn + " " + direction);
+				}
+			}
+		}
+
+		request.setDbSortList(dbSortList);
 
 		long totalCount = adminDao.countAdminUsers(request);
 		List<AdminUserListItemResponse> content = totalCount > 0 ? adminDao.findAdminUsers(request)

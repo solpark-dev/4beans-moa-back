@@ -8,8 +8,7 @@ public enum ErrorCode {
 
 	BAD_REQUEST("E400", "잘못된 요청입니다.", HttpStatus.BAD_REQUEST),
 	UNAUTHORIZED("E401", "인증이 필요합니다.", HttpStatus.UNAUTHORIZED),
-	FORBIDDEN("E403", "접근 권한이 없습니다.", HttpStatus.FORBIDDEN),
-	NOT_FOUND("E404", "대상을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+	FORBIDDEN("E403", "접근 권한이 없습니다.", HttpStatus.FORBIDDEN), NOT_FOUND("E404", "대상을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
 	VALIDATION_ERROR("E422", "유효성 검증 실패입니다.", HttpStatus.UNPROCESSABLE_ENTITY),
 	CONFLICT("E409", "요청 충돌이 발생했습니다.", HttpStatus.CONFLICT),
 	INTERNAL_ERROR("E999", "서버 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
@@ -61,6 +60,7 @@ public enum ErrorCode {
 	PAYMENT_RETRY_FAILED("PAY501", "결제 재시도에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
 	MAX_RETRY_EXCEEDED("PAY502", "최대 재시도 횟수를 초과했습니다.", HttpStatus.BAD_REQUEST),
 	RETRY_NOT_FOUND("PAY503", "재시도 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+	INVALID_PAYMENT_STATUS("PAY400", "잘못된 결제 상태입니다.", HttpStatus.BAD_REQUEST),
 
 	// 상품(Product) 관련 에러
 	PRODUCT_NOT_FOUND("PR404", "상품을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
@@ -71,6 +71,7 @@ public enum ErrorCode {
 	START_DATE_REQUIRED("V004", "파티 시작일은 필수입니다.", HttpStatus.BAD_REQUEST),
 	OTT_ID_REQUIRED("V006", "OTT 계정 ID는 필수입니다.", HttpStatus.BAD_REQUEST),
 	OTT_PASSWORD_REQUIRED("V007", "OTT 계정 비밀번호는 필수입니다.", HttpStatus.BAD_REQUEST),
+	BACKUP_CODE_ALREADY_ISSUED("E450", "이미 발급된 백업 코드가 있습니다.", HttpStatus.BAD_REQUEST),
 
 	// 회원(User) 관련 에러
 	USER_NOT_FOUND("U404", "사용자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
@@ -78,7 +79,8 @@ public enum ErrorCode {
 	ACCOUNT_WITHDRAW("U410", "탈퇴한 계정입니다.", HttpStatus.FORBIDDEN),
 	ACCOUNT_BLOCKED("U403", "블랙리스트 계정입니다. 이용이 제한되었습니다.", HttpStatus.FORBIDDEN),
 	INVALID_LOGIN("U401", "아이디 또는 비밀번호가 올바르지 않습니다.", HttpStatus.UNAUTHORIZED),
-	INVALID_INPUT_VALUE("E400", "잘못된 입력값입니다.", HttpStatus.BAD_REQUEST);
+	INVALID_PARAMETER("E400", "잘못된 요청 파라미터입니다.", HttpStatus.BAD_REQUEST),
+	INVALID_INPUT_VALUE("E444", "잘못된 입력값입니다.", HttpStatus.BAD_REQUEST);
 
 	private final String code;
 	private final String message;

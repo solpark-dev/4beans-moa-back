@@ -45,7 +45,8 @@
 		u.LAST_LOGIN_DATE AS lastLoginDate,
 		u.REG_DATE AS regDate,
 		CASE
-		WHEN b.STATUS = 'ACTIVE' THEN 1 ELSE 0 END AS blacklisted
+		WHEN b.STATUS = 'ACTIVE' THEN 1 ELSE 0
+		END AS blacklisted
 		FROM USERS u
 		LEFT JOIN BLACKLIST b
 		ON u.USER_ID = b.USER_ID
@@ -67,7 +68,18 @@
 				AND u.REG_DATE &lt;= #{regDateTo}
 			</if>
 		</where>
-		ORDER BY u.REG_DATE DESC
+
+		ORDER BY
+		<if test="dbSortList != null and dbSortList.size() > 0">
+			<foreach collection="dbSortList" item="sortItem"
+				separator=",">
+				${sortItem}
+			</foreach>
+		</if>
+		<if test="dbSortList == null or dbSortList.size() == 0">
+			u.REG_DATE DESC
+		</if>
+
 		LIMIT #{size}
 		OFFSET #{offset}
 	</select>

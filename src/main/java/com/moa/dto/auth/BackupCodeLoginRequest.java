@@ -1,12 +1,10 @@
 package com.moa.dto.auth;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
-public class OtpLoginVerifyRequest {
+@Data
+public class BackupCodeLoginRequest {
 
 	@NotBlank
 	private String otpToken;
