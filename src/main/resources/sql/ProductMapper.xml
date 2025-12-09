@@ -28,10 +28,13 @@
     </select>
 
     <select id="getProductList" resultMap="productResultMap">
-        SELECT p.PRODUCT_ID, p.CATEGORY_ID, p.PRODUCT_NAME, p.PRODUCT_STATUS, p.PRICE, p.IMAGE, c.CATEGORY_NAME
-        FROM PRODUCT p
-        LEFT JOIN CATEGORY c ON p.CATEGORY_ID = c.CATEGORY_ID
-        ORDER BY p.PRODUCT_ID DESC
+SELECT     p.PRODUCT_ID,     p.CATEGORY_ID,     p.PRODUCT_NAME,     p.PRODUCT_STATUS,     p.PRICE,     p.IMAGE,     c.CATEGORY_NAME
+FROM PRODUCT p
+LEFT JOIN CATEGORY c ON p.CATEGORY_ID = c.CATEGORY_ID
+ORDER BY     
+	 p.CATEGORY_ID,
+    SUBSTRING_INDEX(p.PRODUCT_NAME, ' ', 1),   -- 서비스명(Netflix) 정렬
+    p.PRICE ASC;  
     </select>
 
     <update id="updateProduct" parameterType="Product">
