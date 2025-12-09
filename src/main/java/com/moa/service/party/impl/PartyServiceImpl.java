@@ -421,7 +421,7 @@ public class PartyServiceImpl implements PartyService {
         }
 
         // 13. 파티 가입 완료 알림 발송
-        safeSendPush(() -> sendPartyJoinPush(userId, party));
+        safeSendPush(() -> sendPartyJoinPush(userId, userId, party));
 
         return partyMemberDao.findByPartyMemberId(partyMember.getPartyMemberId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.PARTY_MEMBER_NOT_FOUND));
@@ -548,11 +548,12 @@ public class PartyServiceImpl implements PartyService {
         }
     }
 
-    private void sendPartyJoinPush(String userId, Party party) {
+    private void sendPartyJoinPush(String userId, String nickname, Party party) {
         TemplatePushRequest pushRequest = TemplatePushRequest.builder()
                 .receiverId(userId)
                 .pushCode(PushCodeType.PARTY_JOIN.getCode())
                 .params(Map.of(
+                        "nickname", nickname,
                         "product_name", getProductName(party.getProductId())))
                 .moduleId(String.valueOf(party.getPartyId()))
                 .moduleType(PushCodeType.PARTY_JOIN.getModuleType())
@@ -560,7 +561,7 @@ public class PartyServiceImpl implements PartyService {
 
         pushService.addTemplatePush(pushRequest);
     }
-
+    
     private void sendPartyStartPushToAllMembers(Integer partyId, Party party) {
         List<PartyMemberResponse> members = partyMemberDao.findMembersByPartyId(partyId);
         String productName = getProductName(party.getProductId());
