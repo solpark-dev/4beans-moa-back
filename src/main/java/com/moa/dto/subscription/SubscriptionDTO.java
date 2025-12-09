@@ -15,6 +15,12 @@ public class SubscriptionDTO {
     private String cancelReason;
     private Date cancelDate;
 
+    // Join Fields
+    private String productName;
+    private String productImage; // image column from Product table
+    private int price;
+    private String categoryName;
+
     public Subscription toEntity() {
         Subscription subscription = new Subscription();
         subscription.setSubscriptionId(this.subscriptionId);

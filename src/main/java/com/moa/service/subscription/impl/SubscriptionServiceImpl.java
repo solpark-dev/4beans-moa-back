@@ -7,7 +7,6 @@ import com.moa.service.subscription.SubscriptionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class SubscriptionServiceImpl implements SubscriptionService {
@@ -17,31 +16,28 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
     @Override
     public void addSubscription(SubscriptionDTO subscriptionDTO) throws Exception {
-        subscriptionDao.addSubscription(subscriptionDTO.toEntity());
+        Subscription subscription = subscriptionDTO.toEntity();
+        subscriptionDao.addSubscription(subscription);
     }
 
     @Override
     public SubscriptionDTO getSubscription(int subscriptionId) throws Exception {
-        Subscription subscription = subscriptionDao.getSubscription(subscriptionId);
-        return SubscriptionDTO.fromEntity(subscription);
+        return subscriptionDao.getSubscription(subscriptionId);
     }
 
     @Override
-    public List<SubscriptionDTO> getSubscriptionList() throws Exception {
-        List<Subscription> subscriptionList = subscriptionDao.getSubscriptionList();
-        return subscriptionList.stream()
-                .map(SubscriptionDTO::fromEntity)
-                .collect(Collectors.toList());
+    public List<SubscriptionDTO> getSubscriptionList(String userId) throws Exception {
+        return subscriptionDao.getSubscriptionList(userId);
     }
 
     @Override
     public void updateSubscription(SubscriptionDTO subscriptionDTO) throws Exception {
-        subscriptionDao.updateSubscription(subscriptionDTO.toEntity());
+        subscriptionDao.updateSubscription(subscriptionDTO);
     }
 
     @Override
     public void cancelSubscription(int subscriptionId) throws Exception {
-        Subscription subscription = subscriptionDao.getSubscription(subscriptionId);
+        SubscriptionDTO subscription = subscriptionDao.getSubscription(subscriptionId);
         if (subscription != null) {
             subscription.setSubscriptionStatus("CANCELLED");
             subscriptionDao.updateSubscription(subscription);

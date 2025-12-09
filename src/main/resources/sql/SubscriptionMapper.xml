@@ -14,6 +14,11 @@
         <result property="endDate" column="end_date"/>
         <result property="cancelReason" column="cancel_reason"/>
         <result property="cancelDate" column="cancel_date"/>
+        <!-- Product Join Fields -->
+        <result property="productName" column="product_name"/>
+        <result property="productImage" column="image"/>
+        <result property="price" column="price"/>
+        <result property="categoryName" column="category_name"/>
     </resultMap>
 
     <insert id="addSubscription" parameterType="Subscription" useGeneratedKeys="true" keyProperty="subscriptionId">
@@ -27,10 +32,14 @@
         WHERE subscription_id = #{subscriptionId}
     </select>
 
-    <select id="getSubscriptionList" resultMap="subscriptionResultMap">
-        SELECT subscription_id, user_id, product_id, subscription_status, start_date, end_date, cancel_reason, cancel_date
-        FROM subscription
-        ORDER BY subscription_id DESC
+    <select id="getSubscriptionList" parameterType="String" resultMap="subscriptionResultMap">
+        SELECT s.subscription_id, s.user_id, s.product_id, s.subscription_status, 
+               s.start_date, s.end_date, s.cancel_reason, s.cancel_date,
+               p.product_name, p.image, p.price, p.category_name
+        FROM subscription s
+        JOIN product p ON s.product_id = p.product_id
+        WHERE s.user_id = #{userId}
+        ORDER BY s.subscription_id DESC
     </select>
 
     <update id="updateSubscription" parameterType="Subscription">

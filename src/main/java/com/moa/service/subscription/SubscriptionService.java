@@ -9,7 +9,7 @@ public interface SubscriptionService {
 
     public SubscriptionDTO getSubscription(int subscriptionId) throws Exception;
 
-    public List<SubscriptionDTO> getSubscriptionList() throws Exception;
+    public List<SubscriptionDTO> getSubscriptionList(String userId) throws Exception;
 
     public void updateSubscription(SubscriptionDTO subscriptionDTO) throws Exception;
 
