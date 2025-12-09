@@ -100,6 +100,14 @@ public class SettlementServiceImpl implements SettlementService {
                                 : tempStartDate;
                 final LocalDateTime settlementEndDate = tempEndDate;
 
+                // [정산 기간 검증] 현재 날짜 이전의 완료된 billing cycle만 정산
+                LocalDateTime now = LocalDateTime.now();
+                if (settlementEndDate.isAfter(now)) {
+                        log.warn("정산 기간이 아직 완료되지 않음: partyId={}, targetMonth={}, endDate={}", 
+                                        partyId, targetMonth, settlementEndDate);
+                        throw new BusinessException(ErrorCode.SETTLEMENT_PERIOD_NOT_COMPLETED);
+                }
+
                 // 5. 해당 기간의 결제 내역 조회 (COMPLETED 상태이고 날짜 범위 내)
                 List<PaymentResponse> payments = paymentDao.findByPartyId(partyId);
 

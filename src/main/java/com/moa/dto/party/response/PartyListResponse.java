@@ -26,6 +26,8 @@ public class PartyListResponse {
 	private Integer currentMembers;
 	private Integer monthlyFee;
 	private LocalDate regDate;
+	private LocalDate startDate;
+	private LocalDate endDate;
 
 	// === 상품 정보 ===
 	private Integer productId;

@@ -142,4 +142,10 @@
 		ORDER BY JOIN_DATE ASC
 	</select>
 
+	<!-- 파티 멤버 삭제 (Toss 실패 시 롤백용) -->
+	<delete id="deletePartyMember">
+		DELETE FROM PARTY_MEMBER
+		WHERE PARTY_MEMBER_ID = #{partyMemberId}
+	</delete>
+
 </mapper>

@@ -16,6 +16,7 @@
         <result property="errorMessage" column="ERROR_MESSAGE"/>
         <result property="refundAmount" column="REFUND_AMOUNT"/>
         <result property="refundReason" column="REFUND_REASON"/>
+        <result property="retryType" column="RETRY_TYPE"/>
         <result property="createdAt" column="CREATED_AT"/>
         <result property="updatedAt" column="UPDATED_AT"/>
     </resultMap>
@@ -33,6 +34,7 @@
             ERROR_MESSAGE,
             REFUND_AMOUNT,
             REFUND_REASON,
+            RETRY_TYPE,
             CREATED_AT
         ) VALUES (
             #{depositId},
@@ -44,6 +46,7 @@
             #{errorMessage},
             #{refundAmount},
             #{refundReason},
+            #{retryType, jdbcType=VARCHAR},
             NOW()
         )
     </insert>

@@ -55,6 +55,7 @@ public class PartyServiceImpl implements PartyService {
     private final PaymentService paymentService;
     private final PushService pushService;
     private final com.moa.service.payment.TossPaymentService tossPaymentService;
+    private final com.moa.service.refund.RefundRetryService refundRetryService;
 
     public PartyServiceImpl(
             PartyDao partyDao,
@@ -63,7 +64,8 @@ public class PartyServiceImpl implements PartyService {
             DepositService depositService,
             PaymentService paymentService,
             PushService pushService,
-            com.moa.service.payment.TossPaymentService tossPaymentService) {
+            com.moa.service.payment.TossPaymentService tossPaymentService,
+            com.moa.service.refund.RefundRetryService refundRetryService) {
         this.partyDao = partyDao;
         this.partyMemberDao = partyMemberDao;
         this.productDao = productDao;
@@ -71,6 +73,7 @@ public class PartyServiceImpl implements PartyService {
         this.paymentService = paymentService;
         this.pushService = pushService;
         this.tossPaymentService = tossPaymentService;
+        this.refundRetryService = refundRetryService;
     }
 
     @Override
@@ -210,9 +213,30 @@ public class PartyServiceImpl implements PartyService {
 
     @Override
     @Transactional(readOnly = true)
-    public PartyDetailResponse getPartyDetail(Integer partyId) {
-        return partyDao.findDetailById(partyId)
+    public PartyDetailResponse getPartyDetail(Integer partyId, String userId) {
+        PartyDetailResponse response = partyDao.findDetailById(partyId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.PARTY_NOT_FOUND));
+
+        // 민감 정보 보호: 파티원이나 방장이 아니면 OTT 정보 숨김
+        boolean isMember = false;
+        if (userId != null) {
+            // 방장인지 확인
+            if (response.getPartyLeaderId().equals(userId)) {
+                isMember = true;
+            } else {
+                // 멤버인지 확인
+                isMember = partyMemberDao.findByPartyIdAndUserId(partyId, userId)
+                        .map(member -> member.getMemberStatus() == MemberStatus.ACTIVE)
+                        .orElse(false);
+            }
+        }
+
+        if (!isMember) {
+            response.setOttId(null);
+            response.setOttPassword(null);
+        }
+
+        return response;
     }
 
     @Override
@@ -270,16 +294,18 @@ public class PartyServiceImpl implements PartyService {
     }
 
     /**
-     * 파티원 가입 처리
+     * 파티원 가입 처리 (동시성 제어 개선)
      *
-     * v1.0 프로세스:
-     * 1. 보증금 결제 (인당 요금)
-     * 2. 첫 달 구독료 결제 (인당 요금)
-     * 3. DEPOSIT 생성
-     * 4. PAYMENT 생성
-     * 5. PARTY_MEMBER 상태 → ACTIVE
-     * 6. PARTY CURRENT_MEMBERS 증가 (동시성 제어)
-     * 7. 최대 인원 도달 시 PARTY 상태 → ACTIVE
+     * v1.1 프로세스 (정원 증가 우선):
+     * 1. 정원 증가 (동시성 제어) - Toss 호출 전에 먼저 실행
+     * 2. Toss 결제 승인
+     * 3. DEPOSIT, PAYMENT 생성
+     * 4. PARTY_MEMBER 상태 → ACTIVE
+     * 5. 최대 인원 도달 시 PARTY 상태 → ACTIVE
+     * 
+     * 실패 시 복구:
+     * - Toss 실패: 정원 복구 (decrementCurrentMembers)
+     * - DB 실패: 정원 복구 + 보상 트랜잭션 등록
      */
     @Override
     public PartyMemberResponse joinParty(
@@ -296,27 +322,28 @@ public class PartyServiceImpl implements PartyService {
             throw new BusinessException(ErrorCode.PARTY_NOT_RECRUITING);
         }
 
-        // 3. 정원 확인 (1차 체크)
-        if (party.getCurrentMembers() >= party.getMaxMembers()) {
-            throw new BusinessException(ErrorCode.PARTY_FULL);
-        }
-
-        // 4. 방장 본인 참여 방지
+        // 3. 방장 본인 참여 방지
         if (party.getPartyLeaderId().equals(userId)) {
             throw new BusinessException(ErrorCode.LEADER_CANNOT_JOIN);
         }
 
-        // 5. 중복 가입 확인 (이전에 탈퇴한 사용자도 재가입 불가)
+        // 4. 중복 가입 확인
         partyMemberDao.findByPartyIdAndUserId(partyId, userId)
                 .ifPresent(member -> {
                     throw new BusinessException(ErrorCode.ALREADY_JOINED);
                 });
 
+        // 5. [동시성 제어] 정원 증가 먼저 실행 (Toss 호출 전)
+        int updatedRows = partyDao.incrementCurrentMembers(partyId);
+        if (updatedRows == 0) {
+            // 이미 만석 - Toss 호출하지 않음
+            throw new BusinessException(ErrorCode.PARTY_FULL);
+        }
+
         // 6. 인당 요금 계산 (1/N)
-        // 사용자의 요청으로 마지막 멤버 여부와 관계없이 고정 금액 부과
         int fee = calculatePerPersonFee(party.getMonthlyFee(), party.getMaxMembers());
 
-        // 7. PARTY_MEMBER 생성 (임시 - PENDING_PAYMENT)
+        // 7. PARTY_MEMBER 생성 (PENDING_PAYMENT)
         PartyMember partyMember = PartyMember.builder()
                 .partyId(partyId)
                 .userId(userId)
@@ -326,23 +353,46 @@ public class PartyServiceImpl implements PartyService {
                 .build();
         partyMemberDao.insertPartyMember(partyMember);
 
-        // 8. Toss Payments 결제 승인 (보증금 + 첫 달 구독료 = fee * 2)
-        // 사용자는 한 번에 전체 금액을 결제했으므로, 여기서 한 번만 승인 처리
+        // 8. Toss Payments 결제 승인 (보증금 + 첫 달 구독료)
         int totalAmount = fee * 2;
-        tossPaymentService.confirmPayment(
-                paymentRequest.getTossPaymentKey(),
-                paymentRequest.getOrderId(),
-                totalAmount);
+        try {
+            tossPaymentService.confirmPayment(
+                    paymentRequest.getTossPaymentKey(),
+                    paymentRequest.getOrderId(),
+                    totalAmount);
+        } catch (Exception e) {
+            // Toss 실패 시 정원 복구
+            partyDao.decrementCurrentMembers(partyId);
+            partyMemberDao.deletePartyMember(partyMember.getPartyMemberId());
+            log.error("Toss 결제 실패, 정원 복구: partyId={}, error={}", partyId, e.getMessage());
+            throw e;
+        }
 
-        // 9. 보증금 기록 생성 (Toss 승인 없이 DB 기록만)
-        Deposit deposit = depositService.createDepositWithoutConfirm(
-                partyId,
-                partyMember.getPartyMemberId(),
-                userId,
-                fee,
-                paymentRequest);
+        // 9. 보증금 기록 생성
+        Deposit deposit;
+        try {
+            deposit = depositService.createDepositWithoutConfirm(
+                    partyId,
+                    partyMember.getPartyMemberId(),
+                    userId,
+                    fee,
+                    paymentRequest);
+        } catch (Exception e) {
+            // DB 실패 시 정원 복구 + 보상 트랜잭션 등록
+            partyDao.decrementCurrentMembers(partyId);
+            Deposit pendingDeposit = Deposit.builder()
+                    .depositId(null)
+                    .partyId(partyId)
+                    .userId(userId)
+                    .depositAmount(fee)
+                    .tossPaymentKey(paymentRequest.getTossPaymentKey())
+                    .build();
+            refundRetryService.recordCompensation(pendingDeposit, "Toss 성공 후 Deposit 생성 실패");
+            log.error("Deposit 생성 실패, 보상 트랜잭션 등록: partyId={}", partyId);
+            throw e;
+        }
 
-        // 10. 첫 달 결제 생성 (Toss 승인 없이 DB 기록만)
+        // 10. 첫 달 결제 생성
         String targetMonth = party.getStartDate().format(DateTimeFormatter.ofPattern("yyyy-MM"));
         Payment firstPayment = paymentService.createInitialPaymentWithoutConfirm(
                 partyId,
@@ -352,36 +402,24 @@ public class PartyServiceImpl implements PartyService {
                 targetMonth,
                 paymentRequest);
 
-        // 10. PARTY_MEMBER 업데이트 (상태 + depositId + firstPaymentId)
+        // 11. PARTY_MEMBER 업데이트
         partyMember.setMemberStatus(MemberStatus.ACTIVE);
         partyMember.setDepositId(deposit.getDepositId());
         partyMember.setFirstPaymentId(firstPayment.getPaymentId());
         partyMemberDao.updatePartyMember(partyMember);
 
-        // 11. PARTY CURRENT_MEMBERS 증가 (동시성 제어)
-        // UPDATE PARTY SET CURRENT_MEMBERS = CURRENT_MEMBERS + 1 WHERE PARTY_ID = ? AND
-        // CURRENT_MEMBERS < MAX_MEMBERS
-        int updatedRows = partyDao.incrementCurrentMembers(partyId);
-        if (updatedRows == 0) {
-            // 이미 만석임. 롤백 필요 (예외 발생 시 자동 롤백)
-            throw new BusinessException(ErrorCode.PARTY_FULL);
-        }
-
         // 12. 최대 인원 도달 시 ACTIVE로 전환
-        // 다시 조회하여 확인
         Party updatedParty = partyDao.findById(partyId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.PARTY_NOT_FOUND));
 
         if (updatedParty.getCurrentMembers() >= updatedParty.getMaxMembers()) {
             partyDao.updatePartyStatus(partyId, PartyStatus.ACTIVE);
-            // ⭐ 파티 시작 알림 발송 (모든 파티원)
             safeSendPush(() -> sendPartyStartPushToAllMembers(partyId, updatedParty));
         }
 
-        // ⭐ 13. 파티 가입 완료 알림 발송
+        // 13. 파티 가입 완료 알림 발송
         safeSendPush(() -> sendPartyJoinPush(userId, party));
 
-        // 13. 가입된 멤버 정보 반환
         return partyMemberDao.findByPartyMemberId(partyMember.getPartyMemberId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.PARTY_MEMBER_NOT_FOUND));
     }

@@ -149,10 +149,11 @@ class PartyRestControllerTest {
 				.productId(1)
 				.build();
 
-		given(partyService.getPartyDetail(partyId)).willReturn(response);
+		given(partyService.getPartyDetail(eq(partyId), any())).willReturn(response);
 
 		// when & then
-		mockMvc.perform(get("/api/parties/{partyId}", partyId))
+		mockMvc.perform(get("/api/parties/{partyId}", partyId)
+				.session(session))
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.data.partyId").value(partyId));
