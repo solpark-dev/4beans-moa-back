@@ -38,4 +38,20 @@ public interface DepositDao {
             @Param("partyId") Integer partyId,
             @Param("startDate") java.time.LocalDateTime startDate,
             @Param("endDate") java.time.LocalDateTime endDate);
+
+    /**
+     * 보증금 삭제 (PENDING 상태 정리용)
+     *
+     * @param depositId 보증금 ID
+     * @return 삭제된 행 수
+     */
+    int deleteById(@Param("depositId") Integer depositId);
+
+    /**
+     * 오래된 PENDING 상태 보증금 삭제
+     *
+     * @param cutoffTime 기준 시간 (이 시간 이전에 생성된 PENDING 상태 삭제)
+     * @return 삭제된 행 수
+     */
+    int deleteStalePendingRecords(@Param("cutoffTime") java.time.LocalDateTime cutoffTime);
 }

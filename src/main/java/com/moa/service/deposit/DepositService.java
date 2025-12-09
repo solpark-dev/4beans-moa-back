@@ -16,8 +16,7 @@ import com.moa.dto.payment.request.PaymentRequest;
  * 
  * 탈퇴 시 환불 정책:
  * - 파티 시작 2일 전까지: 전액 환불
- * - 파티 시작 1일 전: 50% 환불
- * - 파티 시작 후: 전액 몰수 (다음 정산에 포함)
+ * - 파티 시작 1일 전부터: 전액 몰수 (다음 정산에 포함)
  */
 public interface DepositService {
 
@@ -93,22 +92,12 @@ public interface DepositService {
          * 
          * 정책:
          * - 파티 시작 2일 전까지: 전액 환불
-         * - 파티 시작 1일 전: 50% 환불
-         * - 파티 시작 후: 전액 몰수 → 다음 정산에 포함
+         * - 파티 시작 1일 전부터: 전액 몰수 → 다음 정산에 포함
          *
          * @param depositId 보증금 ID
          * @param party     파티 정보 (시작일 확인용)
          */
         void processWithdrawalRefund(Integer depositId, Party party);
-
-        /**
-         * 보증금 부분 환불
-         *
-         * @param depositId 보증금 ID
-         * @param rate      환불 비율 (0.0 ~ 1.0)
-         * @param reason    환불 사유
-         */
-        void partialRefundDeposit(Integer depositId, double rate, String reason);
 
         /**
          * 보증금 몰수 (다음 정산에 포함)

@@ -39,6 +39,7 @@ public enum ErrorCode {
 	DUPLICATE_SETTLEMENT("ST409", "이미 정산된 내역입니다.", HttpStatus.CONFLICT),
 	SETTLEMENT_ALREADY_COMPLETED("ST409", "이미 완료된 정산입니다.", HttpStatus.CONFLICT),
 	SETTLEMENT_FAILED("ST500", "정산 처리 중 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+	SETTLEMENT_PERIOD_NOT_COMPLETED("ST400", "정산 기간이 아직 완료되지 않았습니다.", HttpStatus.BAD_REQUEST),
 
 	// 계좌(Account) 관련 에러
 	ACCOUNT_NOT_FOUND("ACC404", "계좌 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),

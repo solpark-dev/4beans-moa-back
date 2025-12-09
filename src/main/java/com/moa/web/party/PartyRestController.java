@@ -160,7 +160,9 @@ public class PartyRestController {
 	 */
 	@GetMapping("/{partyId}")
 	public ApiResponse<PartyDetailResponse> getPartyDetail(@PathVariable Integer partyId) {
-		PartyDetailResponse response = partyService.getPartyDetail(partyId);
+		String userId = getCurrentUserId();
+		// 로그인하지 않은 사용자도 조회 가능 (userId가 null일 수 있음)
+		PartyDetailResponse response = partyService.getPartyDetail(partyId, userId);
 		return ApiResponse.success(response);
 	}
 

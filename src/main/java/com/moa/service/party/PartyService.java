@@ -65,7 +65,7 @@ public interface PartyService {
 	 * @param partyId 파티 ID
 	 * @return 파티 상세 정보
 	 */
-	PartyDetailResponse getPartyDetail(Integer partyId);
+	PartyDetailResponse getPartyDetail(Integer partyId, String userId);
 
 	/**
 	 * 파티 목록 조회
