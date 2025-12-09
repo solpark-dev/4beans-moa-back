@@ -174,7 +174,7 @@ public class CommunityServiceImpl implements CommunityService {
                 .moduleType(PushCodeType.INQUIRY_ANSWER.getModuleType())
                 .build();
         
-        pushService.sendTemplatePush(pushRequest);
+        pushService.addTemplatePush(pushRequest);
     }
     
     

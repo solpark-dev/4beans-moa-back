@@ -22,7 +22,6 @@ TRUNCATE TABLE ACCOUNT_VERIFICATION;
 TRUNCATE TABLE SETTLEMENT_RETRY_HISTORY;
 TRUNCATE TABLE REFUND_RETRY_HISTORY;
 TRUNCATE TABLE PAYMENT_RETRY_HISTORY;
-TRUNCATE TABLE SETTLEMENT_DETAIL;
 TRUNCATE TABLE SETTLEMENT;
 TRUNCATE TABLE PAYMENT;
 TRUNCATE TABLE DEPOSIT;
@@ -181,7 +180,7 @@ INSERT INTO USERS (
 -- ============================================
 -- 관리자 계정 (모두 LOCAL 가입)
 -- ============================================
-('admin@admin.com', '$2a$10$r4WvD.fkTss4amaWwy7/dOV1SmwrMM.GocYPXsfgTL4td2mqrHZP6', '슈퍼관리자', '01099999999', '/img/profile/super_admin.png', 'ADMIN', 'ACTIVE', '2024-01-01 00:00:00', 'CI_SUPER_ADMIN', '2024-01-01 00:00:00', '2024-12-03 09:00:00', 0, NULL, NULL, NULL, NULL, 1, 'LOCAL', 'JBSWY3DPEHPK3PXP', 1),
+('admin@admin.com', '$2a$10$r4WvD.fkTss4amaWwy7/dOV1SmwrMM.GocYPXsfgTL4td2mqrHZP6', '슈퍼관리자', '01099999999', '/img/profile/super_admin.png', 'ADMIN', 'ACTIVE', '2024-01-01 00:00:00', 'CI_SUPER_ADMIN', '2024-01-01 00:00:00', '2024-12-03 09:00:00', 0, NULL, NULL, NULL, NULL, 1, 'LOCAL', NULL, 0),
 ('admin@moa.com', '$2a$10$r4WvD.fkTss4amaWwy7/dOV1SmwrMM.GocYPXsfgTL4td2mqrHZP6', '관리자', '01000000000', '/img/profile/admin.png', 'ADMIN', 'ACTIVE', '2024-01-01 00:00:00', 'CI_ADMIN_001', '2024-01-01 00:00:00', '2024-12-03 08:00:00', 0, NULL, NULL, NULL, NULL, 1, 'LOCAL', NULL, 0),
 ('admintest', '$2a$10$r4WvD.fkTss4amaWwy7/dOV1SmwrMM.GocYPXsfgTL4td2mqrHZP6', '테스트관리자1', '01000000000', NULL, 'ADMIN', 'ACTIVE', '2024-01-01 00:00:00', 'CI_ADMIN_011', '2024-01-01 00:00:00', '2024-12-03 08:00:00', 0, NULL, NULL, NULL, NULL, 1, 'LOCAL', NULL, 0),
 
@@ -194,7 +193,7 @@ INSERT INTO USERS (
 -- ============================================
 -- 일반 가입 후 소셜 연동 (PASSWORD 있음)
 -- ============================================
-('user003@daum.net', '$2a$10$r4WvD.fkTss4amaWwy7/dOV1SmwrMM.GocYPXsfgTL4td2mqrHZP6', '사용자003', '01010010003', NULL, 'USER', 'ACTIVE', '2024-03-10 14:20:00', 'CI_USER_003', '2024-03-10 14:20:00', '2024-11-30 16:45:00', 0, NULL, NULL, NULL, NULL, 1, 'LOCAL', 'MFRGGZDFMZTWQ2LK', 1),
+('user003@daum.net', '$2a$10$r4WvD.fkTss4amaWwy7/dOV1SmwrMM.GocYPXsfgTL4td2mqrHZP6', '사용자003', '01010010003', NULL, 'USER', 'ACTIVE', '2024-03-10 14:20:00', 'CI_USER_003', '2024-03-10 14:20:00', '2024-11-30 16:45:00', 0, NULL, NULL, NULL, NULL, 1, 'LOCAL', NULL, 0),
 ('user004@gmail.com', '$2a$10$r4WvD.fkTss4amaWwy7/dOV1SmwrMM.GocYPXsfgTL4td2mqrHZP6', '사용자004', '01010010004', NULL, 'USER', 'ACTIVE', '2024-03-15 09:45:00', 'CI_USER_004', '2024-03-15 09:45:00', '2024-11-27 11:30:00', 0, NULL, NULL, NULL, NULL, 1, 'LOCAL', NULL, 0),
 ('user005@naver.com', '$2a$10$r4WvD.fkTss4amaWwy7/dOV1SmwrMM.GocYPXsfgTL4td2mqrHZP6', '사용자005', '01010010005', NULL, 'USER', 'ACTIVE', '2024-03-20 16:10:00', 'CI_USER_005', '2024-03-20 16:10:00', '2024-11-28 18:20:00', 0, NULL, NULL, NULL, NULL, 0, 'LOCAL', NULL, 0),
 ('user006@daum.net', '$2a$10$r4WvD.fkTss4amaWwy7/dOV1SmwrMM.GocYPXsfgTL4td2mqrHZP6', '사용자006', '01010010006', NULL, 'USER', 'ACTIVE', '2024-03-25 13:30:00', 'CI_USER_006', '2024-03-25 13:30:00', '2024-11-29 10:50:00', 0, NULL, NULL, NULL, NULL, 1, 'LOCAL', NULL, 0),

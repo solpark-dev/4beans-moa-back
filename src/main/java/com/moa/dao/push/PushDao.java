@@ -14,15 +14,23 @@ public interface PushDao {
 
     PushCode getPushCodeByName(@Param("codeName") String codeName);
 
-    List<Push> getPushList(@Param("receiverId") String receiverId, @Param("offset") int offset, @Param("limit") int limit);
+    List<Push> getPushList(@Param("offset") int offset, @Param("limit") int limit);
 
-    int getPushTotalCount(@Param("receiverId") String receiverId);
+    int getPushTotalCount();
+
+    List<Push> getMyPushList(@Param("receiverId") String receiverId, @Param("offset") int offset, @Param("limit") int limit);
+
+    int getMyPushTotalCount(@Param("receiverId") String receiverId);
 
     Push getPush(@Param("pushId") Integer pushId);
 
-    int markAsRead(@Param("pushId") Integer pushId);
+    int updateRead(@Param("pushId") Integer pushId);
 
-    int markAsDeleted(@Param("pushId") Integer pushId);
+    int updateAllRead(@Param("receiverId") String receiverId);
+
+    int deletePush(@Param("pushId") Integer pushId);
+
+    int deleteAllPushs(@Param("receiverId") String receiverId);
 
     int getUnreadCount(@Param("receiverId") String receiverId);
 }

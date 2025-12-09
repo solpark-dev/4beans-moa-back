@@ -64,14 +64,14 @@ class PartyServicePushTest {
                 .ottPassword("test1234")
                 .build();
         
-        int pushCountBefore = pushDao.getPushList(LEADER_ID, 0, 100).size();
+        int pushCountBefore = pushDao.getMyPushList(LEADER_ID, 0, 100).size();
         
         PartyDetailResponse party = partyService.createParty(LEADER_ID, request);
         testPartyId = party.getPartyId();
         
         partyDao.updatePartyStatus(testPartyId, PartyStatus.RECRUITING);
         
-        int pushCountAfter = pushDao.getPushList(LEADER_ID, 0, 100).size();
+        int pushCountAfter = pushDao.getMyPushList(LEADER_ID, 0, 100).size();
         
         assertEquals(pushCountBefore, pushCountAfter);
         
@@ -89,15 +89,15 @@ class PartyServicePushTest {
                 .orderId("ORDER_001")
                 .build();
         
-        int pushCountBefore = pushDao.getPushList(MEMBER1_ID, 0, 100).size();
+        int pushCountBefore = pushDao.getMyPushList(MEMBER1_ID, 0, 100).size();
         
         partyService.joinParty(testPartyId, MEMBER1_ID, paymentRequest);
         
-        int pushCountAfter = pushDao.getPushList(MEMBER1_ID, 0, 100).size();
+        int pushCountAfter = pushDao.getMyPushList(MEMBER1_ID, 0, 100).size();
         
         assertEquals(pushCountBefore + 1, pushCountAfter);
         
-        Push joinPush = pushDao.getPushList(MEMBER1_ID, 0, 100).stream()
+        Push joinPush = pushDao.getMyPushList(MEMBER1_ID, 0, 100).stream()
                 .filter(p -> "PARTY_JOIN".equals(p.getPushCode()))
                 .findFirst()
                 .orElse(null);
@@ -119,11 +119,11 @@ class PartyServicePushTest {
                 .orderId("ORDER_002")
                 .build();
         
-        int pushCountBefore = pushDao.getPushList(MEMBER2_ID, 0, 100).size();
+        int pushCountBefore = pushDao.getMyPushList(MEMBER2_ID, 0, 100).size();
         
         partyService.joinParty(testPartyId, MEMBER2_ID, paymentRequest);
         
-        int pushCountAfter = pushDao.getPushList(MEMBER2_ID, 0, 100).size();
+        int pushCountAfter = pushDao.getMyPushList(MEMBER2_ID, 0, 100).size();
         
         assertEquals(pushCountBefore + 1, pushCountAfter);
         

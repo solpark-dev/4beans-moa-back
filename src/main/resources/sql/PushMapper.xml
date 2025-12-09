@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.moa.dao.push.PushDao">
 
-    <resultMap id="pushResultMap" type="com.moa.domain.Push">
+    <resultMap id="PushResultMap" type="com.moa.domain.Push">
         <id property="pushId" column="PUSH_ID"/>
         <result property="receiverId" column="RECEIVER_ID"/>
         <result property="pushCode" column="PUSH_CODE"/>
@@ -18,7 +16,7 @@
         <result property="isDeleted" column="IS_DELETED"/>
     </resultMap>
 
-    <resultMap id="pushCodeResultMap" type="com.moa.domain.PushCode">
+    <resultMap id="PushCodeResultMap" type="com.moa.domain.PushCode">
         <id property="pushCodeId" column="PUSH_CODE_ID"/>
         <result property="codeName" column="CODE_NAME"/>
         <result property="titleTemplate" column="TITLE_TEMPLATE"/>
@@ -26,51 +24,20 @@
         <result property="createdAt" column="CREATED_AT"/>
     </resultMap>
 
-    <insert id="addPush" parameterType="com.moa.domain.Push">
-        INSERT INTO PUSH (
-            RECEIVER_ID,
-            PUSH_CODE,
-            TITLE,
-            CONTENT,
-            MODULE_ID,
-            MODULE_TYPE
-        ) VALUES (
-            #{receiverId},
-            #{pushCode},
-            #{title},
-            #{content},
-            #{moduleId},
-            #{moduleType}
-        )
+    <insert id="addPush" parameterType="com.moa.domain.Push" useGeneratedKeys="true" keyProperty="pushId">
+        INSERT INTO PUSH (RECEIVER_ID, PUSH_CODE, TITLE, CONTENT, MODULE_ID, MODULE_TYPE, SENT_AT, IS_READ, IS_DELETED)
+        VALUES (#{receiverId}, #{pushCode}, #{title}, #{content}, #{moduleId}, #{moduleType}, NOW(), 'N', 'N')
     </insert>
 
-    <select id="getPushCodeByName" resultMap="pushCodeResultMap">
-        SELECT 
-            PUSH_CODE_ID,
-            CODE_NAME,
-            TITLE_TEMPLATE,
-            CONTENT_TEMPLATE,
-            CREATED_AT
+    <select id="getPushCodeByName" resultMap="PushCodeResultMap">
+        SELECT PUSH_CODE_ID, CODE_NAME, TITLE_TEMPLATE, CONTENT_TEMPLATE, CREATED_AT
         FROM PUSH_CODE
         WHERE CODE_NAME = #{codeName}
     </select>
 
-    <select id="getPushList" resultMap="pushResultMap">
-        SELECT 
-            PUSH_ID,
-            RECEIVER_ID,
-            PUSH_CODE,
-            TITLE,
-            CONTENT,
-            MODULE_ID,
-            MODULE_TYPE,
-            SENT_AT,
-            READ_AT,
-            IS_READ,
-            IS_DELETED
+    <select id="getPushList" resultMap="PushResultMap">
+        SELECT PUSH_ID, RECEIVER_ID, PUSH_CODE, TITLE, CONTENT, MODULE_ID, MODULE_TYPE, SENT_AT, READ_AT, IS_READ, IS_DELETED
         FROM PUSH
-        WHERE RECEIVER_ID = #{receiverId}
-        AND IS_DELETED = 'N'
         ORDER BY SENT_AT DESC
         LIMIT #{limit} OFFSET #{offset}
     </select>
@@ -78,47 +45,56 @@
     <select id="getPushTotalCount" resultType="int">
         SELECT COUNT(*)
         FROM PUSH
-        WHERE RECEIVER_ID = #{receiverId}
-        AND IS_DELETED = 'N'
     </select>
 
-    <select id="getPush" resultMap="pushResultMap">
-        SELECT 
-            PUSH_ID,
-            RECEIVER_ID,
-            PUSH_CODE,
-            TITLE,
-            CONTENT,
-            MODULE_ID,
-            MODULE_TYPE,
-            SENT_AT,
-            READ_AT,
-            IS_READ,
-            IS_DELETED
+    <select id="getMyPushList" resultMap="PushResultMap">
+        SELECT PUSH_ID, RECEIVER_ID, PUSH_CODE, TITLE, CONTENT, MODULE_ID, MODULE_TYPE, SENT_AT, READ_AT, IS_READ, IS_DELETED
+        FROM PUSH
+        WHERE RECEIVER_ID = #{receiverId} AND IS_DELETED = 'N'
+        ORDER BY SENT_AT DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="getMyPushTotalCount" resultType="int">
+        SELECT COUNT(*)
+        FROM PUSH
+        WHERE RECEIVER_ID = #{receiverId} AND IS_DELETED = 'N'
+    </select>
+
+    <select id="getPush" resultMap="PushResultMap">
+        SELECT PUSH_ID, RECEIVER_ID, PUSH_CODE, TITLE, CONTENT, MODULE_ID, MODULE_TYPE, SENT_AT, READ_AT, IS_READ, IS_DELETED
         FROM PUSH
         WHERE PUSH_ID = #{pushId}
     </select>
 
-    <update id="markAsRead">
+    <update id="updateRead">
         UPDATE PUSH
-        SET 
-            IS_READ = 'Y',
-            READ_AT = NOW()
+        SET IS_READ = 'Y', READ_AT = NOW()
         WHERE PUSH_ID = #{pushId}
     </update>
 
-    <update id="markAsDeleted">
+    <update id="updateAllRead">
+        UPDATE PUSH
+        SET IS_READ = 'Y', READ_AT = NOW()
+        WHERE RECEIVER_ID = #{receiverId} AND IS_READ = 'N' AND IS_DELETED = 'N'
+    </update>
+
+    <update id="deletePush">
         UPDATE PUSH
         SET IS_DELETED = 'Y'
         WHERE PUSH_ID = #{pushId}
     </update>
 
+    <update id="deleteAllPushs">
+        UPDATE PUSH
+        SET IS_DELETED = 'Y'
+        WHERE RECEIVER_ID = #{receiverId} AND IS_DELETED = 'N'
+    </update>
+
     <select id="getUnreadCount" resultType="int">
         SELECT COUNT(*)
         FROM PUSH
-        WHERE RECEIVER_ID = #{receiverId}
-        AND IS_READ = 'N'
-        AND IS_DELETED = 'N'
+        WHERE RECEIVER_ID = #{receiverId} AND IS_READ = 'N' AND IS_DELETED = 'N'
     </select>
 
 </mapper>
