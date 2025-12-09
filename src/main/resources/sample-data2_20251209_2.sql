@@ -22,7 +22,6 @@ TRUNCATE TABLE ACCOUNT_VERIFICATION;
 TRUNCATE TABLE SETTLEMENT_RETRY_HISTORY;
 TRUNCATE TABLE REFUND_RETRY_HISTORY;
 TRUNCATE TABLE PAYMENT_RETRY_HISTORY;
-TRUNCATE TABLE SETTLEMENT_DETAIL;
 TRUNCATE TABLE SETTLEMENT;
 TRUNCATE TABLE PAYMENT;
 TRUNCATE TABLE DEPOSIT;
@@ -111,17 +110,28 @@ INSERT INTO CATEGORY (CATEGORY_ID, CATEGORY_NAME) VALUES
 (4, 'MEMBER');
 
 -- PRODUCT: 상품 정보
-INSERT INTO PRODUCT (PRODUCT_ID, CATEGORY_ID, PRODUCT_NAME, PRICE, MAX_SHARE, IMAGE) VALUES
-(1, 1, 'Google AI Pro', 17000, 4, '/uploads/product-image/fb991d89-fcea-4ffb-b850-9ad7619808a0.png'),
-(2, 2, '디즈니+ 스탠다드', 10900, 4, '/uploads/product-image/fb991d89-fcea-4ffb-b850-9ad7619808a0.png'),
-(3, 3, '왓챠 베이직', 7900, 4, '/uploads/product-image/fb991d89-fcea-4ffb-b850-9ad7619808a0.png'),
-(4, 2, '유튜브 프리미엄', 13900, 6, '/uploads/product-image/fb991d89-fcea-4ffb-b850-9ad7619808a0.png'),
-(5, 1, '챗GPT 플러스', 29000, 5, '/uploads/product-image/fb991d89-fcea-4ffb-b850-9ad7619808a0.png'),
-(6, 3, '쿠팡플레이', 4990, 4, '/uploads/product-image/fb991d89-fcea-4ffb-b850-9ad7619808a0.png'),
-(7, 2, '티빙 스탠다드', 10900, 4, '/uploads/product-image/fb991d89-fcea-4ffb-b850-9ad7619808a0.png'),
-(8, 3, '웨이브 프리미엄', 13900, 4, '/uploads/product-image/fb991d89-fcea-4ffb-b850-9ad7619808a0.png'),
-(9, 4, '멤버십 1개월권', 3000, NULL, '/uploads/product-image/fb991d89-fcea-4ffb-b850-9ad7619808a0.png'),
-(10, 4, '멤버십 12개월권', 30000, NULL, '/uploads/product-image/fb991d89-fcea-4ffb-b850-9ad7619808a0.png');
+INSERT INTO `product` (`PRODUCT_ID`, `CATEGORY_ID`, `PRODUCT_NAME`, `PRODUCT_STATUS`, `PRICE`, `IMAGE`, `MAX_SHARE`) VALUES
+   (1, 1, 'Google AI Pro', 'ACTIVE', 17000, '/uploads/product-image/googleaipro_icon.png', NULL),
+   (2, 2, 'Disney+ Standard', 'ACTIVE', 9900, '/uploads/product-image/disney_plus_icon.png', NULL),
+   (3, 2, '왓챠 베이직', 'ACTIVE', 7900, '/uploads/product-image/watcha_icon.png', NULL),
+   (4, 2, '유튜브 프리미엄', 'ACTIVE', 13900, '/uploads/product-image/YouTube_icon.png', NULL),
+   (5, 1, 'Chat GPT Plus', 'ACTIVE', 29000, '/uploads/product-image/chatgpt_icon.png', NULL),
+   (6, 2, '쿠팡플레이WOW', 'ACTIVE', 7890, '/uploads/product-image/coupangplay_icon.png', NULL),
+   (7, 2, '티빙 스탠다드', 'ACTIVE', 10900, '/uploads/product-image/tving_icon.png', NULL),
+   (8, 2, '웨이브 프리미엄', 'ACTIVE', 13900, '/uploads/product-image/wavve_icon.png', NULL),
+   (9, 4, 'Naver 멤버십 1개월권', 'ACTIVE', 3000, '/uploads/product-image/naver_member_icon.png', NULL),
+   (10, 4, 'Naver 멤버십 12개월권', 'ACTIVE', 30000, '/uploads/product-image/naver_member_icon.png', NULL),
+   (11, 1, 'Chat GPT Pro', 'ACTIVE', 50000, '/uploads/product-image/chatgpt_icon.png', NULL),
+   (12, 1, 'Google AI Ultra', 'ACTIVE', 330000, '/uploads/product-image/googleaipro_icon.png', NULL),
+   (13, 2, 'Disney+ Premium', 'ACTIVE', 13900, '/uploads/product-image/disney_plus_icon.png', NULL),
+   (14, 2, '쿠팡플레이 Sports Pass', 'ACTIVE', 16600, '/uploads/product-image/coupangplay_icon.png', NULL),
+   (15, 3, 'Skillshare Monthly', 'ACTIVE', 20600, '/uploads/product-image/skillshare_icon.png', NULL),
+   (16, 3, 'LinkedIn Learning Monthly', 'ACTIVE', 58900, '/uploads/product-image/LinkedInlearning_icon.png', NULL),
+   (17, 2, 'Disney+ + TVING Bundle', 'ACTIVE', 18000, '/uploads/product-image/disney_plus_tving_icon.png', NULL),
+   (18, 2, 'Netflix Basic', 'ACTIVE', 9500, '/uploads/product-image/netflix_icon.png', NULL),
+   (19, 2, 'Netflix Standard', 'ACTIVE', 14500, '/uploads/product-image/netflix_icon.png', NULL),
+   (20, 2, 'Netflix Premium', 'ACTIVE', 19000, '/uploads/product-image/netflix_icon.png', NULL),
+   (21, 2, 'Netflix ', 'ACTIVE', 19000, '/uploads/product-image/netflix_icon.png', NULL);
 
 -- CHATBOT_KNOWLEDGE: 챗봇 지식 베이스 데이터
 INSERT INTO CHATBOT_KNOWLEDGE (CATEGORY, TITLE, QUESTION, ANSWER, KEYWORDS) VALUES 
@@ -170,7 +180,7 @@ INSERT INTO USERS (
 -- ============================================
 -- 관리자 계정 (모두 LOCAL 가입)
 -- ============================================
-('admin@admin.com', '$2a$10$r4WvD.fkTss4amaWwy7/dOV1SmwrMM.GocYPXsfgTL4td2mqrHZP6', '슈퍼관리자', '01099999999', '/img/profile/super_admin.png', 'ADMIN', 'ACTIVE', '2024-01-01 00:00:00', 'CI_SUPER_ADMIN', '2024-01-01 00:00:00', '2024-12-03 09:00:00', 0, NULL, NULL, NULL, NULL, 1, 'LOCAL', 'JBSWY3DPEHPK3PXP', 1),
+('admin@admin.com', '$2a$10$r4WvD.fkTss4amaWwy7/dOV1SmwrMM.GocYPXsfgTL4td2mqrHZP6', '슈퍼관리자', '01099999999', '/img/profile/super_admin.png', 'ADMIN', 'ACTIVE', '2024-01-01 00:00:00', 'CI_SUPER_ADMIN', '2024-01-01 00:00:00', '2024-12-03 09:00:00', 0, NULL, NULL, NULL, NULL, 1, 'LOCAL', NULL, 0),
 ('admin@moa.com', '$2a$10$r4WvD.fkTss4amaWwy7/dOV1SmwrMM.GocYPXsfgTL4td2mqrHZP6', '관리자', '01000000000', '/img/profile/admin.png', 'ADMIN', 'ACTIVE', '2024-01-01 00:00:00', 'CI_ADMIN_001', '2024-01-01 00:00:00', '2024-12-03 08:00:00', 0, NULL, NULL, NULL, NULL, 1, 'LOCAL', NULL, 0),
 ('admintest', '$2a$10$r4WvD.fkTss4amaWwy7/dOV1SmwrMM.GocYPXsfgTL4td2mqrHZP6', '테스트관리자1', '01000000000', NULL, 'ADMIN', 'ACTIVE', '2024-01-01 00:00:00', 'CI_ADMIN_011', '2024-01-01 00:00:00', '2024-12-03 08:00:00', 0, NULL, NULL, NULL, NULL, 1, 'LOCAL', NULL, 0),
 
@@ -183,7 +193,7 @@ INSERT INTO USERS (
 -- ============================================
 -- 일반 가입 후 소셜 연동 (PASSWORD 있음)
 -- ============================================
-('user003@daum.net', '$2a$10$r4WvD.fkTss4amaWwy7/dOV1SmwrMM.GocYPXsfgTL4td2mqrHZP6', '사용자003', '01010010003', NULL, 'USER', 'ACTIVE', '2024-03-10 14:20:00', 'CI_USER_003', '2024-03-10 14:20:00', '2024-11-30 16:45:00', 0, NULL, NULL, NULL, NULL, 1, 'LOCAL', 'MFRGGZDFMZTWQ2LK', 1),
+('user003@daum.net', '$2a$10$r4WvD.fkTss4amaWwy7/dOV1SmwrMM.GocYPXsfgTL4td2mqrHZP6', '사용자003', '01010010003', NULL, 'USER', 'ACTIVE', '2024-03-10 14:20:00', 'CI_USER_003', '2024-03-10 14:20:00', '2024-11-30 16:45:00', 0, NULL, NULL, NULL, NULL, 1, 'LOCAL', NULL, 0),
 ('user004@gmail.com', '$2a$10$r4WvD.fkTss4amaWwy7/dOV1SmwrMM.GocYPXsfgTL4td2mqrHZP6', '사용자004', '01010010004', NULL, 'USER', 'ACTIVE', '2024-03-15 09:45:00', 'CI_USER_004', '2024-03-15 09:45:00', '2024-11-27 11:30:00', 0, NULL, NULL, NULL, NULL, 1, 'LOCAL', NULL, 0),
 ('user005@naver.com', '$2a$10$r4WvD.fkTss4amaWwy7/dOV1SmwrMM.GocYPXsfgTL4td2mqrHZP6', '사용자005', '01010010005', NULL, 'USER', 'ACTIVE', '2024-03-20 16:10:00', 'CI_USER_005', '2024-03-20 16:10:00', '2024-11-28 18:20:00', 0, NULL, NULL, NULL, NULL, 0, 'LOCAL', NULL, 0),
 ('user006@daum.net', '$2a$10$r4WvD.fkTss4amaWwy7/dOV1SmwrMM.GocYPXsfgTL4td2mqrHZP6', '사용자006', '01010010006', NULL, 'USER', 'ACTIVE', '2024-03-25 13:30:00', 'CI_USER_006', '2024-03-25 13:30:00', '2024-11-29 10:50:00', 0, NULL, NULL, NULL, NULL, 1, 'LOCAL', NULL, 0),
@@ -465,30 +475,7 @@ INSERT INTO SETTLEMENT (
 (4, 4, 'user007@gmail.com', 7, '2024-06', 13900, 2085, 11815, 'COMPLETED', '2024-07-05 11:00:00', 'T202407050001'),
 (5, 5, 'user009@daum.net', 9, '2024-06', 29000, 4350, 24650, 'COMPLETED', '2024-07-05 11:30:00', 'T202407050002');
 
--- SETTLEMENT_DETAIL: 정산 상세 20건
-INSERT INTO SETTLEMENT_DETAIL (
-    SETTLEMENT_ID, PAYMENT_ID, PARTY_MEMBER_ID, USER_ID, PAYMENT_AMOUNT
-) VALUES
-(1, 1, 1, 'user001@gmail.com', 4250),
-(1, 2, 2, 'user002@naver.com', 4250),
-(1, 3, 3, 'user011@naver.com', 4250),
-(1, 4, 4, 'user012@daum.net', 4250),
-(2, 5, 5, 'user003@daum.net', 2725),
-(2, 6, 6, 'user004@gmail.com', 2725),
-(2, 7, 7, 'user013@gmail.com', 2725),
-(2, 8, 8, 'user014@naver.com', 2725),
-(3, 9, 9, 'user005@naver.com', 1975),
-(3, 10, 10, 'user006@daum.net', 1975),
-(3, 11, 11, 'user015@daum.net', 1975),
-(3, 12, 12, 'user016@gmail.com', 1975),
-(4, 13, 13, 'user007@gmail.com', 3475),
-(4, 14, 14, 'user008@naver.com', 3475),
-(4, 15, 15, 'user017@naver.com', 3475),
-(4, 16, 16, 'user018@daum.net', 3475),
-(5, 17, 17, 'user009@daum.net', 7250),
-(5, 18, 18, 'user010@gmail.com', 7250),
-(5, 19, 19, 'user019@gmail.com', 7250),
-(5, 20, 20, 'user020@naver.com', 7250);
+
 
 -- REFUND_RETRY_HISTORY: 보증금 환불 재시도 이력
 INSERT INTO REFUND_RETRY_HISTORY (

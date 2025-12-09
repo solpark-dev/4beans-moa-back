@@ -511,7 +511,7 @@ public class PartyServiceImpl implements PartyService {
                 .moduleType(PushCodeType.PARTY_JOIN.getModuleType())
                 .build();
 
-        pushService.sendTemplatePush(pushRequest);
+        pushService.addTemplatePush(pushRequest);
     }
 
     private void sendPartyStartPushToAllMembers(Integer partyId, Party party) {
@@ -527,7 +527,7 @@ public class PartyServiceImpl implements PartyService {
                     .moduleType(PushCodeType.PARTY_START.getModuleType())
                     .build();
 
-            pushService.sendTemplatePush(pushRequest);
+            pushService.addTemplatePush(pushRequest);
         }
     }
 

@@ -275,7 +275,7 @@ class CommunityRestControllerTest {
         String receiverId = "user001@gmail.com";
         
         System.out.println("\n========== 답변 등록 전 Push 개수 확인 ==========");
-        List<Push> pushListBefore = pushDao.getPushList(receiverId, 0, 100);
+        List<Push> pushListBefore = pushDao.getMyPushList(receiverId, 0, 100);
         int pushCountBefore = pushListBefore.size();
         System.out.println("답변 등록 전 Push 개수: " + pushCountBefore);
         
@@ -287,7 +287,7 @@ class CommunityRestControllerTest {
                 .andExpect(status().isOk());
         
         System.out.println("\n========== 답변 등록 후 Push 검증 ==========");
-        List<Push> pushListAfter = pushDao.getPushList(receiverId, 0, 100);
+        List<Push> pushListAfter = pushDao.getMyPushList(receiverId, 0, 100);
         int pushCountAfter = pushListAfter.size();
         System.out.println("답변 등록 후 Push 개수: " + pushCountAfter);
         
