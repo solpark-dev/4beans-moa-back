@@ -69,4 +69,10 @@ public interface PartyDao {
 	long countAllParties();
 
 	long countActiveParties();
+
+	List<Party> findExpiredActiveParties(@Param("now") java.time.LocalDateTime now);
+
+	List<Party> findExpiredPendingPaymentParties(
+			@Param("status") PartyStatus status,
+			@Param("timeoutThreshold") java.time.LocalDateTime timeoutThreshold);
 }

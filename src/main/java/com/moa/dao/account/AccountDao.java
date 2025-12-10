@@ -16,4 +16,8 @@ public interface AccountDao {
     int updateVerifyStatus(@Param("accountId") Integer accountId, @Param("isVerified") String isVerified);
 
     Optional<Account> findById(@Param("accountId") Integer accountId);
+
+    Optional<Account> findActiveByUserId(@Param("userId") String userId);
+
+    int updateStatus(@Param("accountId") Integer accountId, @Param("status") String status);
 }

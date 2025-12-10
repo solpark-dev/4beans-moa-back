@@ -174,4 +174,20 @@ public interface PartyService {
 	 * @return 파티 목록
 	 */
 	List<PartyListResponse> getMyParticipatingParties(String userId);
+
+	/**
+	 * 파티 종료 처리 (Scheduler용)
+	 * 
+	 * @param partyId 파티 ID
+	 * @param reason  종료 사유
+	 */
+	void closeParty(Integer partyId, String reason);
+
+	/**
+	 * 만료된 파티 취소 처리 (Scheduler용)
+	 * 
+	 * @param partyId 파티 ID
+	 * @param reason  취소 사유
+	 */
+	void cancelExpiredParty(Integer partyId, String reason);
 }
