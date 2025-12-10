@@ -83,8 +83,10 @@ public interface PartyService {
 			Integer productId,
 			String partyStatus,
 			String keyword,
+			java.time.LocalDate startDate,
 			int page,
-			int size);
+			int size,
+			String sort);
 
 	/**
 	 * OTT 계정 정보 수정 (방장 전용)
