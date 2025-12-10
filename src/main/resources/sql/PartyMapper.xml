@@ -383,4 +383,14 @@
 		  AND REG_DATE &lt; #{timeoutThreshold}
 	</select>
 
+	<!-- 대시보드용: 전체 파티 개수 -->
+	<select id="countAllParties" resultType="long">
+		SELECT COUNT(*) FROM PARTY
+	</select>
+
+	<!-- 대시보드용: 활성 파티 개수 -->
+	<select id="countActiveParties" resultType="long">
+		SELECT COUNT(*) FROM PARTY WHERE PARTY_STATUS = 'ACTIVE'
+	</select>
+
 </mapper>

@@ -349,4 +349,11 @@
         ORDER BY PAY.PAYMENT_DATE ASC
     </select>
 
+    <!-- 대시보드용: 총 매출 (COMPLETED 상태인 결제 금액 합계) -->
+    <select id="calculateTotalRevenue" resultType="long">
+        SELECT COALESCE(SUM(PAYMENT_AMOUNT), 0)
+        FROM PAYMENT
+        WHERE PAYMENT_STATUS = 'COMPLETED'
+    </select>
+
 </mapper>

@@ -36,4 +36,6 @@ public interface PaymentDao {
         Optional<Payment> findByPartyMemberIdAndType(
                         @Param("partyMemberId") Integer partyMemberId,
                         @Param("paymentType") String paymentType);
+
+        long calculateTotalRevenue();
 }
