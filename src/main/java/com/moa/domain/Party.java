@@ -54,5 +54,4 @@ public class Party {
 	private LocalDateTime regDate; // 생성일시
 	private LocalDateTime startDate; // 파티 시작일시 (결제 기준일)
 	private LocalDateTime endDate; // 종료일시
-	private Integer leaderDepositId; // 방장 보증금 ID (FK)
 }

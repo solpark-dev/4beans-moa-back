@@ -26,12 +26,9 @@ import lombok.Setter;
  * → ACTIVE: 활성 상태 (결제 완료)
  * - JOIN_DATE (DATETIME)
  * - WITHDRAW_DATE (DATETIME) - 탈퇴일시
- * - DEPOSIT_ID (INT, FK → DEPOSIT) - 보증금 ID
- * - FIRST_PAYMENT_ID (INT, FK → PAYMENT) - 첫 달 결제 ID (파티원만 해당)
  *
  * 비즈니스 로직:
- * - 방장: DEPOSIT_ID만 있음, FIRST_PAYMENT_ID는 NULL
- * - 파티원: DEPOSIT_ID + FIRST_PAYMENT_ID 모두 있음
+ * - 보증금/결제 정보는 DEPOSIT, PAYMENT 테이블에서 userId+partyId로 조회
  */
 @Getter
 @Setter
@@ -47,6 +44,4 @@ public class PartyMember {
 	private MemberStatus memberStatus; // 멤버 상태 (PENDING_PAYMENT, ACTIVE)
 	private LocalDateTime joinDate; // 참여일시
 	private LocalDateTime withdrawDate; // 탈퇴일시
-	private Integer depositId; // 보증금 ID (FK)
-	private Integer firstPaymentId; // 첫 달 결제 ID (FK, 파티원만 해당)
 }

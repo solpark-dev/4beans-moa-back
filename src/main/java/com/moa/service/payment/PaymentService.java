@@ -151,4 +151,13 @@ public interface PaymentService {
          * @param attemptNumber Attempt number (1-4)
          */
         void attemptPaymentExecution(Payment payment, int attemptNumber);
+
+        /**
+         * 결제 환불 (파티 탈퇴 시)
+         *
+         * @param partyId       파티 ID
+         * @param partyMemberId 파티 멤버 ID
+         * @param reason        환불 사유
+         */
+        void refundPayment(Integer partyId, Integer partyMemberId, String reason);
 }

@@ -25,6 +25,9 @@ public class RefundRetryHistory {
     /** 보증금 ID (FK) */
     private Integer depositId;
 
+    /** Toss 결제 키 (보상 트랜잭션용) */
+    private String tossPaymentKey;
+
     /** 재시도 횟수 */
     private Integer attemptNumber;
 
@@ -48,6 +51,9 @@ public class RefundRetryHistory {
 
     /** 환불 사유 */
     private String refundReason;
+
+    /** 재시도 유형 (REFUND: 환불 재시도, COMPENSATION: 보상 트랜잭션) */
+    private String retryType;
 
     /** 생성일시 */
     private LocalDateTime createdAt;

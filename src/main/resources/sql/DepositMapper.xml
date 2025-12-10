@@ -184,6 +184,17 @@
         ORDER BY D.PAYMENT_DATE DESC
     </select>
 
+    <!-- 파티 ID + 사용자 ID로 보증금 조회 (PAID 상태) -->
+    <select id="findByPartyIdAndUserId" resultMap="DepositResultMap">
+        SELECT *
+        FROM DEPOSIT
+        WHERE PARTY_ID = #{partyId}
+          AND USER_ID = #{userId}
+          AND DEPOSIT_STATUS = 'PAID'
+        ORDER BY PAYMENT_DATE DESC
+        LIMIT 1
+    </select>
+
     <!-- 보증금 업데이트 (환불 등) -->
     <update id="updateDeposit" parameterType="com.moa.domain.Deposit">
         UPDATE DEPOSIT
@@ -203,5 +214,22 @@
           AND REFUND_DATE BETWEEN #{startDate} AND #{endDate}
         ORDER BY REFUND_DATE ASC
     </select>
+
+    <!-- ====================================== -->
+    <!-- DELETE -->
+    <!-- ====================================== -->
+
+    <!-- 보증금 삭제 (PENDING 상태 정리용) -->
+    <delete id="deleteById" parameterType="int">
+        DELETE FROM DEPOSIT
+        WHERE DEPOSIT_ID = #{depositId}
+    </delete>
+
+    <!-- 오래된 PENDING 상태 보증금 삭제 -->
+    <delete id="deleteStalePendingRecords">
+        DELETE FROM DEPOSIT
+        WHERE DEPOSIT_STATUS = 'PENDING'
+          AND TRANSACTION_DATE &lt; #{cutoffTime}
+    </delete>
 
 </mapper>

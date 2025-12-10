@@ -44,4 +44,12 @@ public interface PartyMemberDao {
      * @return 방장 제외 활성 멤버 목록
      */
     List<PartyMember> findActiveMembersExcludingLeader(@Param("partyId") Integer partyId);
+
+    /**
+     * 파티 멤버 삭제 (Toss 실패 시 롤백용)
+     *
+     * @param partyMemberId 파티 멤버 ID
+     * @return 삭제된 행 수
+     */
+    int deletePartyMember(@Param("partyMemberId") Integer partyMemberId);
 }

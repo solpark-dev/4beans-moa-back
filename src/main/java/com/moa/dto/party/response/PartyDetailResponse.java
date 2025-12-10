@@ -31,6 +31,7 @@ public class PartyDetailResponse {
 	private String ottPassword; // OTT 비밀번호
 	private LocalDate regDate; // 생성일
 	private LocalDateTime startDate; // 시작일시
+	private LocalDateTime endDate; // 종료일시
 
 	// === 상품 정보 (JOIN) ===
 	private Integer productId;
@@ -41,4 +42,7 @@ public class PartyDetailResponse {
 	// === 방장 정보 (JOIN) ===
 	private String leaderNickname;
 	private String leaderProfileImage;
+
+	// === 현재 사용자 정보 ===
+	private com.moa.domain.enums.MemberStatus memberStatus;
 }

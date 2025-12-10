@@ -32,7 +32,7 @@ public interface PartyService {
 	 * - 이 단계에서는 보증금 결제하지 않음
 	 * - 별도로 processLeaderDeposit() 호출 필요
 	 *
-	 * @param userId 방장 사용자 ID (로그인 사용자)
+	 * @param userId  방장 사용자 ID (로그인 사용자)
 	 * @param request 파티 생성 요청 (구독 ID, 최대 인원, 시작일, OTT 계정 등)
 	 * @return 생성된 파티 상세 정보
 	 */
@@ -45,18 +45,17 @@ public interface PartyService {
 	 * 1. 보증금 금액 = 월구독료 전액
 	 * 2. DEPOSIT 테이블 INSERT
 	 * 3. PARTY_MEMBER 상태 → ACTIVE, depositId 연결
-	 * 4. PARTY 상태 → RECRUITING, leaderDepositId 연결
+	 * 4. PARTY 상태 → RECRUITING
 	 *
-	 * @param partyId 파티 ID
-	 * @param userId 방장 사용자 ID
+	 * @param partyId        파티 ID
+	 * @param userId         방장 사용자 ID
 	 * @param paymentRequest 결제 요청 정보 (Toss Payments 정보 포함)
 	 * @return 업데이트된 파티 상세 정보
 	 */
 	PartyDetailResponse processLeaderDeposit(
 			Integer partyId,
 			String userId,
-			PaymentRequest paymentRequest
-	);
+			PaymentRequest paymentRequest);
 
 	/**
 	 * 파티 상세 조회
@@ -66,18 +65,18 @@ public interface PartyService {
 	 * @param partyId 파티 ID
 	 * @return 파티 상세 정보
 	 */
-	PartyDetailResponse getPartyDetail(Integer partyId);
+	PartyDetailResponse getPartyDetail(Integer partyId, String userId);
 
 	/**
 	 * 파티 목록 조회
 	 * - 페이징 처리
 	 * - 상품별, 상태별 필터링 가능
 	 *
-	 * @param productId 상품 ID (선택)
+	 * @param productId   상품 ID (선택)
 	 * @param partyStatus 파티 상태 (선택: RECRUITING, ACTIVE 등)
-	 * @param keyword 검색 키워드 (선택)
-	 * @param page 페이지 번호 (1부터 시작)
-	 * @param size 페이지 크기
+	 * @param keyword     검색 키워드 (선택)
+	 * @param page        페이지 번호 (1부터 시작)
+	 * @param size        페이지 크기
 	 * @return 파티 목록
 	 */
 	List<PartyListResponse> getPartyList(
@@ -85,8 +84,7 @@ public interface PartyService {
 			String partyStatus,
 			String keyword,
 			int page,
-			int size
-	);
+			int size);
 
 	/**
 	 * OTT 계정 정보 수정 (방장 전용)
@@ -94,15 +92,14 @@ public interface PartyService {
 	 * - OTT ID, Password 업데이트
 	 *
 	 * @param partyId 파티 ID
-	 * @param userId 요청 사용자 ID (방장 확인용)
+	 * @param userId  요청 사용자 ID (방장 확인용)
 	 * @param request OTT 계정 정보
 	 * @return 수정된 파티 상세 정보
 	 */
 	PartyDetailResponse updateOttAccount(
 			Integer partyId,
 			String userId,
-			UpdateOttAccountRequest request
-	);
+			UpdateOttAccountRequest request);
 
 	/**
 	 * 파티 참여 (파티원 가입)
@@ -123,16 +120,15 @@ public interface PartyService {
 	 * - 보증금 + 첫 달 구독료를 동시에 결제
 	 * - 결제 실패 시 전체 롤백 (트랜잭션)
 	 *
-	 * @param partyId 파티 ID
-	 * @param userId 참여하는 사용자 ID
+	 * @param partyId        파티 ID
+	 * @param userId         참여하는 사용자 ID
 	 * @param paymentRequest 결제 요청 정보 (통합 결제 금액)
 	 * @return 가입된 멤버 정보
 	 */
 	PartyMemberResponse joinParty(
 			Integer partyId,
 			String userId,
-			PaymentRequest paymentRequest
-	);
+			PaymentRequest paymentRequest);
 
 	/**
 	 * 파티 멤버 목록 조회
@@ -150,7 +146,7 @@ public interface PartyService {
 	 * 호출 시 FEATURE_NOT_AVAILABLE 예외 발생
 	 *
 	 * @param partyId 파티 ID
-	 * @param userId 탈퇴하는 사용자 ID
+	 * @param userId  탈퇴하는 사용자 ID
 	 */
 	void leaveParty(Integer partyId, String userId);
 

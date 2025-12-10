@@ -44,4 +44,34 @@ public interface RefundRetryService {
      * @return Next retry datetime
      */
     LocalDateTime calculateNextRetryDate(int attemptNumber);
+
+    /**
+     * Record refund failure with REQUIRES_NEW transaction
+     * Ensures failure history is preserved even if parent transaction rolls back
+     *
+     * @param deposit Deposit that failed to refund
+     * @param e Exception that occurred
+     * @param reason Refund reason
+     */
+    void recordFailure(com.moa.domain.Deposit deposit, Exception e, String reason);
+
+    /**
+     * Register compensation transaction for Toss payment cancellation
+     * Used when Toss payment succeeded but DB save failed
+     *
+     * @param depositId Deposit ID
+     * @param tossPaymentKey Toss payment key for cancellation
+     * @param amount Amount to cancel
+     * @param reason Reason for compensation
+     */
+    void registerCompensation(Integer depositId, String tossPaymentKey, Integer amount, String reason);
+
+    /**
+     * Record compensation transaction needed (REQUIRES_NEW transaction)
+     * Used when Toss payment succeeded but DB update failed
+     *
+     * @param deposit Deposit in PENDING state
+     * @param reason Reason for compensation
+     */
+    void recordCompensation(com.moa.domain.Deposit deposit, String reason);
 }

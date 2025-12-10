@@ -20,6 +20,8 @@ import com.moa.dto.payment.request.PaymentRequest;
 import com.moa.service.deposit.DepositService;
 import com.moa.service.payment.TossPaymentService;
 
+import com.moa.service.refund.RefundRetryService;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -32,8 +34,7 @@ import lombok.extern.slf4j.Slf4j;
  * 
  * 탈퇴 시 환불 정책:
  * - 파티 시작 2일 전까지: 전액 환불
- * - 파티 시작 1일 전: 50% 환불
- * - 파티 시작 후: 전액 몰수 (다음 정산에 포함)
+ * - 파티 시작 1일 전부터: 전액 몰수 (다음 정산에 포함)
  */
 @Slf4j
 @Service
@@ -46,6 +47,7 @@ public class DepositServiceImpl implements DepositService {
     private final TossPaymentService tossPaymentService;
     private final ApplicationEventPublisher eventPublisher;
     private final com.moa.dao.refund.RefundRetryHistoryDao refundRetryHistoryDao;
+    private final RefundRetryService refundRetryService;
 
     @Override
     public Deposit createDeposit(
@@ -65,30 +67,49 @@ public class DepositServiceImpl implements DepositService {
             throw new BusinessException(ErrorCode.INVALID_PAYMENT_AMOUNT);
         }
 
-        // 3. Toss Payments 결제 승인
-        tossPaymentService.confirmPayment(
-                request.getTossPaymentKey(),
-                request.getOrderId(),
-                amount);
-
-        // 4. Deposit 엔티티 생성
-        Deposit deposit = Deposit.builder()
+        // 3. [2단계 저장 패턴] PENDING 상태로 먼저 저장
+        Deposit pendingDeposit = Deposit.builder()
                 .partyId(partyId)
                 .partyMemberId(partyMemberId)
                 .userId(userId)
                 .depositType("SECURITY")
                 .depositAmount(amount)
-                .depositStatus(DepositStatus.PAID)
-                .paymentDate(LocalDateTime.now())
+                .depositStatus(DepositStatus.PENDING)
                 .transactionDate(LocalDateTime.now())
+                .paymentDate(LocalDateTime.now())
                 .tossPaymentKey(request.getTossPaymentKey())
                 .orderId(request.getOrderId())
                 .build();
+        depositDao.insertDeposit(pendingDeposit);
+        log.info("PENDING 상태 Deposit 생성: depositId={}", pendingDeposit.getDepositId());
 
-        // 5. DB 저장
-        depositDao.insertDeposit(deposit);
+        // 4. Toss Payments 결제 승인
+        try {
+            tossPaymentService.confirmPayment(
+                    request.getTossPaymentKey(),
+                    request.getOrderId(),
+                    amount);
+        } catch (Exception e) {
+            // Toss 실패 시 PENDING 레코드 삭제
+            depositDao.deleteById(pendingDeposit.getDepositId());
+            log.error("Toss 결제 실패, PENDING 삭제: depositId={}", pendingDeposit.getDepositId());
+            throw e;
+        }
 
-        return deposit;
+        // 5. [2단계 저장 패턴] PAID 상태로 업데이트
+        try {
+            pendingDeposit.setDepositStatus(DepositStatus.PAID);
+            pendingDeposit.setPaymentDate(LocalDateTime.now());
+            depositDao.updateDeposit(pendingDeposit);
+            log.info("PAID 상태로 업데이트 완료: depositId={}", pendingDeposit.getDepositId());
+        } catch (Exception e) {
+            // DB 업데이트 실패 시 보상 트랜잭션 등록
+            refundRetryService.recordCompensation(pendingDeposit, "Toss 성공 후 DB 업데이트 실패");
+            log.error("DB 업데이트 실패, 보상 트랜잭션 등록: depositId={}", pendingDeposit.getDepositId());
+            throw e;
+        }
+
+        return pendingDeposit;
     }
 
     @Override
@@ -151,6 +172,12 @@ public class DepositServiceImpl implements DepositService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public Deposit findByPartyIdAndUserId(Integer partyId, String userId) {
+        return depositDao.findByPartyIdAndUserId(partyId, userId).orElse(null);
+    }
+
+    @Override
     public void refundDeposit(Integer depositId, String reason) {
         log.info("보증금 환불 시작: depositId={}, reason={}", depositId, reason);
 
@@ -173,24 +200,8 @@ public class DepositServiceImpl implements DepositService {
             log.info("Toss 결제 취소 성공: paymentKey={}", deposit.getTossPaymentKey());
         } catch (Exception e) {
             log.error("Toss 결제 취소 실패: depositId={}, error={}", depositId, e.getMessage());
-
-            // 환불 실패 이력 기록
-            com.moa.domain.RefundRetryHistory retryHistory = com.moa.domain.RefundRetryHistory.builder()
-                    .depositId(depositId)
-                    .attemptNumber(1)
-                    .attemptDate(LocalDateTime.now())
-                    .retryStatus("FAILED")
-                    .nextRetryDate(LocalDateTime.now().plusHours(1)) // 1시간 후 재시도
-                    .errorCode(e.getClass().getSimpleName())
-                    .errorMessage(
-                            e.getMessage() != null ? e.getMessage().substring(0, Math.min(e.getMessage().length(), 500))
-                                    : "Unknown error")
-                    .refundAmount(deposit.getDepositAmount())
-                    .refundReason(reason)
-                    .build();
-            refundRetryHistoryDao.insertRefundRetry(retryHistory);
-            log.info("환불 실패 이력 저장 완료: depositId={}, retryId={}", depositId, retryHistory.getRetryId());
-
+            // REQUIRES_NEW 트랜잭션으로 실패 이력 기록
+            refundRetryService.recordFailure(deposit, e, reason);
             throw e;
         }
 
@@ -234,49 +245,14 @@ public class DepositServiceImpl implements DepositService {
 
         long daysUntilStart = java.time.temporal.ChronoUnit.DAYS.between(now.toLocalDate(), partyStart.toLocalDate());
 
+        // 간소화된 환불 정책: 2일 전까지 전액 환불, 1일 전부터 전액 몰수
         if (daysUntilStart >= 2) {
             // 파티 시작 2일 전까지: 전액 환불
             refundDeposit(depositId, "파티 탈퇴 (전액 환불)");
-        } else if (daysUntilStart == 1) {
-            // 파티 시작 1일 전: 50% 환불
-            partialRefundDeposit(depositId, 0.5, "파티 탈퇴 (50% 환불)");
         } else {
-            // 파티 시작 후 또는 당일: 전액 몰수
+            // 파티 시작 1일 전부터: 전액 몰수
             forfeitDeposit(depositId, "파티 탈퇴 (전액 몰수)");
         }
-    }
-
-    @Override
-    public void partialRefundDeposit(Integer depositId, double rate, String reason) {
-        Deposit deposit = depositDao.findById(depositId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.DEPOSIT_NOT_FOUND));
-
-        // 이미 처리된 경우 예외
-        if (deposit.getDepositStatus() != DepositStatus.PAID) {
-            throw new BusinessException(ErrorCode.DEPOSIT_ALREADY_REFUNDED);
-        }
-
-        // 환불 금액 계산
-        int refundAmount = (int) (deposit.getDepositAmount() * rate);
-
-        // Toss Payments 부분 취소 API 호출
-        tossPaymentService.cancelPayment(
-                deposit.getTossPaymentKey(),
-                reason,
-                refundAmount);
-
-        // 상태 업데이트 (부분 환불도 REFUNDED로 처리)
-        deposit.setDepositStatus(DepositStatus.REFUNDED);
-        deposit.setRefundDate(LocalDateTime.now());
-        deposit.setRefundAmount(refundAmount);
-
-        depositDao.updateDeposit(deposit);
-
-        // 이벤트 발행
-        eventPublisher.publishEvent(new RefundCompletedEvent(
-                deposit.getDepositId(),
-                refundAmount,
-                deposit.getUserId()));
     }
 
     @Override

@@ -11,6 +11,7 @@ package com.moa.domain.enums;
  * FORFEITED: 몰수 (악의적 탈퇴 시, 정산으로 방장에게 지급)
  */
 public enum DepositStatus {
+    PENDING("결제대기"),
     PAID("결제완료"),
     REFUNDED("환불완료"),
     FORFEITED("몰수");

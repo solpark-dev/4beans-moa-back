@@ -13,8 +13,6 @@
 		<result property="memberStatus" column="MEMBER_STATUS"/>
 		<result property="joinDate" column="JOIN_DATE"/>
 		<result property="withdrawDate" column="WITHDRAW_DATE"/>
-		<result property="depositId" column="DEPOSIT_ID"/>
-		<result property="firstPaymentId" column="FIRST_PAYMENT_ID"/>
 	</resultMap>
 
 	<!-- ResultMap: PartyMemberResponse (JOIN) -->
@@ -103,9 +101,7 @@
 		SET
 			MEMBER_ROLE = #{memberRole},
 			MEMBER_STATUS = #{memberStatus},
-			WITHDRAW_DATE = #{withdrawDate},
-			DEPOSIT_ID = #{depositId},
-			FIRST_PAYMENT_ID = #{firstPaymentId}
+			WITHDRAW_DATE = #{withdrawDate}
 		WHERE PARTY_MEMBER_ID = #{partyMemberId}
 	</update>
 
@@ -141,5 +137,11 @@
 		  AND MEMBER_ROLE != 'LEADER'
 		ORDER BY JOIN_DATE ASC
 	</select>
+
+	<!-- 파티 멤버 삭제 (Toss 실패 시 롤백용) -->
+	<delete id="deletePartyMember">
+		DELETE FROM PARTY_MEMBER
+		WHERE PARTY_MEMBER_ID = #{partyMemberId}
+	</delete>
 
 </mapper>

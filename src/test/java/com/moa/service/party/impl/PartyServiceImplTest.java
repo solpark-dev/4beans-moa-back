@@ -201,16 +201,18 @@ class PartyServiceImplTest {
 	void getPartyDetail_Success() {
 		// given
 		Integer partyId = 1;
+		String userId = "test-user";
 		PartyDetailResponse expectedResponse = PartyDetailResponse.builder()
 				.partyId(partyId)
 				.productId(1)
 				.partyStatus("RECRUITING")
+				.partyLeaderId(userId) // 방장 ID 추가
 				.build();
 
 		given(partyDao.findDetailById(partyId)).willReturn(Optional.of(expectedResponse));
 
 		// when
-		PartyDetailResponse result = partyService.getPartyDetail(partyId);
+		PartyDetailResponse result = partyService.getPartyDetail(partyId, userId);
 
 		// then
 		assertThat(result).isNotNull();
@@ -223,10 +225,11 @@ class PartyServiceImplTest {
 	void getPartyDetail_Fail_NotFound() {
 		// given
 		Integer partyId = 999;
+		String userId = "test-user";
 		given(partyDao.findDetailById(partyId)).willReturn(Optional.empty());
 
 		// when & then
-		assertThatThrownBy(() -> partyService.getPartyDetail(partyId))
+		assertThatThrownBy(() -> partyService.getPartyDetail(partyId, userId))
 				.isInstanceOf(BusinessException.class)
 				.hasFieldOrPropertyWithValue("errorCode", ErrorCode.PARTY_NOT_FOUND);
 	}
@@ -269,7 +272,8 @@ class PartyServiceImplTest {
 		willDoNothing().given(tossPaymentService).confirmPayment(anyString(), anyString(), anyInt());
 
 		// Mock deposit and payment service calls (WithoutConfirm 메서드 사용)
-		given(depositService.createDepositWithoutConfirm(anyInt(), anyInt(), anyString(), anyInt(), any(PaymentRequest.class)))
+		given(depositService.createDepositWithoutConfirm(anyInt(), anyInt(), anyString(), anyInt(),
+				any(PaymentRequest.class)))
 				.willReturn(com.moa.domain.Deposit.builder().depositId(100).build());
 		given(paymentService.createInitialPaymentWithoutConfirm(anyInt(), anyInt(), anyString(), anyInt(), anyString(),
 				any(PaymentRequest.class)))
@@ -347,6 +351,7 @@ class PartyServiceImplTest {
 				.build();
 
 		given(partyDao.findById(partyId)).willReturn(Optional.of(fullParty));
+		given(partyDao.incrementCurrentMembers(partyId)).willReturn(0); // 정원 증가 실패
 
 		// when & then
 		assertThatThrownBy(() -> partyService.joinParty(partyId, joinUserId, paymentRequest))
@@ -370,7 +375,6 @@ class PartyServiceImplTest {
 				.partyId(partyId)
 				.userId(leaveUserId)
 				.memberStatus(MemberStatus.ACTIVE)
-				.depositId(100)
 				.build();
 
 		given(partyDao.findById(partyId)).willReturn(Optional.of(testParty));
