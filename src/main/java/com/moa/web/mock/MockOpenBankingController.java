@@ -17,9 +17,9 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/mock/openbanking")
 @RequiredArgsConstructor
 public class MockOpenBankingController {
-    
+
     private final MockOpenBankingService mockOpenBankingService;
-    
+
     /**
      * 1원 인증 요청 (수취조회)
      * POST /mock/openbanking/inquiry/receive
@@ -27,18 +27,18 @@ public class MockOpenBankingController {
     @PostMapping("/inquiry/receive")
     public ResponseEntity<InquiryReceiveResponse> inquiryReceive(
             @Valid @RequestBody InquiryReceiveRequest request) {
-        
-        log.info("[Mock 오픈뱅킹] 1원 인증 요청 - 은행: {}, 계좌: {}", 
+
+        log.info("[Mock 오픈뱅킹] 1원 인증 요청 - 은행: {}, 계좌: {}",
                 request.getBankCodeStd(), maskAccountNum(request.getAccountNum()));
-        
-        InquiryReceiveResponse response = mockOpenBankingService.processInquiryReceive(request);
-        
-        log.info("[Mock 오픈뱅킹] 1원 인증 응답 - 코드: {}, 거래ID: {}", 
+
+        InquiryReceiveResponse response = mockOpenBankingService.requestVerification(request);
+
+        log.info("[Mock 오픈뱅킹] 1원 인증 응답 - 코드: {}, 거래ID: {}",
                 response.getRspCode(), response.getBankTranId());
-        
+
         return ResponseEntity.ok(response);
     }
-    
+
     /**
      * 인증코드 검증
      * POST /mock/openbanking/inquiry/verify
@@ -46,17 +46,17 @@ public class MockOpenBankingController {
     @PostMapping("/inquiry/verify")
     public ResponseEntity<InquiryVerifyResponse> verifyCode(
             @Valid @RequestBody InquiryVerifyRequest request) {
-        
+
         log.info("[Mock 오픈뱅킹] 인증코드 검증 요청 - 거래ID: {}", request.getBankTranId());
-        
+
         InquiryVerifyResponse response = mockOpenBankingService.verifyCode(request);
-        
-        log.info("[Mock 오픈뱅킹] 인증코드 검증 응답 - 코드: {}, 인증결과: {}", 
+
+        log.info("[Mock 오픈뱅킹] 인증코드 검증 응답 - 코드: {}, 인증결과: {}",
                 response.getRspCode(), response.isVerified());
-        
+
         return ResponseEntity.ok(response);
     }
-    
+
     /**
      * 입금이체
      * POST /mock/openbanking/transfer/deposit
@@ -64,27 +64,27 @@ public class MockOpenBankingController {
     @PostMapping("/transfer/deposit")
     public ResponseEntity<TransferDepositResponse> transferDeposit(
             @Valid @RequestBody TransferDepositRequest request) {
-        
-        log.info("[Mock 오픈뱅킹] 입금이체 요청 - 핀테크번호: {}, 금액: {}", 
+
+        log.info("[Mock 오픈뱅킹] 입금이체 요청 - 핀테크번호: {}, 금액: {}",
                 maskFintechNum(request.getFintechUseNum()), request.getTranAmt());
-        
+
         TransferDepositResponse response = mockOpenBankingService.transferDeposit(request);
-        
-        log.info("[Mock 오픈뱅킹] 입금이체 응답 - 코드: {}, 거래ID: {}", 
+
+        log.info("[Mock 오픈뱅킹] 입금이체 응답 - 코드: {}, 거래ID: {}",
                 response.getRspCode(), response.getBankTranId());
-        
+
         return ResponseEntity.ok(response);
     }
-    
+
     // 계좌번호 마스킹 (앞 4자리 + **** + 뒤 4자리)
     private String maskAccountNum(String accountNum) {
         if (accountNum == null || accountNum.length() < 8) {
             return "****";
         }
-        return accountNum.substring(0, 4) + "****" + 
-               accountNum.substring(accountNum.length() - 4);
+        return accountNum.substring(0, 4) + "****" +
+                accountNum.substring(accountNum.length() - 4);
     }
-    
+
     // 핀테크이용번호 마스킹
     private String maskFintechNum(String fintechNum) {
         if (fintechNum == null || fintechNum.length() < 8) {

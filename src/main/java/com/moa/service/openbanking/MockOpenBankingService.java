@@ -8,6 +8,7 @@ import com.moa.domain.openbanking.TransferTransaction;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.context.annotation.Primary;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -24,8 +25,9 @@ import com.moa.domain.openbanking.TransactionStatus;
  */
 @Slf4j
 @Service
+@Primary
 @RequiredArgsConstructor
-public class MockOpenBankingService {
+public class MockOpenBankingService implements OpenBankingClient {
 
     private final AccountVerificationMapper verificationMapper;
     private final TransferTransactionMapper transactionMapper;
@@ -40,8 +42,9 @@ public class MockOpenBankingService {
      * - 거래고유번호 생성
      * - 인증 세션 저장
      */
+    @Override
     @Transactional
-    public InquiryReceiveResponse processInquiryReceive(InquiryReceiveRequest request) {
+    public InquiryReceiveResponse requestVerification(InquiryReceiveRequest request) {
         // 필수 파라미터 검증
         if (request.getBankCodeStd() == null || request.getBankCodeStd().isBlank()) {
             return InquiryReceiveResponse.error("A0001", "필수 파라미터가 누락되었습니다: bankCodeStd");
@@ -73,7 +76,7 @@ public class MockOpenBankingService {
     @Transactional
     public InquiryReceiveResponse processInquiryReceiveWithUser(String userId, InquiryReceiveRequest request) {
         // 기본 검증
-        InquiryReceiveResponse basicResponse = processInquiryReceive(request);
+        InquiryReceiveResponse basicResponse = requestVerification(request);
         if (!"A0000".equals(basicResponse.getRspCode())) {
             return basicResponse;
         }
@@ -105,6 +108,7 @@ public class MockOpenBankingService {
     /**
      * 인증코드 검증
      */
+    @Override
     @Transactional
     public InquiryVerifyResponse verifyCode(InquiryVerifyRequest request) {
         // 필수 파라미터 검증
@@ -159,6 +163,7 @@ public class MockOpenBankingService {
     /**
      * 입금이체 처리
      */
+    @Override
     @Transactional
     public TransferDepositResponse transferDeposit(TransferDepositRequest request) {
         // 필수 파라미터 검증

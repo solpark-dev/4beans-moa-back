@@ -34,6 +34,7 @@ public class PaymentResponse {
     // === 파티 정보 (JOIN) ===
     private String productName; // 상품명
     private String partyLeaderNickname; // 방장 닉네임
+    private String userNickname; // 사용자 닉네임 (추가)
 
     // === 카드 정보 ===
     private String cardNumber; // 카드 번호 (마스킹 처리된)

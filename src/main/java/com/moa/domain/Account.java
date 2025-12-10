@@ -21,6 +21,16 @@ public class Account {
     private String accountNumber;
     private String accountHolder;
     private String isVerified; // 'Y' or 'N'
+    private String fintechUseNum;
     private LocalDateTime regDate;
     private LocalDateTime verifyDate;
+    private String status; // ACTIVE, INACTIVE, BLOCK
+
+    public String getMaskedAccountNumber() {
+        if (this.accountNumber == null || this.accountNumber.length() < 8) {
+            return "****";
+        }
+        return this.accountNumber.substring(0, 4) + "****" +
+                this.accountNumber.substring(this.accountNumber.length() - 4);
+    }
 }

@@ -63,9 +63,11 @@ public class ForceWithdrawalEventListener {
             }
 
             // 2. 보증금 몰수
-            if (member.getDepositId() != null) {
-                depositService.forfeitDeposit(member.getDepositId(), "4회 결제 실패로 인한 강제 탈퇴");
-                log.info("보증금 몰수 완료: depositId={}", member.getDepositId());
+            com.moa.domain.Deposit deposit = depositService.findByPartyIdAndUserId(event.getPartyId(),
+                    event.getUserId());
+            if (deposit != null) {
+                depositService.forfeitDeposit(deposit.getDepositId(), "4회 결제 실패로 인한 강제 탈퇴");
+                log.info("보증금 몰수 완료: depositId={}", deposit.getDepositId());
             } else {
                 log.warn("보증금 정보 없음: partyMemberId={}", member.getPartyMemberId());
             }

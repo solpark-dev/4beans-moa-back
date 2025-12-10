@@ -14,12 +14,10 @@ import com.moa.dao.deposit.DepositDao;
 import com.moa.dao.party.PartyDao;
 import com.moa.dao.payment.PaymentDao;
 import com.moa.dao.settlement.SettlementDao;
-import com.moa.dao.settlement.SettlementDetailDao;
 import com.moa.domain.Account;
 import com.moa.domain.Deposit;
 import com.moa.domain.Party;
 import com.moa.domain.Settlement;
-import com.moa.domain.SettlementDetail;
 import com.moa.domain.enums.SettlementStatus;
 import com.moa.dto.payment.response.PaymentResponse;
 import com.moa.dto.settlement.response.SettlementDetailResponse;
@@ -38,7 +36,6 @@ import lombok.extern.slf4j.Slf4j;
 public class SettlementServiceImpl implements SettlementService {
 
         private final SettlementDao settlementDao;
-        private final SettlementDetailDao settlementDetailDao;
         private final PaymentDao paymentDao;
         private final PartyDao partyDao;
         private final AccountDao accountDao;
@@ -70,8 +67,6 @@ public class SettlementServiceImpl implements SettlementService {
                 }
 
                 // 정산 기간: 파티 시작일의 day를 기준으로 이전 달 billing cycle 계산
-                // 예: 1월 15일 시작 -> 2월 1일 정산 시 1월 15일 ~ 1월 31일
-                // 3월 1일 정산 시 2월 15일 ~ 3월 14일
                 int billingDay = partyStartDate.getDayOfMonth();
                 LocalDateTime tempStartDate;
                 LocalDateTime tempEndDate;
@@ -81,8 +76,6 @@ public class SettlementServiceImpl implements SettlementService {
                 int targetYear = Integer.parseInt(monthParts[0]);
                 int targetMonthNum = Integer.parseInt(monthParts[1]);
 
-                // 정산 시작일: targetMonth의 billingDay
-                // 정산 종료일: 다음달의 (billingDay - 1)일
                 if (billingDay == 1) {
                         // 1일 시작인 경우: 전월 1일 ~ 전월 말일
                         tempStartDate = LocalDateTime.of(targetYear, targetMonthNum, 1, 0, 0, 0);
@@ -103,7 +96,7 @@ public class SettlementServiceImpl implements SettlementService {
                 // [정산 기간 검증] 현재 날짜 이전의 완료된 billing cycle만 정산
                 LocalDateTime now = LocalDateTime.now();
                 if (settlementEndDate.isAfter(now)) {
-                        log.warn("정산 기간이 아직 완료되지 않음: partyId={}, targetMonth={}, endDate={}", 
+                        log.warn("정산 기간이 아직 완료되지 않음: partyId={}, targetMonth={}, endDate={}",
                                         partyId, targetMonth, settlementEndDate);
                         throw new BusinessException(ErrorCode.SETTLEMENT_PERIOD_NOT_COMPLETED);
                 }
@@ -158,19 +151,9 @@ public class SettlementServiceImpl implements SettlementService {
 
                 settlementDao.insertSettlement(settlement);
 
-                // 9. SettlementDetail 생성
+                // 9. Payment 테이블에 정산 ID 업데이트 (비정규화, SETTLEMENT_DETAIL 제거 대체)
                 for (PaymentResponse p : targetPayments) {
-                        // N+1 문제 해결: PaymentResponse에 있는 정보 사용
-                        SettlementDetail detail = SettlementDetail.builder()
-                                        .settlementId(settlement.getSettlementId())
-                                        .paymentId(p.getPaymentId())
-                                        .partyMemberId(p.getPartyMemberId())
-                                        .userId(p.getUserId())
-                                        .paymentAmount(p.getPaymentAmount())
-                                        .regDate(LocalDateTime.now())
-                                        .build();
-
-                        settlementDetailDao.insertSettlementDetail(detail);
+                        paymentDao.updateSettlementId(p.getPaymentId(), settlement.getSettlementId());
                 }
 
                 return settlement;
@@ -239,6 +222,20 @@ public class SettlementServiceImpl implements SettlementService {
         @Override
         @Transactional(readOnly = true)
         public List<SettlementDetailResponse> getSettlementDetails(Integer settlementId) {
-                return settlementDetailDao.findBySettlementId(settlementId);
+                // Payment 테이블에서 정산 ID로 조회하여 DTO 변환
+                List<PaymentResponse> payments = paymentDao.findBySettlementId(settlementId);
+
+                return payments.stream()
+                                .map(p -> SettlementDetailResponse.builder()
+                                                .detailId(null) // detailId는 이제 없음
+                                                .settlementId(settlementId)
+                                                .paymentId(p.getPaymentId())
+                                                .userId(p.getUserId())
+                                                .userNickname(p.getUserNickname()) // PaymentResponse에 userNickname이 있는지
+                                                                                   // 확인 필요 (Mapper SQL 확인)
+                                                .paymentAmount(p.getPaymentAmount())
+                                                .regDate(p.getPaymentDate())
+                                                .build())
+                                .collect(Collectors.toList());
         }
 }
