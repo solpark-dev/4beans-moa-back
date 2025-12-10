@@ -250,8 +250,10 @@ public class PartyServiceImpl implements PartyService {
             Integer productId,
             String partyStatus,
             String keyword,
+            java.time.LocalDate startDate,
             int page,
-            int size) {
+            int size,
+            String sort) {
 
         // 상태 문자열을 Enum으로 변환
         PartyStatus status = null;
@@ -272,7 +274,7 @@ public class PartyServiceImpl implements PartyService {
         // OFFSET 계산
         int offset = (page - 1) * size;
 
-        return partyDao.findPartyList(productId, status, keyword, offset, size);
+        return partyDao.findPartyList(productId, status, keyword, startDate, offset, size, sort);
     }
 
     @Override

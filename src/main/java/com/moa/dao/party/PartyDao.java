@@ -24,8 +24,10 @@ public interface PartyDao {
 			@Param("productId") Integer productId,
 			@Param("partyStatus") PartyStatus partyStatus,
 			@Param("keyword") String keyword,
+			@Param("startDate") java.time.LocalDate startDate,
 			@Param("offset") int offset,
-			@Param("size") int size);
+			@Param("size") int size,
+			@Param("sort") String sort);
 
 	int updateParty(Party party);
 

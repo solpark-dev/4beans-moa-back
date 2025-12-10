@@ -127,7 +127,7 @@ class PartyRestControllerTest {
 				.partyStatus("RECRUITING")
 				.build();
 
-		given(partyService.getPartyList(any(), any(), any(), anyInt(), anyInt()))
+		given(partyService.getPartyList(any(), any(), any(), any(), anyInt(), anyInt(), any()))
 				.willReturn(List.of(listResponse));
 
 		// when & then

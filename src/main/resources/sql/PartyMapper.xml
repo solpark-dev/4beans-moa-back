@@ -168,8 +168,30 @@
 				AND (PR.PRODUCT_NAME LIKE CONCAT('%', #{keyword}, '%')
 				OR U.NICKNAME LIKE CONCAT('%', #{keyword}, '%'))
 			</if>
+			<if test="startDate != null">
+				AND P.START_DATE >= #{startDate}
+			</if>
 		</where>
-		ORDER BY P.REG_DATE DESC
+		<choose>
+			<when test="sort == 'price_low'">
+				ORDER BY P.MONTHLY_FEE ASC, P.REG_DATE DESC, P.PARTY_ID DESC
+			</when>
+			<when test="sort == 'price_high'">
+				ORDER BY P.MONTHLY_FEE DESC, P.REG_DATE DESC, P.PARTY_ID DESC
+			</when>
+			<when test="sort == 'popularity'">
+				ORDER BY (P.MAX_MEMBERS - P.CURRENT_MEMBERS) ASC, P.REG_DATE DESC, P.PARTY_ID DESC
+			</when>
+			<when test="sort == 'deadline'">
+				ORDER BY (P.MAX_MEMBERS - P.CURRENT_MEMBERS) ASC, P.REG_DATE DESC, P.PARTY_ID DESC
+			</when>
+			<when test="sort == 'start_date_asc'">
+				ORDER BY P.START_DATE ASC, P.REG_DATE DESC, P.PARTY_ID DESC
+			</when>
+			<otherwise>
+				ORDER BY P.REG_DATE DESC, P.PARTY_ID DESC
+			</otherwise>
+		</choose>
 		LIMIT #{size} OFFSET #{offset}
 	</select>
 

@@ -143,11 +143,13 @@ public class PartyRestController {
 			@RequestParam(required = false) Integer productId,
 			@RequestParam(required = false) String partyStatus,
 			@RequestParam(required = false) String keyword,
+			@RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(pattern = "yyyy-MM-dd") java.time.LocalDate startDate,
 			@RequestParam(defaultValue = "1") int page,
-			@RequestParam(defaultValue = "10") int size) {
+			@RequestParam(defaultValue = "10") int size,
+			@RequestParam(defaultValue = "latest") String sort) {
 
 		List<PartyListResponse> response = partyService.getPartyList(
-				productId, partyStatus, keyword, page, size);
+				productId, partyStatus, keyword, startDate, page, size, sort);
 		return ApiResponse.success(response);
 	}
 
