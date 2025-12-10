@@ -29,9 +29,10 @@ public class ProductRestController {
     private String urlPrefix;
 
     @PostMapping
-    public void addProduct(@RequestBody ProductDTO productDTO) throws Exception {
+    public ApiResponse<Void> addProduct(@RequestBody ProductDTO productDTO) throws Exception {
         logger.debug("Request [addProduct] Time: {}, Content: {}", java.time.LocalDateTime.now(), productDTO);
         productService.addProduct(productDTO);
+        return ApiResponse.success(null);
     }
 
     /*
@@ -55,15 +56,17 @@ public class ProductRestController {
     }
 
     @PutMapping
-    public void updateProduct(@RequestBody ProductDTO productDTO) throws Exception {
+    public ApiResponse<Void> updateProduct(@RequestBody ProductDTO productDTO) throws Exception {
         logger.debug("Request [updateProduct] Time: {}, Content: {}", java.time.LocalDateTime.now(), productDTO);
         productService.updateProduct(productDTO);
+        return ApiResponse.success(null);
     }
 
     @DeleteMapping("/{productId}")
-    public void deleteProduct(@PathVariable int productId) throws Exception {
+    public ApiResponse<Void> deleteProduct(@PathVariable int productId) throws Exception {
         logger.debug("Request [deleteProduct] Time: {}, productId: {}", java.time.LocalDateTime.now(), productId);
         productService.deleteProduct(productId);
+        return ApiResponse.success(null);
     }
 
     @PostMapping("/upload")
