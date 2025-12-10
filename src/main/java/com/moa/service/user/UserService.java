@@ -1,5 +1,7 @@
 package com.moa.service.user;
 
+import java.util.Optional;
+
 import org.apache.ibatis.annotations.Param;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -55,4 +57,6 @@ public interface UserService {
 	UserResponse getUserDetailForAdmin(String userId);
 	
 	void unlockByCertification(String userId, String phone, String ci);
+	
+	Optional<User> findByPhone(String phone);
 }

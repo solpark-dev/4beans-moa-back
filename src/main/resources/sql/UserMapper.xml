@@ -86,6 +86,36 @@
 		AND DELETE_DATE IS NULL
 	</select>
 
+
+	<select id="findByPhone" parameterType="string"
+		resultMap="userMap">
+		SELECT
+		USER_ID,
+		PASSWORD,
+		NICKNAME,
+		PHONE,
+		PROFILE_IMAGE,
+		ROLE,
+		USER_STATUS,
+		REG_DATE,
+		CI,
+		PASS_CERTIFIED_AT,
+		LAST_LOGIN_DATE,
+		LOGIN_FAIL_COUNT,
+		UNLOCK_SCHEDULED_AT,
+		DELETE_DATE,
+		DELETE_TYPE,
+		DELETE_DETAIL,
+		AGREE_MARKETING,
+		OTP_SECRET,
+		OTP_ENABLED,
+		PROVIDER
+		FROM
+		USERS
+		WHERE PHONE = #{phone}
+		AND DELETE_DATE IS NULL
+	</select>
+
 	<select id="existsByUserId" resultType="int">
 		SELECT COUNT(1)
 		FROM USERS

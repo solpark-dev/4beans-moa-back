@@ -35,6 +35,8 @@ public interface UserDao {
 
 	Optional<String> findUserIdByPhone(String phone);
 
+	Optional<User> findByPhone(@Param("phone") String phone);
+
 	int existsByUserId(@Param("userId") String userId);
 
 	int existsByNickname(@Param("nickname") String nickname);

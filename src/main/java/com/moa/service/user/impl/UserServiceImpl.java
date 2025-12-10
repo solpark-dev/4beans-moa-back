@@ -329,6 +329,11 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
+	public Optional<User> findByPhone(String phone) {
+		return userDao.findByPhone(phone);
+	}
+
+	@Override
 	public User findUserIncludeDeleted(String userId) {
 		return userDao.findByUserIdIncludeDeleted(userId)
 				.orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND, "사용자를 찾을 수 없습니다."));

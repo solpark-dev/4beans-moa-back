@@ -29,8 +29,9 @@ import com.moa.config.GoogleOAuthProperties;
 import com.moa.config.KakaoOAuthProperties;
 import com.moa.domain.OAuthAccount;
 import com.moa.service.oauth.OAuthAccountService;
+import com.moa.service.user.UserService;
 
-import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
@@ -43,17 +44,38 @@ public class OAuthRestController {
 	private final GoogleOAuthProperties google;
 	private final OAuthAccountService oauthService;
 	private final JwtProvider jwtProvider;
+	private final UserService userService;
+
+	@GetMapping("/kakao/auth")
+	public ApiResponse<?> kakaoAuth(@RequestParam(defaultValue = "login") String mode, HttpServletRequest request) {
+		String redirectUri = kakao.getRedirectUri();
+		if ("connect".equals(mode)) {
+			redirectUri += "?mode=connect";
+		}
+
+		String url = "https://kauth.kakao.com/oauth/authorize" + "?client_id=" + kakao.getClientId() + "&redirect_uri="
+				+ URLEncoder.encode(redirectUri, StandardCharsets.UTF_8) + "&response_type=code";
+
+		return ApiResponse.success(Map.of("url", url));
+	}
 
 	@GetMapping("/kakao/callback")
-	public ApiResponse<Map<String, Object>> kakaoCallback(@RequestParam("code") String code) throws Exception {
+	public ApiResponse<?> kakaoCallback(@RequestParam("code") String code,
+			@RequestParam(value = "mode", defaultValue = "login") String mode, HttpServletRequest request)
+			throws Exception {
 
 		RestTemplate rest = new RestTemplate();
+
+		String redirectUri = kakao.getRedirectUri();
+		if ("connect".equals(mode)) {
+			redirectUri += "?mode=connect";
+		}
 
 		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 		params.add("grant_type", "authorization_code");
 		params.add("client_id", kakao.getClientId());
 		params.add("client_secret", kakao.getClientSecret());
-		params.add("redirect_uri", kakao.getRedirectUri());
+		params.add("redirect_uri", redirectUri);
 		params.add("code", code);
 
 		HttpHeaders headers = new HttpHeaders();
@@ -80,7 +102,6 @@ public class OAuthRestController {
 
 		if (currentUser != null) {
 			if (exists != null && exists.getReleaseDate() == null && !exists.getUserId().equals(currentUser)) {
-
 				return ApiResponse.success(Map.of("status", "NEED_TRANSFER", "provider", "kakao", "providerUserId",
 						providerUserId, "fromUserId", exists.getUserId(), "toUserId", currentUser));
 			}
@@ -109,25 +130,58 @@ public class OAuthRestController {
 
 	@PostMapping("/connect")
 	public ApiResponse<String> connect(@RequestBody Map<String, String> body) {
-	    String provider = body.get("provider");
-	    String providerUserId = body.get("providerUserId");
+		String provider = body.get("provider");
+		String providerUserId = body.get("providerUserId");
 
-	    String currentUser = getCurrentUserId();
-	    if (currentUser == null) {
-	        return ApiResponse.error(ErrorCode.UNAUTHORIZED, "로그인이 필요합니다.");
-	    }
+		String currentUser = getCurrentUserId();
+		if (currentUser == null) {
+			return ApiResponse.error(ErrorCode.UNAUTHORIZED, "로그인이 필요합니다.");
+		}
 
-	    OAuthAccount existing = oauthService.getOAuthByProvider(provider, providerUserId);
+		OAuthAccount existing = oauthService.getOAuthByProvider(provider, providerUserId);
 
-	    if (existing != null && existing.getReleaseDate() == null && !existing.getUserId().equals(currentUser)) {
-	        return ApiResponse.error(ErrorCode.CONFLICT, "이미 다른 계정에 연결된 소셜 계정입니다.");
-	    }
+		if (existing != null && existing.getReleaseDate() == null && !existing.getUserId().equals(currentUser)) {
+			return ApiResponse.error(ErrorCode.CONFLICT, "이미 다른 계정에 연결된 소셜 계정입니다.");
+		}
 
-	    oauthService.connectOAuthAccount(currentUser, provider, providerUserId);
+		oauthService.connectOAuthAccount(currentUser, provider, providerUserId);
 
-	    return ApiResponse.success("OK");
+		return ApiResponse.success("OK");
 	}
 
+	@PostMapping("/connect-by-phone")
+	public ApiResponse<Map<String, Object>> connectByPhone(@RequestBody Map<String, String> body) {
+		String provider = body.get("provider");
+		String providerUserId = body.get("providerUserId");
+		String phone = body.get("phone");
+
+		if (provider == null || providerUserId == null || phone == null) {
+			return ApiResponse.error(ErrorCode.INVALID_PARAMETER, "요청 정보가 올바르지 않습니다.");
+		}
+
+		var userOpt = userService.findByPhone(phone);
+		if (userOpt.isEmpty()) {
+			return ApiResponse.error(ErrorCode.NOT_FOUND, "해당 휴대폰 번호로 가입된 계정이 없습니다.");
+		}
+
+		var user = userOpt.get();
+
+		OAuthAccount existing = oauthService.getOAuthByProvider(provider, providerUserId);
+		if (existing != null && existing.getReleaseDate() == null && !existing.getUserId().equals(user.getUserId())) {
+			return ApiResponse.error(ErrorCode.CONFLICT, "이미 다른 계정에 연결된 소셜 계정입니다.");
+		}
+
+		oauthService.connectOAuthAccount(user.getUserId(), provider, providerUserId);
+
+		UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user.getUserId(),
+				null, List.of(() -> "ROLE_USER"));
+
+		var tokenResponse = jwtProvider.generateToken(authentication);
+
+		return ApiResponse.success(Map.of("status", "LOGIN", "userId", user.getUserId(), "provider", provider,
+				"providerUserId", providerUserId, "accessToken", tokenResponse.getAccessToken(), "refreshToken",
+				tokenResponse.getRefreshToken(), "accessTokenExpiresIn", tokenResponse.getAccessTokenExpiresIn()));
+	}
 
 	@PostMapping("/release")
 	public ApiResponse<String> release(@RequestBody Map<String, String> body) {
@@ -162,32 +216,40 @@ public class OAuthRestController {
 	}
 
 	@GetMapping("/google/auth")
-	public void googleAuth(@RequestParam(value = "mode", required = false) String mode, HttpServletResponse response)
-			throws Exception {
-		String redirectUri = google.getRedirectUri();
-		String clientId = google.getClientId();
+	public ApiResponse<?> googleAuth(@RequestParam(defaultValue = "login") String mode, HttpServletRequest request) {
+		String origin = request.getHeader("Origin");
+		if (origin == null || origin.isBlank()) {
+			origin = "https://localhost:5173";
+		}
+
+		String redirectUri = origin + "/oauth/google";
 		String scope = URLEncoder.encode("openid email profile", StandardCharsets.UTF_8);
-		String state = mode != null ? mode : "login";
 
-		String url = "https://accounts.google.com/o/oauth2/v2/auth" + "?client_id=" + clientId + "&redirect_uri="
-				+ URLEncoder.encode(redirectUri, StandardCharsets.UTF_8) + "&response_type=code" + "&scope=" + scope
-				+ "&access_type=offline" + "&prompt=consent" + "&state=" + state;
+		String url = "https://accounts.google.com/o/oauth2/v2/auth" + "?client_id=" + google.getClientId()
+				+ "&redirect_uri=" + URLEncoder.encode(redirectUri, StandardCharsets.UTF_8) + "&response_type=code"
+				+ "&scope=" + scope + "&access_type=offline" + "&prompt=consent" + "&state=" + mode;
 
-		response.sendRedirect(url);
+		return ApiResponse.success(Map.of("url", url));
 	}
 
 	@GetMapping("/google/callback")
-	public void googleCallback(@RequestParam("code") String code,
-			@RequestParam(value = "state", required = false) String state, HttpServletResponse response)
+	public ApiResponse<?> googleCallback(@RequestParam("code") String code,
+			@RequestParam(value = "mode", defaultValue = "login") String mode, HttpServletRequest request)
 			throws Exception {
 
 		RestTemplate rest = new RestTemplate();
+
+		String origin = request.getHeader("Origin");
+		if (origin == null || origin.isBlank()) {
+			origin = "https://localhost:5173";
+		}
+		String redirectUri = origin + "/oauth/google";
 
 		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 		params.add("grant_type", "authorization_code");
 		params.add("client_id", google.getClientId());
 		params.add("client_secret", google.getClientSecret());
-		params.add("redirect_uri", google.getRedirectUri());
+		params.add("redirect_uri", redirectUri);
 		params.add("code", code);
 
 		HttpHeaders headers = new HttpHeaders();
@@ -208,8 +270,35 @@ public class OAuthRestController {
 				.getBody();
 
 		String providerUserId = (String) profile.get("sub");
-		response.sendRedirect(
-				"https://localhost:5173/oauth/google" + "?mode=" + state + "&providerUserId=" + providerUserId);
+		OAuthAccount exists = oauthService.getOAuthByProvider("google", providerUserId);
+		String currentUser = getCurrentUserId();
+
+		if (currentUser != null) {
+			if (exists != null && exists.getReleaseDate() == null && !exists.getUserId().equals(currentUser)) {
+				return ApiResponse.success(Map.of("status", "NEED_TRANSFER", "provider", "google", "providerUserId",
+						providerUserId, "fromUserId", exists.getUserId(), "toUserId", currentUser));
+			}
+
+			oauthService.connectOAuthAccount(currentUser, "google", providerUserId);
+
+			return ApiResponse.success(Map.of("status", "CONNECT", "userId", currentUser, "provider", "google",
+					"providerUserId", providerUserId));
+		}
+
+		if (exists == null || exists.getReleaseDate() != null) {
+			return ApiResponse
+					.success(Map.of("status", "NEED_REGISTER", "provider", "google", "providerUserId", providerUserId));
+		}
+
+		UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(exists.getUserId(),
+				null, List.of(() -> "ROLE_USER"));
+
+		var tokenResponseJwt = jwtProvider.generateToken(authentication);
+
+		return ApiResponse.success(Map.of("status", "LOGIN", "userId", exists.getUserId(), "provider", "google",
+				"providerUserId", providerUserId, "accessToken", tokenResponseJwt.getAccessToken(), "refreshToken",
+				tokenResponseJwt.getRefreshToken(), "accessTokenExpiresIn",
+				tokenResponseJwt.getAccessTokenExpiresIn()));
 	}
 
 	@GetMapping("/list")

@@ -2,6 +2,7 @@ package com.moa.service.community;
 
 import com.moa.dto.community.request.*;
 import com.moa.dto.community.response.*;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface CommunityService {
     
@@ -35,7 +36,7 @@ public interface CommunityService {
     
     InquiryResponse getInquiry(Integer communityId);
     
-    void addInquiry(InquiryRequest request);
+    void addInquiry(String userId, Integer communityCodeId, String title, String content, MultipartFile file);
     
     //void deleteInquiry(Integer communityId);
     
