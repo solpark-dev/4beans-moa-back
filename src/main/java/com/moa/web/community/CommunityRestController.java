@@ -4,8 +4,17 @@ import com.moa.dto.community.request.*;
 import com.moa.dto.community.response.*;
 import com.moa.service.community.CommunityService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.net.MalformedURLException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 @RestController
 @RequestMapping("/api/community")
@@ -13,6 +22,9 @@ import org.springframework.web.bind.annotation.*;
 public class CommunityRestController {
     
     private final CommunityService communityService;
+    
+    @Value("${app.upload.community.inquiry-dir}")
+    private String inquiryUploadDir;
     
     @GetMapping("/notice")
     public ResponseEntity<PageResponse<NoticeResponse>> getNoticeList(
@@ -114,9 +126,36 @@ public class CommunityRestController {
         return ResponseEntity.ok(communityService.getInquiry(communityId));
     }
     
+    @GetMapping("/inquiry/image/{fileUuid}")
+    public ResponseEntity<Resource> getInquiryImage(@PathVariable String fileUuid) {
+        try {
+            Path filePath = Paths.get(inquiryUploadDir).resolve(fileUuid);
+            Resource resource = new UrlResource(filePath.toUri());
+            
+            if (resource.exists() && resource.isReadable()) {
+                String contentType = "image/png";
+                if (fileUuid.toLowerCase().endsWith(".jpg") || fileUuid.toLowerCase().endsWith(".jpeg")) {
+                    contentType = "image/jpeg";
+                }
+                
+                return ResponseEntity.ok()
+                        .header(HttpHeaders.CONTENT_TYPE, contentType)
+                        .body(resource);
+            }
+            return ResponseEntity.notFound().build();
+        } catch (MalformedURLException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+    
     @PostMapping("/inquiry")
-    public ResponseEntity<Void> addInquiry(@RequestBody InquiryRequest request) {
-        communityService.addInquiry(request);
+    public ResponseEntity<Void> addInquiry(
+            @RequestParam String userId,
+            @RequestParam Integer communityCodeId,
+            @RequestParam String title,
+            @RequestParam String content,
+            @RequestParam(required = false) MultipartFile file) {
+        communityService.addInquiry(userId, communityCodeId, title, content, file);
         return ResponseEntity.ok().build();
     }
     

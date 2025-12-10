@@ -9,11 +9,18 @@ import com.moa.dto.push.request.TemplatePushRequest;
 import com.moa.service.community.CommunityService;
 import com.moa.service.push.PushService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,6 +30,9 @@ public class CommunityServiceImpl implements CommunityService {
     
     private final CommunityDao communityDao;
     private final PushService pushService;
+    
+    @Value("${app.upload.community.inquiry-dir}")
+    private String inquiryUploadDir;
     
     @Override
     public PageResponse<NoticeResponse> getNoticeList(int page, int size) {
@@ -40,7 +50,7 @@ public class CommunityServiceImpl implements CommunityService {
     @Override
     @Transactional
     public NoticeResponse getNotice(Integer communityId) {
-        communityDao.incrementViewCount(communityId);  //조회수 증가 추가
+        communityDao.incrementViewCount(communityId);
         Community community = communityDao.getNotice(communityId);
         return NoticeResponse.fromEntity(community);
     }
@@ -154,8 +164,36 @@ public class CommunityServiceImpl implements CommunityService {
     
     @Override
     @Transactional
-    public void addInquiry(InquiryRequest request) {
-        Community community = request.toEntity();
+    public void addInquiry(String userId, Integer communityCodeId, String title, String content, MultipartFile file) {
+        String fileOriginal = null;
+        String fileUuid = null;
+        
+        if (file != null && !file.isEmpty()) {
+            fileOriginal = file.getOriginalFilename();
+            String extension = fileOriginal.substring(fileOriginal.lastIndexOf("."));
+            fileUuid = UUID.randomUUID().toString() + extension;
+            
+            try {
+                Path uploadPath = Paths.get(inquiryUploadDir);
+                if (!Files.exists(uploadPath)) {
+                    Files.createDirectories(uploadPath);
+                }
+                Path filePath = uploadPath.resolve(fileUuid);
+                Files.copy(file.getInputStream(), filePath);
+            } catch (IOException e) {
+                throw new RuntimeException("파일 저장 실패", e);
+            }
+        }
+        
+        Community community = Community.builder()
+                .userId(userId)
+                .communityCodeId(communityCodeId)
+                .title(title)
+                .content(content)
+                .fileOriginal(fileOriginal)
+                .fileUuid(fileUuid)
+                .build();
+        
         communityDao.addInquiry(community);
     }
     
@@ -176,8 +214,6 @@ public class CommunityServiceImpl implements CommunityService {
         
         pushService.addTemplatePush(pushRequest);
     }
-    
-    
     
     @Override
     @Transactional

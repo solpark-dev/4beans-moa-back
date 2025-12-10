@@ -60,7 +60,8 @@ public class SecurityConfig {
 					"/api/auth/login/backup-verify",
 					"/api/auth/refresh",
 					"/api/auth/verify-email",
-					"/api/auth/unlock"
+					"/api/auth/unlock",
+					"/api/community/**"
 				).permitAll()
 
 				// OAuth 콜백 및 인증 시작
