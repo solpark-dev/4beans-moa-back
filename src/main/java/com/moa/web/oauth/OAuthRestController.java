@@ -48,7 +48,15 @@ public class OAuthRestController {
 
 	@GetMapping("/kakao/auth")
 	public ApiResponse<?> kakaoAuth(@RequestParam(defaultValue = "login") String mode, HttpServletRequest request) {
-		String redirectUri = kakao.getRedirectUri();
+		String origin = request.getHeader("Origin");
+		if (origin == null || origin.isBlank()) {
+			origin = request.getScheme() + "://" + request.getServerName();
+			if (request.getServerPort() != 80 && request.getServerPort() != 443) {
+				origin += ":" + request.getServerPort();
+			}
+		}
+
+		String redirectUri = origin + "/oauth/kakao";
 		if ("connect".equals(mode)) {
 			redirectUri += "?mode=connect";
 		}
@@ -61,14 +69,29 @@ public class OAuthRestController {
 
 	@GetMapping("/kakao/callback")
 	public ApiResponse<?> kakaoCallback(@RequestParam("code") String code,
-			@RequestParam(value = "mode", defaultValue = "login") String mode, HttpServletRequest request)
+			@RequestParam(value = "mode", defaultValue = "login") String mode,
+			@RequestParam(value = "redirectUri", required = false) String redirectUri, HttpServletRequest request)
 			throws Exception {
 
 		RestTemplate rest = new RestTemplate();
 
-		String redirectUri = kakao.getRedirectUri();
-		if ("connect".equals(mode)) {
-			redirectUri += "?mode=connect";
+		String origin = request.getHeader("Origin");
+		if (origin == null || origin.isBlank()) {
+			origin = request.getScheme() + "://" + request.getServerName();
+			int port = request.getServerPort();
+			if (port != 80 && port != 443 && port > 0) {
+				origin += ":" + port;
+			}
+		}
+
+		if (redirectUri == null || redirectUri.isBlank()) {
+			redirectUri = origin + "/oauth/kakao";
+		} else if (redirectUri.startsWith("/")) {
+			redirectUri = origin + redirectUri;
+		}
+
+		if ("connect".equals(mode) && !redirectUri.contains("?")) {
+			redirectUri = redirectUri + "?mode=connect";
 		}
 
 		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
@@ -80,7 +103,6 @@ public class OAuthRestController {
 
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-
 		HttpEntity<MultiValueMap<String, String>> tokenRequest = new HttpEntity<>(params, headers);
 
 		Map<String, Object> tokenResponse = rest.postForObject("https://kauth.kakao.com/oauth/token", tokenRequest,
@@ -92,7 +114,6 @@ public class OAuthRestController {
 		profileHeader.set("Authorization", "Bearer " + accessToken);
 
 		HttpEntity<Void> profileRequest = new HttpEntity<>(profileHeader);
-
 		Map<String, Object> profile = rest
 				.exchange("https://kapi.kakao.com/v2/user/me", HttpMethod.GET, profileRequest, Map.class).getBody();
 
@@ -216,41 +237,38 @@ public class OAuthRestController {
 	}
 
 	@GetMapping("/google/auth")
-	public ApiResponse<?> googleAuth(@RequestParam(defaultValue = "login") String mode, HttpServletRequest request) {
-		String origin = request.getHeader("Origin");
-		if (origin == null || origin.isBlank()) {
-			origin = "https://localhost:5173";
-		}
+	public ApiResponse<?> googleAuth(
+	        @RequestParam(defaultValue = "login") String mode,
+	        @RequestParam("redirect_uri") String redirectUri) {
 
-		String redirectUri = origin + "/oauth/google";
-		String scope = URLEncoder.encode("openid email profile", StandardCharsets.UTF_8);
+	    String scope = URLEncoder.encode("openid email profile", StandardCharsets.UTF_8);
 
-		String url = "https://accounts.google.com/o/oauth2/v2/auth" + "?client_id=" + google.getClientId()
-				+ "&redirect_uri=" + URLEncoder.encode(redirectUri, StandardCharsets.UTF_8) + "&response_type=code"
-				+ "&scope=" + scope + "&access_type=offline" + "&prompt=consent" + "&state=" + mode;
+	    String url = "https://accounts.google.com/o/oauth2/v2/auth"
+	            + "?client_id=" + google.getClientId()
+	            + "&redirect_uri=" + URLEncoder.encode(redirectUri, StandardCharsets.UTF_8)
+	            + "&response_type=code"
+	            + "&scope=" + scope
+	            + "&access_type=offline"
+	            + "&prompt=consent"
+	            + "&state=" + mode;
 
-		return ApiResponse.success(Map.of("url", url));
+	    return ApiResponse.success(Map.of("url", url));
 	}
 
 	@GetMapping("/google/callback")
-	public ApiResponse<?> googleCallback(@RequestParam("code") String code,
-			@RequestParam(value = "mode", defaultValue = "login") String mode, HttpServletRequest request)
-			throws Exception {
-
+	public ApiResponse<?> googleCallback(
+	        @RequestParam("code") String code,
+	        @RequestParam(value = "mode", defaultValue = "login") String mode,
+	        @RequestParam("redirect_uri") String redirectUri) throws Exception {
+		
 		RestTemplate rest = new RestTemplate();
 
-		String origin = request.getHeader("Origin");
-		if (origin == null || origin.isBlank()) {
-			origin = "https://localhost:5173";
-		}
-		String redirectUri = origin + "/oauth/google";
-
-		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-		params.add("grant_type", "authorization_code");
-		params.add("client_id", google.getClientId());
-		params.add("client_secret", google.getClientSecret());
-		params.add("redirect_uri", redirectUri);
-		params.add("code", code);
+	    MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+	    params.add("grant_type", "authorization_code");
+	    params.add("client_id", google.getClientId());
+	    params.add("client_secret", google.getClientSecret());
+	    params.add("redirect_uri", redirectUri);
+	    params.add("code", code);
 
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);

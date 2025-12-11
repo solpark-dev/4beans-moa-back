@@ -44,20 +44,20 @@ public class UserResponse {
 		}
 
 		return UserResponse.builder()
-				.userId(user.getUserId())
-				.nickname(user.getNickname())
-				.phone(user.getPhone())
-				.profileImage(user.getProfileImage())
-				.status(user.getStatus() != null ? user.getStatus().name() : null)
-				.role(user.getRole())
-				.regDate(user.getRegDate() != null ? user.getRegDate().toLocalDate() : null)
-				.lastLoginDate(user.getLastLoginDate() != null ? user.getLastLoginDate().toLocalDate() : null)
-				.loginProvider(null)
-				.oauthConnections(connections)
-				.agreeMarketing(user.getAgreeMarketing())
-				.blacklisted(false)
-				.otpEnabled(user.getOtpEnabled())
-				.provider(user.getProvider())
-				.build();
+		        .userId(user.getUserId())
+		        .nickname(user.getNickname())
+		        .phone(user.getPhone())
+		        .profileImage(user.getProfileImage())
+		        .status(user.getStatus() != null ? user.getStatus().name() : null)
+		        .role(user.getRole())
+		        .regDate(user.getRegDate() != null ? user.getRegDate().toLocalDate() : null)
+		        .lastLoginDate(user.getLastLoginDate() != null ? user.getLastLoginDate().toLocalDate() : null)
+		        .loginProvider(user.getProvider())
+		        .oauthConnections(connections)
+		        .agreeMarketing(user.getAgreeMarketing())
+		        .blacklisted(false)
+		        .otpEnabled(user.getOtpEnabled())
+		        .provider(user.getProvider())
+		        .build();
 	}
 }
