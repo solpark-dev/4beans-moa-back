@@ -42,4 +42,8 @@ public interface PaymentDao {
         int updateSettlementId(@Param("paymentId") Integer paymentId, @Param("settlementId") Integer settlementId);
 
         List<PaymentResponse> findBySettlementId(@Param("settlementId") Integer settlementId);
+
+        Optional<Payment> findLastMonthlyPayment(
+                        @Param("partyId") Integer partyId,
+                        @Param("partyMemberId") Integer partyMemberId);
 }

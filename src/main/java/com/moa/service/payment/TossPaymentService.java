@@ -10,10 +10,14 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.moa.common.exception.BusinessException;
 import com.moa.common.exception.ErrorCode;
+import com.moa.common.exception.TossPaymentException;
 import com.moa.config.TossPaymentConfig;
 
 import lombok.RequiredArgsConstructor;
@@ -26,17 +30,13 @@ public class TossPaymentService {
 
     private final TossPaymentConfig tossPaymentConfig;
     private final RestTemplate restTemplate;
+    private final ObjectMapper objectMapper;
 
     public void confirmPayment(String paymentKey, String orderId, Integer amount) {
         String url = "https://api.tosspayments.com/v1/payments/confirm";
 
         // 1. 헤더 설정 (Basic Auth)
-        HttpHeaders headers = new HttpHeaders();
-        String secretKey = tossPaymentConfig.getSecretApiKey() + ":"; // 시크릿 키 뒤에 콜론(:) 필수
-        String encodedAuth = Base64.getEncoder().encodeToString(secretKey.getBytes(StandardCharsets.UTF_8));
-        headers.set("Authorization", "Basic " + encodedAuth);
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        HttpHeaders headers = createHeaders();
 
         // 2. 바디 설정
         Map<String, Object> body = Map.of(
@@ -57,6 +57,8 @@ public class TossPaymentService {
             // 응답 로깅 (디버깅용)
             log.info("Toss Payment Confirm Response: {}", response.getBody());
 
+        } catch (HttpClientErrorException e) {
+            handleTossError(e);
         } catch (Exception e) {
             log.error("Toss Payment Confirm Error", e);
             throw new BusinessException(ErrorCode.PAYMENT_FAILED);
@@ -74,12 +76,7 @@ public class TossPaymentService {
         String url = "https://api.tosspayments.com/v1/payments/" + paymentKey + "/cancel";
 
         // 1. 헤더 설정 (Basic Auth)
-        HttpHeaders headers = new HttpHeaders();
-        String secretKey = tossPaymentConfig.getSecretApiKey() + ":";
-        String encodedAuth = Base64.getEncoder().encodeToString(secretKey.getBytes(StandardCharsets.UTF_8));
-        headers.set("Authorization", "Basic " + encodedAuth);
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        HttpHeaders headers = createHeaders();
 
         // 2. 바디 설정
         Map<String, Object> body = Map.of(
@@ -93,11 +90,13 @@ public class TossPaymentService {
             ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
 
             if (!response.getStatusCode().is2xxSuccessful()) {
-                throw new BusinessException(ErrorCode.PAYMENT_FAILED); // 취소 실패 에러 코드로 변경 고려
+                throw new BusinessException(ErrorCode.PAYMENT_FAILED);
             }
 
             log.info("Toss Payment Cancel Response: {}", response.getBody());
 
+        } catch (HttpClientErrorException e) {
+            handleTossError(e);
         } catch (Exception e) {
             log.error("Toss Payment Cancel Error", e);
             throw new BusinessException(ErrorCode.PAYMENT_FAILED);
@@ -115,18 +114,12 @@ public class TossPaymentService {
         String url = "https://api.tosspayments.com/v1/billing/authorizations/issue";
 
         // 1. 헤더 설정 (Basic Auth)
-        HttpHeaders headers = new HttpHeaders();
-        String secretKey = tossPaymentConfig.getSecretApiKey() + ":";
-        String encodedAuth = Base64.getEncoder().encodeToString(secretKey.getBytes(StandardCharsets.UTF_8));
-        headers.set("Authorization", "Basic " + encodedAuth);
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        HttpHeaders headers = createHeaders();
 
         // 2. 바디 설정
         Map<String, Object> body = Map.of(
                 "authKey", authKey,
-                "customerKey", customerKey
-        );
+                "customerKey", customerKey);
 
         HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
 
@@ -151,6 +144,9 @@ public class TossPaymentService {
                 throw new BusinessException(ErrorCode.PAYMENT_FAILED);
             }
 
+        } catch (HttpClientErrorException e) {
+            handleTossError(e);
+            throw e; // Unreachable, but for compiler
         } catch (Exception e) {
             log.error("Toss Billing Key Issue Error", e);
             throw new BusinessException(ErrorCode.PAYMENT_FAILED);
@@ -160,32 +156,26 @@ public class TossPaymentService {
     /**
      * 빌링키 결제 (자동 결제)
      *
-     * @param billingKey 빌링키
-     * @param orderId    주문 ID
-     * @param amount     결제 금액
-     * @param orderName  주문명
+     * @param billingKey  빌링키
+     * @param orderId     주문 ID
+     * @param amount      결제 금액
+     * @param orderName   주문명
+     * @param customerKey 고객 키 (userId)
      * @return 결제 키 (paymentKey)
      */
-    public String payWithBillingKey(String billingKey, String orderId, Integer amount, String orderName) {
+    public String payWithBillingKey(String billingKey, String orderId, Integer amount, String orderName,
+            String customerKey) {
         String url = "https://api.tosspayments.com/v1/billing/" + billingKey;
 
         // 1. 헤더 설정 (Basic Auth)
-        HttpHeaders headers = new HttpHeaders();
-        String secretKey = tossPaymentConfig.getSecretApiKey() + ":";
-        String encodedAuth = Base64.getEncoder().encodeToString(secretKey.getBytes(StandardCharsets.UTF_8));
-        headers.set("Authorization", "Basic " + encodedAuth);
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        HttpHeaders headers = createHeaders();
 
         // 2. 바디 설정
-        // customerKey는 선택사항이지만, Toss Payments 콘솔에서 식별하기 위해 보내는 것이 좋음 (여기서는 생략하거나 userId
-        // 사용 가능)
         Map<String, Object> body = Map.of(
                 "amount", amount,
                 "orderId", orderId,
                 "orderName", orderName,
-                "customerKey", "MOA_USER_" + orderId // 임시: 주문 ID 기반으로 생성
-        );
+                "customerKey", customerKey);
 
         HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
 
@@ -208,9 +198,39 @@ public class TossPaymentService {
                 throw new BusinessException(ErrorCode.PAYMENT_FAILED);
             }
 
+        } catch (HttpClientErrorException e) {
+            handleTossError(e);
+            return null; // Unreachable
         } catch (Exception e) {
             log.error("Toss Billing Payment Error", e);
             throw new BusinessException(ErrorCode.PAYMENT_FAILED);
+        }
+    }
+
+    private HttpHeaders createHeaders() {
+        HttpHeaders headers = new HttpHeaders();
+        String secretKey = tossPaymentConfig.getSecretApiKey() + ":";
+        String encodedAuth = Base64.getEncoder().encodeToString(secretKey.getBytes(StandardCharsets.UTF_8));
+        headers.set("Authorization", "Basic " + encodedAuth);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        return headers;
+    }
+
+    private void handleTossError(HttpClientErrorException e) {
+        log.error("Toss Payment API Error: status={}, body={}", e.getStatusCode(), e.getResponseBodyAsString());
+
+        try {
+            JsonNode root = objectMapper.readTree(e.getResponseBodyAsString());
+            String code = root.path("code").asText();
+            String message = root.path("message").asText();
+
+            throw new TossPaymentException(ErrorCode.PAYMENT_FAILED, code, message);
+        } catch (TossPaymentException tpe) {
+            throw tpe;
+        } catch (Exception parseException) {
+            log.error("Failed to parse Toss error response", parseException);
+            throw new BusinessException(ErrorCode.PAYMENT_FAILED, "결제 처리 중 오류가 발생했습니다. (응답 파싱 실패)");
         }
     }
 }

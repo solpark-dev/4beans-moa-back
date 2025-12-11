@@ -77,4 +77,27 @@ public interface PartyDao {
 	List<Party> findExpiredPendingPaymentParties(
 			@Param("status") PartyStatus status,
 			@Param("timeoutThreshold") java.time.LocalDateTime timeoutThreshold);
+
+	/**
+	 * 30일 경과한 CLOSED 파티 조회 (삭제용)
+	 * @param retentionThreshold 보관 기준일 (현재 - 30일)
+	 * @return 삭제 대상 파티 목록
+	 */
+	List<Party> findExpiredClosedParties(
+			@Param("retentionThreshold") java.time.LocalDateTime retentionThreshold);
+
+	/**
+	 * 30일 경과한 CLOSED 파티 삭제
+	 * @param retentionThreshold 보관 기준일 (현재 - 30일)
+	 * @return 삭제된 파티 수
+	 */
+	int deleteExpiredClosedParties(
+			@Param("retentionThreshold") java.time.LocalDateTime retentionThreshold);
+
+	/**
+	 * 특정 파티의 멤버 전체 삭제 (파티 삭제 전 호출)
+	 * @param partyId 파티 ID
+	 * @return 삭제된 멤버 수
+	 */
+	int deletePartyMembersByPartyId(@Param("partyId") Integer partyId);
 }

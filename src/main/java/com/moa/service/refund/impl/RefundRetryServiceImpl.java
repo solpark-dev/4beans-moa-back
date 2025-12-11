@@ -51,10 +51,7 @@ public class RefundRetryServiceImpl implements RefundRetryService {
     }
 
     @Override
-    @Transactional(
-            propagation = Propagation.REQUIRES_NEW,
-            isolation = Isolation.READ_COMMITTED,
-            rollbackFor = Exception.class)
+    @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED, rollbackFor = Exception.class)
     public void retryRefund(RefundRetryHistory retry) {
         log.info("Retrying refund: depositId={}, retryId={}, attemptNumber={}, retryType={}",
                 retry.getDepositId(), retry.getRetryId(), retry.getAttemptNumber(), retry.getRetryType());
@@ -74,11 +71,11 @@ public class RefundRetryServiceImpl implements RefundRetryService {
      * Toss 취소만 수행하고 PENDING 상태 Deposit 삭제
      */
     private void retryCompensation(RefundRetryHistory retry) {
-        log.info("Processing compensation: depositId={}, retryId={}", 
+        log.info("Processing compensation: depositId={}, retryId={}",
                 retry.getDepositId(), retry.getRetryId());
 
         Deposit deposit = depositDao.findById(retry.getDepositId()).orElse(null);
-        
+
         // Deposit이 이미 삭제되었거나 PENDING이 아니면 성공으로 처리
         if (deposit == null || deposit.getDepositStatus() != DepositStatus.PENDING) {
             log.info("Deposit already processed or deleted: depositId={}", retry.getDepositId());
@@ -232,10 +229,10 @@ public class RefundRetryServiceImpl implements RefundRetryService {
         LocalDateTime now = LocalDateTime.now();
 
         return switch (attemptNumber) {
-            case 1 -> now.plusHours(1);      // After 1st attempt: +1 hour
-            case 2 -> now.plusHours(4);      // After 2nd attempt: +4 hours
-            case 3 -> now.plusHours(24);     // After 3rd attempt: +24 hours
-            default -> now.plusHours(1);     // Default: +1 hour
+            case 1 -> now.plusHours(1); // After 1st attempt: +1 hour
+            case 2 -> now.plusHours(4); // After 2nd attempt: +4 hours
+            case 3 -> now.plusHours(24); // After 3rd attempt: +24 hours
+            default -> now.plusHours(1); // Default: +1 hour
         };
     }
 
@@ -248,15 +245,23 @@ public class RefundRetryServiceImpl implements RefundRetryService {
     public void recordFailure(Deposit deposit, Exception e, String reason) {
         log.info("Recording refund failure: depositId={}, reason={}", deposit.getDepositId(), reason);
 
+        String errorCode = e.getClass().getSimpleName();
+        String errorMessage = e.getMessage();
+
+        if (e instanceof com.moa.common.exception.TossPaymentException tpe) {
+            errorCode = tpe.getTossErrorCode();
+            errorMessage = tpe.getMessage();
+        }
+
         RefundRetryHistory history = RefundRetryHistory.builder()
                 .depositId(deposit.getDepositId())
                 .attemptNumber(1)
                 .attemptDate(LocalDateTime.now())
                 .retryStatus("FAILED")
                 .nextRetryDate(calculateNextRetryDate(1))
-                .errorCode(e.getClass().getSimpleName())
-                .errorMessage(e.getMessage() != null 
-                        ? e.getMessage().substring(0, Math.min(e.getMessage().length(), 500)) 
+                .errorCode(errorCode)
+                .errorMessage(errorMessage != null
+                        ? errorMessage.substring(0, Math.min(errorMessage.length(), 500))
                         : "Unknown error")
                 .refundAmount(deposit.getDepositAmount())
                 .refundReason(reason)
@@ -274,7 +279,7 @@ public class RefundRetryServiceImpl implements RefundRetryService {
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void registerCompensation(Integer depositId, String tossPaymentKey, Integer amount, String reason) {
-        log.info("Registering compensation transaction: depositId={}, amount={}, reason={}", 
+        log.info("Registering compensation transaction: depositId={}, amount={}, reason={}",
                 depositId, amount, reason);
 
         RefundRetryHistory history = RefundRetryHistory.builder()
@@ -335,7 +340,7 @@ public class RefundRetryServiceImpl implements RefundRetryService {
         log.error("에러 메시지: {}", e.getMessage());
         log.error("재시도 횟수: {}", retry.getAttemptNumber());
         log.error("=== 수동 처리가 필요합니다 ===");
-        
+
         // TODO: 실제 알림 발송 (이메일, Slack, SMS 등)
         // 현재는 로그로 대체
     }

@@ -29,4 +29,112 @@
         WHERE USER_STATUS != 'WITHDRAWN'
     </select>
 
+    <!-- 오늘 가입한 회원 수 -->
+    <select id="getTodayNewUsers" resultType="long">
+        SELECT COUNT(*)
+        FROM USERS
+        WHERE DATE(REG_DATE) = CURDATE()
+          AND USER_STATUS != 'WITHDRAWN'
+    </select>
+
+    <!-- 이번 달 매출 -->
+    <select id="getThisMonthRevenue" resultType="long">
+        SELECT COALESCE(SUM(PAYMENT_AMOUNT), 0)
+        FROM PAYMENT
+        WHERE PAYMENT_STATUS = 'COMPLETED'
+          AND YEAR(PAYMENT_DATE) = YEAR(CURDATE())
+          AND MONTH(PAYMENT_DATE) = MONTH(CURDATE())
+    </select>
+
+    <!-- 모집 중인 파티 수 -->
+    <select id="getRecruitingPartyCount" resultType="long">
+        SELECT COUNT(*)
+        FROM PARTY
+        WHERE PARTY_STATUS = 'RECRUITING'
+    </select>
+
+    <!-- 결제 대기 중인 건수 -->
+    <select id="getPendingPaymentCount" resultType="long">
+        SELECT COUNT(*)
+        FROM PAYMENT
+        WHERE PAYMENT_STATUS = 'PENDING'
+    </select>
+
+    <!-- 완료된 결제 건수 -->
+    <select id="getCompletedPaymentCount" resultType="long">
+        SELECT COUNT(*)
+        FROM PAYMENT
+        WHERE PAYMENT_STATUS = 'COMPLETED'
+    </select>
+
+    <!-- 이번 달 결제 건수 -->
+    <select id="getThisMonthPaymentCount" resultType="long">
+        SELECT COUNT(*)
+        FROM PAYMENT
+        WHERE PAYMENT_STATUS = 'COMPLETED'
+          AND YEAR(PAYMENT_DATE) = YEAR(CURDATE())
+          AND MONTH(PAYMENT_DATE) = MONTH(CURDATE())
+    </select>
+
+    <!-- OTT별 파티 통계 -->
+    <select id="getOttPartyStats" resultType="map">
+        SELECT
+            pr.PRODUCT_NAME as ottName,
+            COUNT(p.PARTY_ID) as partyCount,
+            SUM(CASE WHEN p.PARTY_STATUS = 'ACTIVE' THEN 1 ELSE 0 END) as activeCount
+        FROM PRODUCT pr
+        LEFT JOIN PARTY p ON pr.PRODUCT_ID = p.PRODUCT_ID
+        GROUP BY pr.PRODUCT_ID, pr.PRODUCT_NAME
+        ORDER BY partyCount DESC
+    </select>
+
+    <!-- 최근 7일 매출 -->
+    <select id="getDailyRevenues" resultType="map">
+        SELECT
+            DATE_FORMAT(dates.date, '%Y-%m-%d') as date,
+            COALESCE(SUM(p.PAYMENT_AMOUNT), 0) as amount
+        FROM (
+            SELECT CURDATE() as date
+            UNION SELECT DATE_SUB(CURDATE(), INTERVAL 1 DAY)
+            UNION SELECT DATE_SUB(CURDATE(), INTERVAL 2 DAY)
+            UNION SELECT DATE_SUB(CURDATE(), INTERVAL 3 DAY)
+            UNION SELECT DATE_SUB(CURDATE(), INTERVAL 4 DAY)
+            UNION SELECT DATE_SUB(CURDATE(), INTERVAL 5 DAY)
+            UNION SELECT DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+        ) dates
+        LEFT JOIN PAYMENT p ON DATE(p.PAYMENT_DATE) = dates.date
+            AND p.PAYMENT_STATUS = 'COMPLETED'
+        GROUP BY dates.date
+        ORDER BY dates.date ASC
+    </select>
+
+    <!-- 최근 가입 회원 (5명) -->
+    <select id="getRecentUsers" resultType="map">
+        SELECT
+            USER_ID as odUserId,
+            NICKNAME as userName,
+            USER_ID as userEmail,
+            DATE_FORMAT(REG_DATE, '%Y-%m-%d %H:%i') as regDate
+        FROM USERS
+        WHERE USER_STATUS != 'WITHDRAWN'
+        ORDER BY REG_DATE DESC
+        LIMIT 5
+    </select>
+
+    <!-- 최근 결제 내역 (5건) -->
+    <select id="getRecentPayments" resultType="map">
+        SELECT
+            p.PAYMENT_ID as paymentId,
+            p.USER_ID as odUserId,
+            p.PAYMENT_AMOUNT as amount,
+            p.PAYMENT_STATUS as status,
+            DATE_FORMAT(p.PAYMENT_DATE, '%Y-%m-%d %H:%i') as paymentDate,
+            COALESCE(pr.PRODUCT_NAME, '-') as partyName
+        FROM PAYMENT p
+        LEFT JOIN PARTY pt ON p.PARTY_ID = pt.PARTY_ID
+        LEFT JOIN PRODUCT pr ON pt.PRODUCT_ID = pr.PRODUCT_ID
+        ORDER BY p.PAYMENT_DATE DESC
+        LIMIT 5
+    </select>
+
 </mapper>
