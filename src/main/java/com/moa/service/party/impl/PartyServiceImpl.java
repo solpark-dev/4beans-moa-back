@@ -539,12 +539,6 @@ public class PartyServiceImpl implements PartyService {
         // OTT ID/PW 검증 제거 (생성 시점에는 선택 사항)
     }
 
-    private int calculateLastMemberFee(int monthlyFee, int maxMembers) {
-        // 마지막 파티원: 나머지 포함
-        int perPersonFee = monthlyFee / maxMembers;
-        return monthlyFee - (perPersonFee * (maxMembers - 1));
-    }
-
     // ========== ⭐ Private Push 메서드 (PARTY_JOIN, PARTY_START만) ==========
 
     private void safeSendPush(Runnable pushAction) {
