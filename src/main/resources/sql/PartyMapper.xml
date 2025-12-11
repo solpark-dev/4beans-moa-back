@@ -249,7 +249,7 @@
 		  AND CURRENT_MEMBERS > 0
 	</update>
 
-	<!-- 내가 가입한 모든 파티 조회 (방장 + 멤버) -->
+	<!-- 내가 가입한 모든 파티 조회 (방장 + 멤버) - CLOSED 파티 제외 -->
 	<select id="findMyParties" resultMap="PartyListResponseMap">
 		SELECT
 			P.PARTY_ID,
@@ -274,6 +274,7 @@
 				 LEFT JOIN PRODUCT PR ON P.PRODUCT_ID = PR.PRODUCT_ID
 				 INNER JOIN USERS U ON P.PARTY_LEADER_ID = U.USER_ID
 		WHERE P.PARTY_LEADER_ID = #{userId}
+		  AND P.PARTY_STATUS != 'CLOSED'
 
 		UNION
 
@@ -302,11 +303,12 @@
 				 INNER JOIN USERS U ON P.PARTY_LEADER_ID = U.USER_ID
 		WHERE PM.USER_ID = #{userId}
 		  AND PM.MEMBER_STATUS = 'ACTIVE'
+		  AND P.PARTY_STATUS != 'CLOSED'
 
 		ORDER BY REG_DATE DESC
 	</select>
 
-	<!-- 내가 방장인 파티 목록 조회 -->
+	<!-- 내가 방장인 파티 목록 조회 - CLOSED 파티 제외 -->
 	<select id="findMyLeadingParties" resultMap="PartyListResponseMap">
 		SELECT
 			P.PARTY_ID,
@@ -331,10 +333,11 @@
 				 LEFT JOIN PRODUCT PR ON P.PRODUCT_ID = PR.PRODUCT_ID
 				 INNER JOIN USERS U ON P.PARTY_LEADER_ID = U.USER_ID
 		WHERE P.PARTY_LEADER_ID = #{userId}
+		  AND P.PARTY_STATUS != 'CLOSED'
 		ORDER BY P.REG_DATE DESC
 	</select>
 
-	<!-- 내가 멤버로 참여중인 파티 목록 조회 (방장 제외) -->
+	<!-- 내가 멤버로 참여중인 파티 목록 조회 (방장 제외) - CLOSED 파티 제외 -->
 	<select id="findMyParticipatingParties" resultMap="PartyListResponseMap">
 		SELECT
 			P.PARTY_ID,
@@ -362,6 +365,7 @@
 		WHERE PM.USER_ID = #{userId}
 		  AND PM.MEMBER_STATUS = 'ACTIVE'
 		  AND P.PARTY_LEADER_ID != #{userId}
+		  AND P.PARTY_STATUS != 'CLOSED'
 		ORDER BY P.REG_DATE DESC
 	</select>
 
@@ -415,5 +419,26 @@
 	<select id="countActiveParties" resultType="long">
 		SELECT COUNT(*) FROM PARTY WHERE PARTY_STATUS = 'ACTIVE'
 	</select>
+
+	<!-- 30일 경과한 CLOSED 파티 조회 (삭제용) -->
+	<select id="findExpiredClosedParties" resultMap="PartyResultMap">
+		SELECT *
+		FROM PARTY
+		WHERE PARTY_STATUS = 'CLOSED'
+		  AND REG_DATE &lt; #{retentionThreshold}
+	</select>
+
+	<!-- 30일 경과한 CLOSED 파티 삭제 -->
+	<delete id="deleteExpiredClosedParties">
+		DELETE FROM PARTY
+		WHERE PARTY_STATUS = 'CLOSED'
+		  AND REG_DATE &lt; #{retentionThreshold}
+	</delete>
+
+	<!-- 특정 파티의 멤버 전체 삭제 (파티 삭제 전 호출) -->
+	<delete id="deletePartyMembersByPartyId">
+		DELETE FROM PARTY_MEMBER
+		WHERE PARTY_ID = #{partyId}
+	</delete>
 
 </mapper>

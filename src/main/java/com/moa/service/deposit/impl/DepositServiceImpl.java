@@ -202,12 +202,20 @@ public class DepositServiceImpl implements DepositService {
         }
 
         // 3. Toss Payments 결제 취소 API 호출
+        // 3. Toss Payments 결제 취소 API 호출
         try {
             tossPaymentService.cancelPayment(
                     deposit.getTossPaymentKey(),
                     reason,
                     deposit.getDepositAmount());
             log.info("Toss 결제 취소 성공: paymentKey={}", deposit.getTossPaymentKey());
+        } catch (com.moa.common.exception.TossPaymentException e) {
+            log.error("Toss 결제 취소 실패: depositId={}, code={}, message={}",
+                    depositId, e.getTossErrorCode(), e.getMessage());
+            // REQUIRES_NEW 트랜잭션으로 실패 이력 기록 (에러 코드 포함)
+            // RefundRetryService.recordFailure가 Exception을 받으므로 그대로 전달
+            refundRetryService.recordFailure(deposit, e, reason);
+            throw e;
         } catch (Exception e) {
             log.error("Toss 결제 취소 실패: depositId={}, error={}", depositId, e.getMessage());
             // REQUIRES_NEW 트랜잭션으로 실패 이력 기록
