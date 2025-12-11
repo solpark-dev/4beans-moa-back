@@ -20,12 +20,12 @@ import lombok.Setter;
  * - PARTY_MEMBER_ID (INT, FK → PARTY_MEMBER)
  * - USER_ID (VARCHAR(50), FK → USERS)
  * - PAYMENT_TYPE (VARCHAR(20), DEFAULT 'MONTHLY')
- *   → MONTHLY: 월별 구독료
- *   → INITIAL: 첫 달 구독료 (파티원 가입 시)
+ * → MONTHLY: 월별 구독료
+ * → INITIAL: 첫 달 구독료 (파티원 가입 시)
  * - PAYMENT_AMOUNT (INT) - 결제 금액
  * - PAYMENT_STATUS (VARCHAR(20), DEFAULT 'PENDING')
- *   → PENDING: 결제 대기
- *   → COMPLETED: 결제 완료
+ * → PENDING: 결제 대기
+ * → COMPLETED: 결제 완료
  * - PAYMENT_METHOD (VARCHAR(20), DEFAULT 'CARD')
  * - PAYMENT_DATE (DATETIME) - 결제일시
  * - TOSS_PAYMENT_KEY (VARCHAR(255)) - Toss 결제 키
@@ -49,18 +49,19 @@ import lombok.Setter;
 @AllArgsConstructor
 public class Payment {
 
-    private Integer paymentId;              // 결제 ID (PK)
-    private Integer partyId;                // 파티 ID (FK)
-    private Integer partyMemberId;          // 파티 멤버 ID (FK)
-    private String userId;                  // 사용자 ID (FK)
-    private String paymentType;             // 결제 타입 (MONTHLY, INITIAL)
-    private Integer paymentAmount;          // 결제 금액
-    private PaymentStatus paymentStatus;    // 결제 상태 (PENDING, COMPLETED)
-    private String paymentMethod;           // 결제 수단 (CARD)
-    private LocalDateTime paymentDate;      // 결제일시
-    private String tossPaymentKey;          // Toss 결제 키
-    private String orderId;                 // 주문 ID
-    private String cardNumber;              // 카드 번호 (마지막 4자리)
-    private String cardCompany;             // 카드사
-    private String targetMonth;             // 대상 월 (YYYY-MM)
+    private Integer paymentId; // 결제 ID (PK)
+    private Integer partyId; // 파티 ID (FK)
+    private Integer partyMemberId; // 파티 멤버 ID (FK)
+    private String userId; // 사용자 ID (FK)
+    private String paymentType; // 결제 타입 (MONTHLY, INITIAL)
+    private Integer paymentAmount; // 결제 금액
+    private PaymentStatus paymentStatus; // 결제 상태 (PENDING, COMPLETED)
+    private String paymentMethod; // 결제 수단 (CARD)
+    private LocalDateTime paymentDate; // 결제일시
+    private String tossPaymentKey; // Toss 결제 키
+    private String orderId; // 주문 ID
+    private String cardNumber; // 카드 번호 (마지막 4자리)
+    private String cardCompany; // 카드사
+    private String targetMonth; // 대상 월 (YYYY-MM)
+    private Integer settlementId; // 정산 ID (FK - 추가: SETTLEMENT_DETAIL 대체)
 }

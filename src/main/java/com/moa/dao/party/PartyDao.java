@@ -24,8 +24,10 @@ public interface PartyDao {
 			@Param("productId") Integer productId,
 			@Param("partyStatus") PartyStatus partyStatus,
 			@Param("keyword") String keyword,
+			@Param("startDate") java.time.LocalDate startDate,
 			@Param("offset") int offset,
-			@Param("size") int size);
+			@Param("size") int size,
+			@Param("sort") String sort);
 
 	int updateParty(Party party);
 
@@ -58,11 +60,21 @@ public interface PartyDao {
 	 * - If party starts on 31st and today is Feb 28 (last day), party is included
 	 * - If party starts on 30th and today is Feb 28 (last day), party is included
 	 *
-	 * @param currentDay Day of month today (1-31)
+	 * @param currentDay     Day of month today (1-31)
 	 * @param lastDayOfMonth Last day of current month (28-31)
 	 * @return List of active parties needing payment today
 	 */
 	List<Party> findPartiesByPaymentDay(
 			@Param("currentDay") int currentDay,
 			@Param("lastDayOfMonth") int lastDayOfMonth);
+
+	long countAllParties();
+
+	long countActiveParties();
+
+	List<Party> findExpiredActiveParties(@Param("now") java.time.LocalDateTime now);
+
+	List<Party> findExpiredPendingPaymentParties(
+			@Param("status") PartyStatus status,
+			@Param("timeoutThreshold") java.time.LocalDateTime timeoutThreshold);
 }

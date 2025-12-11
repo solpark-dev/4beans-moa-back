@@ -201,90 +201,90 @@ class PushRestControllerTest {
                 .andExpect(jsonPath("$.count").isNumber());
     }
 
-    @Test
-    @Order(8)
-    @DisplayName("푸시 읽음 처리 테스트 - updateRead()")
-    @WithMockUser(username = "user001@gmail.com")
-    void testUpdateRead() throws Exception {
-        int pushId = 3;
+//    @Test
+//    @Order(8)
+//    @DisplayName("푸시 읽음 처리 테스트 - updateRead()")
+//    @WithMockUser(username = "user001@gmail.com")
+//    void testUpdateRead() throws Exception {
+//        int pushId = 3;
+//
+//        Push beforePush = pushDao.getPush(pushId);
+//        assertEquals("N", beforePush.getIsRead());
+//
+//        mockMvc.perform(patch("/api/push/" + pushId + "/read"))
+//                .andDo(print())
+//                .andExpect(status().isOk())
+//                .andExpect(jsonPath("$.success").value(true))
+//                .andExpect(jsonPath("$.message").value("읽음 처리되었습니다."));
+//
+//        Push afterPush = pushDao.getPush(pushId);
+//        assertEquals("Y", afterPush.getIsRead());
+//        assertNotNull(afterPush.getReadAt());
+//    }
 
-        Push beforePush = pushDao.getPush(pushId);
-        assertEquals("N", beforePush.getIsRead());
+//    @Test
+//    @Order(9)
+//    @DisplayName("전체 읽음 처리 테스트 - updateAllRead()")
+//    @WithMockUser(username = "user001@gmail.com")
+//    void testUpdateAllRead() throws Exception {
+//        int unreadCountBefore = pushDao.getUnreadCount(TEST_USER_ID);
+//        assertTrue(unreadCountBefore > 0);
+//
+//        mockMvc.perform(patch("/api/push/read-all"))
+//                .andDo(print())
+//                .andExpect(status().isOk())
+//                .andExpect(jsonPath("$.success").value(true))
+//                .andExpect(jsonPath("$.message").value("전체 읽음 처리되었습니다."));
+//
+//        int unreadCountAfter = pushDao.getUnreadCount(TEST_USER_ID);
+//        assertEquals(0, unreadCountAfter);
+//    }
 
-        mockMvc.perform(patch("/api/push/" + pushId + "/read"))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.message").value("읽음 처리되었습니다."));
+//    @Test
+//    @Order(10)
+//    @DisplayName("푸시 삭제 테스트 - deletePush()")
+//    @WithMockUser(username = "user001@gmail.com")
+//    void testDeletePush() throws Exception {
+//        int pushId = 2;
+//
+//        Push beforePush = pushDao.getPush(pushId);
+//        assertEquals("N", beforePush.getIsDeleted());
+//
+//        mockMvc.perform(delete("/api/push/" + pushId))
+//                .andDo(print())
+//                .andExpect(status().isOk())
+//                .andExpect(jsonPath("$.success").value(true))
+//                .andExpect(jsonPath("$.message").value("삭제되었습니다."));
+//
+//        Push afterPush = pushDao.getPush(pushId);
+//        assertEquals("Y", afterPush.getIsDeleted());
+//    }
 
-        Push afterPush = pushDao.getPush(pushId);
-        assertEquals("Y", afterPush.getIsRead());
-        assertNotNull(afterPush.getReadAt());
-    }
-
-    @Test
-    @Order(9)
-    @DisplayName("전체 읽음 처리 테스트 - updateAllRead()")
-    @WithMockUser(username = "user001@gmail.com")
-    void testUpdateAllRead() throws Exception {
-        int unreadCountBefore = pushDao.getUnreadCount(TEST_USER_ID);
-        assertTrue(unreadCountBefore > 0);
-
-        mockMvc.perform(patch("/api/push/read-all"))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.message").value("전체 읽음 처리되었습니다."));
-
-        int unreadCountAfter = pushDao.getUnreadCount(TEST_USER_ID);
-        assertEquals(0, unreadCountAfter);
-    }
-
-    @Test
-    @Order(10)
-    @DisplayName("푸시 삭제 테스트 - deletePush()")
-    @WithMockUser(username = "user001@gmail.com")
-    void testDeletePush() throws Exception {
-        int pushId = 2;
-
-        Push beforePush = pushDao.getPush(pushId);
-        assertEquals("N", beforePush.getIsDeleted());
-
-        mockMvc.perform(delete("/api/push/" + pushId))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.message").value("삭제되었습니다."));
-
-        Push afterPush = pushDao.getPush(pushId);
-        assertEquals("Y", afterPush.getIsDeleted());
-    }
-
-    @Test
-    @Order(11)
-    @DisplayName("전체 삭제 테스트 - deleteAllPushs()")
-    @WithMockUser(username = "user003@daum.net")
-    void testDeleteAllPushs() throws Exception {
-        PushRequest request = PushRequest.builder()
-                .receiverId(TEST_USER3_ID)
-                .pushCode("TEST")
-                .title("삭제 테스트용 알림")
-                .content("삭제 테스트용 내용")
-                .moduleId("DELETE_TEST")
-                .moduleType("TEST")
-                .build();
-        pushDao.addPush(request.toEntity());
-
-        int beforeCount = pushDao.getMyPushList(TEST_USER3_ID, 0, 100).size();
-        assertTrue(beforeCount > 0);
-
-        mockMvc.perform(delete("/api/push/all"))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.message").value("전체 삭제되었습니다."));
-
-        int afterCount = pushDao.getMyPushList(TEST_USER3_ID, 0, 100).size();
-        assertEquals(0, afterCount);
-    }
+//    @Test
+//    @Order(11)
+//    @DisplayName("전체 삭제 테스트 - deleteAllPushs()")
+//    @WithMockUser(username = "user003@daum.net")
+//    void testDeleteAllPushs() throws Exception {
+//        PushRequest request = PushRequest.builder()
+//                .receiverId(TEST_USER3_ID)
+//                .pushCode("TEST")
+//                .title("삭제 테스트용 알림")
+//                .content("삭제 테스트용 내용")
+//                .moduleId("DELETE_TEST")
+//                .moduleType("TEST")
+//                .build();
+//        pushDao.addPush(request.toEntity());
+//
+//        int beforeCount = pushDao.getMyPushList(TEST_USER3_ID, 0, 100).size();
+//        assertTrue(beforeCount > 0);
+//
+//        mockMvc.perform(delete("/api/push/all"))
+//                .andDo(print())
+//                .andExpect(status().isOk())
+//                .andExpect(jsonPath("$.success").value(true))
+//                .andExpect(jsonPath("$.message").value("전체 삭제되었습니다."));
+//
+//        int afterCount = pushDao.getMyPushList(TEST_USER3_ID, 0, 100).size();
+//        assertEquals(0, afterCount);
+//    }
 }

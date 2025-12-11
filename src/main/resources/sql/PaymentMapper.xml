@@ -46,13 +46,10 @@
         <!-- JOIN 데이터 -->
         <result property="productName" column="PRODUCT_NAME"/>
         <result property="partyLeaderNickname" column="PARTY_LEADER_NICKNAME"/>
+        <result property="userNickname" column="USER_NICKNAME"/>
 
         <!-- 재시도 정보 (PAYMENT_RETRY_HISTORY JOIN) -->
         <result property="retryStatus" column="RETRY_STATUS"/>
-        <result property="attemptNumber" column="ATTEMPT_NUMBER"/>
-        <result property="nextRetryDate" column="NEXT_RETRY_DATE"/>
-        <result property="retryReason" column="RETRY_REASON"/>
-        <result property="errorMessage" column="ERROR_MESSAGE"/>
     </resultMap>
 
     <!-- PaymentDetailResponse ResultMap (상세용) -->
@@ -212,6 +209,7 @@
 
             PROD.PRODUCT_NAME,
             LEADER.NICKNAME AS PARTY_LEADER_NICKNAME,
+            -- 목록에는 본인 닉네임 불필요
 
             -- 재시도 정보 (가장 최근 시도만)
             RETRY.RETRY_STATUS,
@@ -256,6 +254,7 @@
 
             PROD.PRODUCT_NAME,
             LEADER.NICKNAME AS PARTY_LEADER_NICKNAME,
+            U.NICKNAME AS USER_NICKNAME,
 
             -- 재시도 정보 (가장 최근 시도만)
             RETRY.RETRY_STATUS,
@@ -267,6 +266,7 @@
                  INNER JOIN PARTY P ON PAY.PARTY_ID = P.PARTY_ID
                  INNER JOIN USERS LEADER ON P.PARTY_LEADER_ID = LEADER.USER_ID
                  INNER JOIN PRODUCT PROD ON P.PRODUCT_ID = PROD.PRODUCT_ID
+                 INNER JOIN USERS U ON PAY.USER_ID = U.USER_ID
                  LEFT JOIN (
             -- 각 결제의 가장 최근 재시도 기록만 가져오기
             SELECT PRT.*
@@ -340,13 +340,22 @@
             PAY.CARD_NUMBER,
             PAY.CARD_COMPANY,
             PROD.PRODUCT_NAME,
-            LEADER.NICKNAME AS PARTY_LEADER_NICKNAME
+            LEADER.NICKNAME AS PARTY_LEADER_NICKNAME,
+            U.NICKNAME AS USER_NICKNAME
         FROM PAYMENT PAY
         INNER JOIN PARTY P ON PAY.PARTY_ID = P.PARTY_ID
         INNER JOIN USERS LEADER ON P.PARTY_LEADER_ID = LEADER.USER_ID
         INNER JOIN PRODUCT PROD ON P.PRODUCT_ID = PROD.PRODUCT_ID
+        INNER JOIN USERS U ON PAY.USER_ID = U.USER_ID
         WHERE PAY.SETTLEMENT_ID = #{settlementId}
         ORDER BY PAY.PAYMENT_DATE ASC
+    </select>
+
+    <!-- 대시보드용: 총 매출 (COMPLETED 상태인 결제 금액 합계) -->
+    <select id="calculateTotalRevenue" resultType="long">
+        SELECT COALESCE(SUM(PAYMENT_AMOUNT), 0)
+        FROM PAYMENT
+        WHERE PAYMENT_STATUS = 'COMPLETED'
     </select>
 
 </mapper>

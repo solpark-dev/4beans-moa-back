@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.moa.dao.admin.AdminDashboardDao">
+
+    <!-- 총 매출: PAYMENT_STATUS = 'COMPLETED' 인 결제 금액 합계 -->
+    <select id="getTotalRevenue" resultType="long">
+        SELECT COALESCE(SUM(PAYMENT_AMOUNT), 0)
+        FROM PAYMENT
+        WHERE PAYMENT_STATUS = 'COMPLETED'
+    </select>
+
+    <!-- 활성 파티 수: PARTY_STATUS = 'ACTIVE' -->
+    <select id="getActivePartyCount" resultType="long">
+        SELECT COUNT(*)
+        FROM PARTY
+        WHERE PARTY_STATUS = 'ACTIVE'
+    </select>
+
+    <!-- 전체 파티 수 -->
+    <select id="getTotalPartyCount" resultType="long">
+        SELECT COUNT(*)
+        FROM PARTY
+    </select>
+
+    <!-- 전체 유저 수 -->
+    <select id="getTotalUserCount" resultType="long">
+        SELECT COUNT(*)
+        FROM USERS
+        WHERE USER_STATUS != 'WITHDRAWN'
+    </select>
+
+</mapper>

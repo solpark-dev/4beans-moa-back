@@ -83,8 +83,10 @@ public interface PartyService {
 			Integer productId,
 			String partyStatus,
 			String keyword,
+			java.time.LocalDate startDate,
 			int page,
-			int size);
+			int size,
+			String sort);
 
 	/**
 	 * OTT 계정 정보 수정 (방장 전용)
@@ -174,4 +176,20 @@ public interface PartyService {
 	 * @return 파티 목록
 	 */
 	List<PartyListResponse> getMyParticipatingParties(String userId);
+
+	/**
+	 * 파티 종료 처리 (Scheduler용)
+	 * 
+	 * @param partyId 파티 ID
+	 * @param reason  종료 사유
+	 */
+	void closeParty(Integer partyId, String reason);
+
+	/**
+	 * 만료된 파티 취소 처리 (Scheduler용)
+	 * 
+	 * @param partyId 파티 ID
+	 * @param reason  취소 사유
+	 */
+	void cancelExpiredParty(Integer partyId, String reason);
 }

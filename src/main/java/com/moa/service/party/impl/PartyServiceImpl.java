@@ -250,8 +250,10 @@ public class PartyServiceImpl implements PartyService {
             Integer productId,
             String partyStatus,
             String keyword,
+            java.time.LocalDate startDate,
             int page,
-            int size) {
+            int size,
+            String sort) {
 
         // 상태 문자열을 Enum으로 변환
         PartyStatus status = null;
@@ -272,7 +274,7 @@ public class PartyServiceImpl implements PartyService {
         // OFFSET 계산
         int offset = (page - 1) * size;
 
-        return partyDao.findPartyList(productId, status, keyword, offset, size);
+        return partyDao.findPartyList(productId, status, keyword, startDate, offset, size, sort);
     }
 
     @Override
@@ -561,7 +563,7 @@ public class PartyServiceImpl implements PartyService {
 
         pushService.addTemplatePush(pushRequest);
     }
-    
+
     private void sendPartyStartPushToAllMembers(Integer partyId, Party party) {
         List<PartyMemberResponse> members = partyMemberDao.findMembersByPartyId(partyId);
         String productName = getProductName(party.getProductId());
@@ -586,5 +588,26 @@ public class PartyServiceImpl implements PartyService {
         } catch (Exception e) {
             return "Unknown Product";
         }
+    }
+
+    @Override
+    public void closeParty(Integer partyId, String reason) {
+        log.info("파티 종료 처리 (Scheduler) - partyId: {}, reason: {}", partyId, reason);
+        // 1. 파티 상태 변경
+        partyDao.updatePartyStatus(partyId, PartyStatus.CLOSED);
+
+        // 2. 파티원 환불 처리 등 추가 로직은 Scheduler에서 처리하고 있음 (여기서는 기본 상태 변경만 구현)
+        // 필요 시 scheduler의 로직을 서비스로 이동 가능
+    }
+
+    @Override
+    public void cancelExpiredParty(Integer partyId, String reason) {
+        log.info("만료된 파티 취소 처리 (Scheduler) - partyId: {}, reason: {}", partyId, reason);
+        // 1. 파티 상태 변경 -> CANCELED가 없다면 CLOSED로 처리하거나 삭제
+        // PartyStatus에 CANCELED가 있는지 확인 필요, 없다면 CLOSED 사용
+        partyDao.updatePartyStatus(partyId, PartyStatus.CLOSED);
+
+        // 2. 파티 삭제? (정책에 따라 다름)
+        // partyDao.deleteParty(partyId); // soft delete or hard delete
     }
 }

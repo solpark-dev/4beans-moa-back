@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.moa.dao.openbanking.TransferTransactionMapper">
+
+    <resultMap id="TransferTransactionMap" type="com.moa.domain.openbanking.TransferTransaction">
+        <id property="transactionId" column="TRANSACTION_ID"/>
+        <result property="settlementId" column="SETTLEMENT_ID"/>
+        <result property="bankTranId" column="BANK_TRAN_ID"/>
+        <result property="fintechUseNum" column="FINTECH_USE_NUM"/>
+        <result property="tranAmt" column="TRAN_AMT"/>
+        <result property="printContent" column="PRINT_CONTENT"/>
+        <result property="reqClientName" column="REQ_CLIENT_NAME"/>
+        <result property="rspCode" column="RSP_CODE"/>
+        <result property="rspMessage" column="RSP_MESSAGE"/>
+        <result property="status" column="STATUS"/>
+        <result property="createdAt" column="CREATED_AT"/>
+        <result property="updatedAt" column="UPDATED_AT"/>
+    </resultMap>
+
+    <!-- 거래 기록 저장 -->
+    <insert id="insert" parameterType="com.moa.domain.openbanking.TransferTransaction"
+            useGeneratedKeys="true" keyProperty="transactionId">
+        INSERT INTO TRANSFER_TRANSACTION (
+            SETTLEMENT_ID, BANK_TRAN_ID, FINTECH_USE_NUM, TRAN_AMT,
+            PRINT_CONTENT, REQ_CLIENT_NAME, RSP_CODE, RSP_MESSAGE, STATUS
+        ) VALUES (
+            #{settlementId}, #{bankTranId}, #{fintechUseNum}, #{tranAmt},
+            #{printContent}, #{reqClientName}, #{rspCode}, #{rspMessage}, #{status}
+        )
+    </insert>
+
+    <!-- 거래고유번호로 조회 -->
+    <select id="findByBankTranId" resultMap="TransferTransactionMap">
+        SELECT * FROM TRANSFER_TRANSACTION
+        WHERE BANK_TRAN_ID = #{bankTranId}
+    </select>
+
+    <!-- 정산 ID로 거래 목록 조회 -->
+    <select id="findBySettlementId" resultMap="TransferTransactionMap">
+        SELECT * FROM TRANSFER_TRANSACTION
+        WHERE SETTLEMENT_ID = #{settlementId}
+        ORDER BY CREATED_AT DESC
+    </select>
+
+    <!-- 상태 업데이트 -->
+    <update id="updateStatus">
+        UPDATE TRANSFER_TRANSACTION
+        SET STATUS = #{status}, UPDATED_AT = NOW()
+        WHERE TRANSACTION_ID = #{transactionId}
+    </update>
+
+</mapper>

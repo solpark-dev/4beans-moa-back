@@ -36,4 +36,10 @@ public interface PaymentDao {
         Optional<Payment> findByPartyMemberIdAndType(
                         @Param("partyMemberId") Integer partyMemberId,
                         @Param("paymentType") String paymentType);
+
+        long calculateTotalRevenue();
+
+        int updateSettlementId(@Param("paymentId") Integer paymentId, @Param("settlementId") Integer settlementId);
+
+        List<PaymentResponse> findBySettlementId(@Param("settlementId") Integer settlementId);
 }
