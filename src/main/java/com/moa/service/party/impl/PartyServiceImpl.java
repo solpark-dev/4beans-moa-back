@@ -32,6 +32,8 @@ import com.moa.service.party.PartyService;
 import com.moa.service.payment.PaymentService;
 import com.moa.service.push.PushService;
 
+import com.moa.common.util.AESUtil; // Import AESUtil
+
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -107,7 +109,7 @@ public class PartyServiceImpl implements PartyService {
                 .currentMembers(1) // 방장 포함
                 .monthlyFee(monthlyFee)
                 .ottId(request.getOttId()) // null 가능
-                .ottPassword(request.getOttPassword()) // null 가능
+                .ottPassword(AESUtil.encrypt(request.getOttPassword())) // 암호화 저장
                 .accountId(request.getAccountId())
                 .regDate(LocalDateTime.now())
                 .startDate(request.getStartDate().atStartOfDay()) // LocalDate → LocalDateTime
@@ -239,6 +241,9 @@ public class PartyServiceImpl implements PartyService {
         if (!isMember) {
             response.setOttId(null);
             response.setOttPassword(null);
+        } else {
+            // 멤버인 경우 복호화하여 제공
+            response.setOttPassword(AESUtil.decrypt(response.getOttPassword()));
         }
 
         return response;
@@ -292,8 +297,8 @@ public class PartyServiceImpl implements PartyService {
             throw new BusinessException(ErrorCode.NOT_PARTY_LEADER);
         }
 
-        // 3. OTT 계정 정보 업데이트
-        partyDao.updateOttAccount(partyId, request.getOttId(), request.getOttPassword());
+        // 3. OTT 계정 정보 업데이트 (암호화)
+        partyDao.updateOttAccount(partyId, request.getOttId(), AESUtil.encrypt(request.getOttPassword()));
 
         // 4. 수정된 파티 정보 반환
         return partyDao.findDetailById(partyId)
