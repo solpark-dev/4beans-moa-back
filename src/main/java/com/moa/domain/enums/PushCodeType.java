@@ -10,13 +10,16 @@ public enum PushCodeType {
     // ===== 커뮤니티 알림 (1개) =====
     INQUIRY_ANSWER("INQUIRY_ANSWER", "COMMUNITY"),
     
-    // ===== 파티 알림 (6개) =====
+    // ===== 파티 알림 (9개) =====
     PARTY_JOIN("PARTY_JOIN", "PARTY"),
     PARTY_WITHDRAW("PARTY_WITHDRAW", "PARTY"),
     PARTY_START("PARTY_START", "PARTY"),
     PARTY_CLOSED("PARTY_CLOSED", "PARTY"),
     PARTY_MEMBER_JOIN("PARTY_MEMBER_JOIN", "PARTY"),
     PARTY_MEMBER_WITHDRAW("PARTY_MEMBER_WITHDRAW", "PARTY"),
+    PARTY_DISBANDED("PARTY_DISBANDED", "PARTY"),        // 파티 해산 (파티장 탈퇴로 인한)
+    MEMBER_WITHDRAWN("MEMBER_WITHDRAWN", "PARTY"),      // 파티원 강제 탈퇴 (파티장에게)
+    PARTY_SUSPENDED("PARTY_SUSPENDED", "PARTY"),        // 파티 일시정지 (결제 실패로 인한)
     
     // ===== 결제 알림 (10개) =====
     PAY_UPCOMING("PAY_UPCOMING", "PAYMENT"),

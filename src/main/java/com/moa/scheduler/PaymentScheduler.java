@@ -15,6 +15,7 @@ import com.moa.domain.Party;
 import com.moa.domain.PartyMember;
 import com.moa.domain.PaymentRetryHistory;
 import com.moa.domain.Product;
+import com.moa.domain.enums.PartyStatus;
 import com.moa.domain.enums.PushCodeType;
 import com.moa.dto.push.request.TemplatePushRequest;
 import com.moa.service.payment.PaymentRetryService;
@@ -105,6 +106,20 @@ public class PaymentScheduler {
      * @param targetMonth Target month in yyyy-MM format
      */
     private void processPartyPayments(Party party, String targetMonth) {
+        // ===== 파티 상태 체크: SUSPENDED, DISBANDED, CLOSED 상태면 결제 스킵 =====
+        if (!isPartyPaymentEligible(party)) {
+            log.warn("결제 불가능한 파티 상태, 스킵: partyId={}, status={}",
+                    party.getPartyId(), party.getPartyStatus());
+            return;
+        }
+
+        // 결제 전 파티 최신 상태 다시 확인 (동시성 이슈 대응)
+        Party freshParty = partyDao.findById(party.getPartyId()).orElse(null);
+        if (freshParty == null || !isPartyPaymentEligible(freshParty)) {
+            log.warn("결제 처리 중 파티 상태 변경 감지, 스킵: partyId={}", party.getPartyId());
+            return;
+        }
+
         // 방장 제외 활성 멤버 조회 (방장은 월 구독료 결제하지 않음)
         List<PartyMember> members = partyMemberDao.findActiveMembersExcludingLeader(party.getPartyId());
 
@@ -123,6 +138,28 @@ public class PaymentScheduler {
                 // Continue with next member
             }
         }
+    }
+
+    /**
+     * 파티가 결제 가능한 상태인지 확인
+     * ACTIVE 상태인 파티만 결제 진행
+     *
+     * @param party 파티
+     * @return 결제 가능 여부
+     */
+    private boolean isPartyPaymentEligible(Party party) {
+        if (party == null) {
+            return false;
+        }
+
+        return switch (party.getPartyStatus()) {
+            case ACTIVE -> true;  // 정상 이용 중인 파티만 결제 가능
+            case RECRUITING -> false;  // 모집 중 (아직 시작 안함)
+            case PENDING_PAYMENT -> false;  // 방장 보증금 결제 대기
+            case SUSPENDED -> false;  // 일시정지 (결제 실패 등)
+            case DISBANDED -> false;  // 해산됨
+            case CLOSED -> false;  // 종료됨
+        };
     }
 
     /**

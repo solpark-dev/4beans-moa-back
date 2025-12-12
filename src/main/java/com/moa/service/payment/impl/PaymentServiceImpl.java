@@ -405,6 +405,103 @@ public class PaymentServiceImpl implements PaymentService {
                         // ========== 푸시알림 추가: 결제 최종 실패 ==========
                         sendPaymentFinalFailedPush(payment, attemptNumber, e.getMessage());
                         // ========== 푸시알림 추가 끝 ==========
+
+                        // ========== 파티 SUSPENDED 처리: 4회 실패 시 파티 일시정지 ==========
+                        suspendPartyOnPaymentFailure(payment);
+                        // ========== 파티 SUSPENDED 처리 끝 ==========
+                }
+        }
+
+        /**
+         * 4회 결제 실패 시 파티 일시정지 처리
+         * 결제 실패가 누적되면 파티를 SUSPENDED 상태로 전환하여
+         * 추가 결제 시도를 중단하고 관리자/파티장에게 알림
+         */
+        private void suspendPartyOnPaymentFailure(Payment payment) {
+                try {
+                        Party party = partyDao.findById(payment.getPartyId()).orElse(null);
+                        if (party == null) {
+                                log.warn("파티를 찾을 수 없음: partyId={}", payment.getPartyId());
+                                return;
+                        }
+
+                        // 이미 SUSPENDED 또는 CLOSED 상태면 무시
+                        if (party.getPartyStatus() == PartyStatus.SUSPENDED
+                                        || party.getPartyStatus() == PartyStatus.CLOSED) {
+                                log.info("이미 정지/종료된 파티: partyId={}, status={}",
+                                                payment.getPartyId(), party.getPartyStatus());
+                                return;
+                        }
+
+                        // 파티 상태를 SUSPENDED로 변경
+                        partyDao.updatePartyStatus(payment.getPartyId(), PartyStatus.SUSPENDED);
+                        log.warn("파티 일시정지: partyId={}, 사유=4회 결제 실패", payment.getPartyId());
+
+                        // 파티장에게 알림 발송
+                        sendPartySuspendedPushToLeader(party, payment);
+
+                        // 해당 파티원에게 알림 발송
+                        sendPartySuspendedPushToMember(party, payment);
+
+                } catch (Exception ex) {
+                        log.error("파티 일시정지 처리 실패: partyId={}, error={}",
+                                        payment.getPartyId(), ex.getMessage());
+                }
+        }
+
+        /**
+         * 파티 일시정지 알림 - 파티장에게
+         */
+        private void sendPartySuspendedPushToLeader(Party party, Payment payment) {
+                try {
+                        String productName = getProductName(party.getProductId());
+                        String memberNickname = getUserNickname(payment.getUserId());
+
+                        Map<String, String> params = Map.of(
+                                "productName", productName,
+                                "memberNickname", memberNickname,
+                                "reason", "파티원 결제 4회 연속 실패"
+                        );
+
+                        TemplatePushRequest pushRequest = TemplatePushRequest.builder()
+                                .receiverId(party.getPartyLeaderId())
+                                .pushCode(PushCodeType.PARTY_SUSPENDED.getCode())
+                                .params(params)
+                                .moduleId(String.valueOf(party.getPartyId()))
+                                .moduleType(PushCodeType.PARTY_SUSPENDED.getModuleType())
+                                .build();
+
+                        pushService.addTemplatePush(pushRequest);
+                        log.info("파티 일시정지 알림 발송: leaderId={}", party.getPartyLeaderId());
+                } catch (Exception e) {
+                        log.error("푸시 발송 실패: {}", e.getMessage());
+                }
+        }
+
+        /**
+         * 파티 일시정지 알림 - 해당 파티원에게
+         */
+        private void sendPartySuspendedPushToMember(Party party, Payment payment) {
+                try {
+                        String productName = getProductName(party.getProductId());
+
+                        Map<String, String> params = Map.of(
+                                "productName", productName,
+                                "reason", "결제 4회 연속 실패로 파티가 일시정지되었습니다. 결제 수단을 확인해주세요."
+                        );
+
+                        TemplatePushRequest pushRequest = TemplatePushRequest.builder()
+                                .receiverId(payment.getUserId())
+                                .pushCode(PushCodeType.PARTY_SUSPENDED.getCode())
+                                .params(params)
+                                .moduleId(String.valueOf(party.getPartyId()))
+                                .moduleType(PushCodeType.PARTY_SUSPENDED.getModuleType())
+                                .build();
+
+                        pushService.addTemplatePush(pushRequest);
+                        log.info("파티 일시정지 알림 발송: memberId={}", payment.getUserId());
+                } catch (Exception e) {
+                        log.error("푸시 발송 실패: {}", e.getMessage());
                 }
         }
 

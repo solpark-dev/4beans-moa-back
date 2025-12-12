@@ -144,4 +144,13 @@
 		WHERE PARTY_MEMBER_ID = #{partyMemberId}
 	</delete>
 
+	<!-- 특정 사용자의 활성 멤버십 조회 (사용자 탈퇴 시 파티원 처리용) -->
+	<select id="findActiveMembershipsByUserId" resultMap="PartyMemberResultMap">
+		SELECT *
+		FROM PARTY_MEMBER
+		WHERE USER_ID = #{userId}
+		  AND MEMBER_STATUS = 'ACTIVE'
+		  AND MEMBER_ROLE != 'LEADER'
+	</select>
+
 </mapper>

@@ -56,9 +56,14 @@ public class SettlementServiceImpl implements SettlementService {
                 Party party = partyDao.findById(partyId)
                                 .orElseThrow(() -> new BusinessException(ErrorCode.PARTY_NOT_FOUND));
 
-                // 3. 방장 계좌 정보 조회
-                Account account = accountDao.findByUserId(party.getPartyLeaderId())
-                                .orElseThrow(() -> new BusinessException(ErrorCode.ACCOUNT_NOT_FOUND));
+                // 3. 방장 계좌 정보 조회 (없으면 PENDING_ACCOUNT 상태로 정산 생성)
+                Account account = accountDao.findByUserId(party.getPartyLeaderId()).orElse(null);
+
+                if (account == null) {
+                        log.warn("정산 계좌 미등록: partyId={}, leaderId={}", partyId, party.getPartyLeaderId());
+                        // 계좌 미등록 시 PENDING_ACCOUNT 상태로 정산 생성 후 알림
+                        return createPendingAccountSettlement(partyId, party, targetMonth);
+                }
 
                 // 4. 파티 시작일 기준 정산 기간 계산
                 LocalDateTime partyStartDate = party.getStartDate();
@@ -237,5 +242,90 @@ public class SettlementServiceImpl implements SettlementService {
                                                 .regDate(p.getPaymentDate())
                                                 .build())
                                 .collect(Collectors.toList());
+        }
+
+        /**
+         * 계좌 미등록 시 PENDING_ACCOUNT 상태로 정산 생성
+         * 정산 금액은 계산되지만 실제 송금은 계좌 등록 후 진행
+         */
+        private Settlement createPendingAccountSettlement(Integer partyId, Party party, String targetMonth) {
+                log.info("계좌 미등록으로 PENDING_ACCOUNT 정산 생성: partyId={}, targetMonth={}", partyId, targetMonth);
+
+                // 정산 금액 계산을 위한 결제 내역 조회
+                List<PaymentResponse> payments = paymentDao.findByPartyId(partyId);
+                List<PaymentResponse> targetPayments = payments.stream()
+                                .filter(p -> "COMPLETED".equals(p.getPaymentStatus()))
+                                .filter(p -> targetMonth.equals(p.getTargetMonth()))
+                                .collect(Collectors.toList());
+
+                // 몰수 보증금 조회
+                LocalDateTime partyStartDate = party.getStartDate();
+                LocalDateTime settlementStartDate = partyStartDate != null ? partyStartDate : LocalDateTime.now().minusMonths(1);
+                LocalDateTime settlementEndDate = LocalDateTime.now();
+
+                List<Deposit> forfeitedDeposits = depositDao.findForfeitedByPartyIdAndPeriod(
+                                partyId, settlementStartDate, settlementEndDate);
+
+                int forfeitedAmount = forfeitedDeposits.stream()
+                                .mapToInt(Deposit::getDepositAmount)
+                                .sum();
+
+                if (targetPayments.isEmpty() && forfeitedDeposits.isEmpty()) {
+                        log.info("정산할 내역 없음: partyId={}", partyId);
+                        return null;
+                }
+
+                // 총액 및 수수료 계산
+                int paymentTotal = targetPayments.stream()
+                                .mapToInt(PaymentResponse::getPaymentAmount)
+                                .sum();
+                int totalAmount = paymentTotal + forfeitedAmount;
+                int commissionAmount = (int) (paymentTotal * COMMISSION_RATE);
+                int netAmount = totalAmount - commissionAmount;
+
+                // PENDING_ACCOUNT 상태로 Settlement 생성
+                Settlement settlement = Settlement.builder()
+                                .partyId(partyId)
+                                .partyLeaderId(party.getPartyLeaderId())
+                                .accountId(null)  // 계좌 미등록
+                                .settlementMonth(targetMonth)
+                                .settlementType("MONTHLY")
+                                .totalAmount(totalAmount)
+                                .commissionRate(COMMISSION_RATE)
+                                .commissionAmount(commissionAmount)
+                                .netAmount(netAmount)
+                                .settlementStatus(SettlementStatus.PENDING_ACCOUNT)  // 계좌 대기 상태
+                                .regDate(LocalDateTime.now())
+                                .build();
+
+                settlementDao.insertSettlement(settlement);
+
+                // Payment 테이블에 정산 ID 업데이트
+                for (PaymentResponse p : targetPayments) {
+                        paymentDao.updateSettlementId(p.getPaymentId(), settlement.getSettlementId());
+                }
+
+                // 파티장에게 계좌 등록 요청 알림 발송
+                sendAccountRequiredPush(party.getPartyLeaderId(), partyId, netAmount);
+
+                log.info("PENDING_ACCOUNT 정산 생성 완료: settlementId={}, netAmount={}",
+                                settlement.getSettlementId(), netAmount);
+
+                return settlement;
+        }
+
+        /**
+         * 계좌 등록 요청 푸시 알림
+         */
+        private void sendAccountRequiredPush(String leaderId, Integer partyId, int netAmount) {
+                try {
+                        // PushService 의존성 추가 필요 시 별도 처리
+                        log.info("계좌 등록 요청 알림: leaderId={}, partyId={}, 정산금액={}원",
+                                        leaderId, partyId, netAmount);
+                        // TODO: 실제 푸시 알림 발송 구현
+                        // pushService.addTemplatePush(...)
+                } catch (Exception e) {
+                        log.error("푸시 발송 실패: {}", e.getMessage());
+                }
         }
 }

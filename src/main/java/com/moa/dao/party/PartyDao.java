@@ -100,4 +100,12 @@ public interface PartyDao {
 	 * @return 삭제된 멤버 수
 	 */
 	int deletePartyMembersByPartyId(@Param("partyId") Integer partyId);
+
+	/**
+	 * 특정 사용자가 파티장인 활성 파티 조회
+	 * (PENDING_PAYMENT, RECRUITING, ACTIVE, SUSPENDED 상태)
+	 * @param leaderId 파티장 ID
+	 * @return 활성 파티 목록
+	 */
+	List<Party> findActivePartiesByLeaderId(@Param("leaderId") String leaderId);
 }

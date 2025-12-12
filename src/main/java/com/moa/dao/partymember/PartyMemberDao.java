@@ -52,4 +52,13 @@ public interface PartyMemberDao {
      * @return 삭제된 행 수
      */
     int deletePartyMember(@Param("partyMemberId") Integer partyMemberId);
+
+    /**
+     * 특정 사용자의 활성 멤버십 조회 (파티장 제외)
+     * 사용자 탈퇴 시 파티원으로 참여 중인 파티 처리용
+     *
+     * @param userId 사용자 ID
+     * @return 활성 멤버십 목록
+     */
+    List<PartyMember> findActiveMembershipsByUserId(@Param("userId") String userId);
 }
