@@ -6,55 +6,87 @@
 <mapper namespace="com.moa.dao.subscription.SubscriptionDao">
 
     <resultMap id="subscriptionResultMap" type="com.moa.dto.subscription.SubscriptionDTO">
-        <result property="subscriptionId" column="subscription_id"/>
-        <result property="userId" column="user_id"/>
-        <result property="productId" column="product_id"/>
-        <result property="subscriptionStatus" column="subscription_status"/>
-        <result property="startDate" column="start_date"/>
-        <result property="endDate" column="end_date"/>
-        <result property="cancelReason" column="cancel_reason"/>
-        <result property="cancelDate" column="cancel_date"/>
-        <!-- Product Join Fields -->
-        <result property="productName" column="product_name"/>
-        <result property="productImage" column="image"/>
-        <result property="price" column="price"/>
-        <result property="categoryName" column="category_name"/>
+        <result property="subscriptionId" column="SUBSCRIPTION_ID"/>
+        <result property="userId" column="USER_ID"/>
+        <result property="productId" column="PRODUCT_ID"/>
+        <result property="subscriptionStatus" column="SUBSCRIPTION_STATUS"/>
+        <result property="startDate" column="START_DATE"/>
+        <result property="endDate" column="END_DATE"/>
+        <result property="cancelReason" column="CANCEL_REASON"/>
+        <result property="cancelDate" column="CANCEL_DATE"/>
+
+        <!-- JOIN 컬럼 -->
+        <result property="productName" column="PRODUCT_NAME"/>
+        <result property="productImage" column="IMAGE"/>
+        <result property="price" column="PRICE"/>
+        <result property="categoryName" column="CATEGORY_NAME"/>
     </resultMap>
 
-    <insert id="addSubscription" parameterType="Subscription" useGeneratedKeys="true" keyProperty="subscriptionId">
-        INSERT INTO subscription (user_id, product_id, subscription_status, start_date, end_date, cancel_reason, cancel_date)
-        VALUES (#{userId}, #{productId}, #{subscriptionStatus}, #{startDate}, #{endDate}, #{cancelReason}, #{cancelDate})
+    <insert id="addSubscription"
+            parameterType="Subscription"
+            useGeneratedKeys="true"
+            keyProperty="subscriptionId">
+        INSERT INTO SUBSCRIPTION
+            (USER_ID, PRODUCT_ID, SUBSCRIPTION_STATUS, START_DATE, END_DATE, CANCEL_REASON, CANCEL_DATE)
+        VALUES
+            (#{userId}, #{productId}, #{subscriptionStatus}, #{startDate}, #{endDate}, #{cancelReason}, #{cancelDate})
     </insert>
 
-    <select id="getSubscription" parameterType="int" resultMap="subscriptionResultMap">
-        SELECT s.subscription_id, s.user_id, s.product_id, s.subscription_status, 
-               s.start_date, s.end_date, s.cancel_reason, s.cancel_date,
-               p.product_name, p.image, p.price, c.category_name
-        FROM subscription s
-        JOIN product p ON s.product_id = p.product_id
-        LEFT JOIN category c ON p.category_id = c.category_id
-        WHERE s.subscription_id = #{subscriptionId}
+    <select id="getSubscription"
+            parameterType="int"
+            resultMap="subscriptionResultMap">
+        SELECT
+            S.SUBSCRIPTION_ID,
+            S.USER_ID,
+            S.PRODUCT_ID,
+            S.SUBSCRIPTION_STATUS,
+            S.START_DATE,
+            S.END_DATE,
+            S.CANCEL_REASON,
+            S.CANCEL_DATE,
+            P.PRODUCT_NAME,
+            P.IMAGE,
+            P.PRICE,
+            C.CATEGORY_NAME
+        FROM SUBSCRIPTION S
+        JOIN PRODUCT P ON S.PRODUCT_ID = P.PRODUCT_ID
+        LEFT JOIN CATEGORY C ON P.CATEGORY_ID = C.CATEGORY_ID
+        WHERE S.SUBSCRIPTION_ID = #{subscriptionId}
     </select>
 
-    <select id="getSubscriptionList" parameterType="String" resultMap="subscriptionResultMap">
-        SELECT s.subscription_id, s.user_id, s.product_id, s.subscription_status, 
-               s.start_date, s.end_date, s.cancel_reason, s.cancel_date,
-               p.product_name, p.image, p.price, c.category_name
-        FROM subscription s
-        JOIN product p ON s.product_id = p.product_id
-        LEFT JOIN category c ON p.category_id = c.category_id
-        WHERE s.user_id = #{userId}
-        ORDER BY s.subscription_id DESC
+    <select id="getSubscriptionList"
+            parameterType="String"
+            resultMap="subscriptionResultMap">
+        SELECT
+            S.SUBSCRIPTION_ID,
+            S.USER_ID,
+            S.PRODUCT_ID,
+            S.SUBSCRIPTION_STATUS,
+            S.START_DATE,
+            S.END_DATE,
+            S.CANCEL_REASON,
+            S.CANCEL_DATE,
+            P.PRODUCT_NAME,
+            P.IMAGE,
+            P.PRICE,
+            C.CATEGORY_NAME
+        FROM SUBSCRIPTION S
+        JOIN PRODUCT P ON S.PRODUCT_ID = P.PRODUCT_ID
+        LEFT JOIN CATEGORY C ON P.CATEGORY_ID = C.CATEGORY_ID
+        WHERE S.USER_ID = #{userId}
+        ORDER BY S.SUBSCRIPTION_ID DESC
     </select>
 
-    <update id="updateSubscription" parameterType="com.moa.dto.subscription.SubscriptionDTO">
-        UPDATE subscription
-        SET subscription_status = #{subscriptionStatus},
-            product_id = #{productId},
-            end_date = #{endDate},
-            cancel_reason = #{cancelReason},
-            cancel_date = #{cancelDate}
-        WHERE subscription_id = #{subscriptionId}
+    <update id="updateSubscription"
+            parameterType="com.moa.dto.subscription.SubscriptionDTO">
+        UPDATE SUBSCRIPTION
+        SET
+            SUBSCRIPTION_STATUS = #{subscriptionStatus},
+            PRODUCT_ID = #{productId},
+            END_DATE = #{endDate},
+            CANCEL_REASON = #{cancelReason},
+            CANCEL_DATE = #{cancelDate}
+        WHERE SUBSCRIPTION_ID = #{subscriptionId}
     </update>
 
 </mapper>
