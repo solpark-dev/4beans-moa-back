@@ -5,91 +5,89 @@
 
 <mapper namespace="com.moa.dao.chat.ChatKnowledgeDao">
 
-	<resultMap id="ChatKnowledgeResultMap"
-		type="com.moa.domain.ChatKnowledge">
-		<id property="id" column="id" />
-		<result property="category" column="category" />
-		<result property="title" column="title" />
-		<result property="question" column="question" />
-		<result property="answer" column="answer" />
-		<result property="keywords" column="keywords" />
-		<result property="updatedAt" column="updated_at" />
-		<result property="embedding" column="embedding" />
-	</resultMap>
+    <resultMap id="ChatKnowledgeResultMap"
+        type="com.moa.domain.ChatKnowledge">
+        <id property="id" column="ID" />
+        <result property="category" column="CATEGORY" />
+        <result property="title" column="TITLE" />
+        <result property="question" column="QUESTION" />
+        <result property="answer" column="ANSWER" />
+        <result property="keywords" column="KEYWORDS" />
+        <result property="updatedAt" column="UPDATED_AT" />
+        <result property="embedding" column="EMBEDDING" />
+    </resultMap>
 
-	<select id="searchTop" resultMap="ChatKnowledgeResultMap">
-		SELECT
-		id,
-		category,
-		title,
-		question,
-		answer,
-		keywords,
-		updated_at,
-		embedding
-		FROM chatbot_knowledge
-		WHERE
-		question LIKE CONCAT('%', #{keyword}, '%')
-		OR answer LIKE
-		CONCAT('%', #{keyword}, '%')
-		OR keywords LIKE CONCAT('%', #{keyword},
-		'%')
-		ORDER BY updated_at DESC
-		LIMIT #{limit}
-	</select>
+    <select id="searchTop" resultMap="ChatKnowledgeResultMap">
+        SELECT
+            ID,
+            CATEGORY,
+            TITLE,
+            QUESTION,
+            ANSWER,
+            KEYWORDS,
+            UPDATED_AT,
+            EMBEDDING
+        FROM CHATBOT_KNOWLEDGE
+        WHERE
+            QUESTION LIKE CONCAT('%', #{keyword}, '%')
+            OR ANSWER LIKE CONCAT('%', #{keyword}, '%')
+            OR KEYWORDS LIKE CONCAT('%', #{keyword}, '%')
+        ORDER BY UPDATED_AT DESC
+        LIMIT #{limit}
+    </select>
 
-	<select id="findAllWithEmbedding"
-		resultMap="ChatKnowledgeResultMap">
-		SELECT
-		id,
-		category,
-		title,
-		question,
-		answer,
-		keywords,
-		updated_at,
-		embedding
-		FROM chatbot_knowledge
-		WHERE embedding IS NOT NULL
-	</select>
+    <select id="findAllWithEmbedding"
+        resultMap="ChatKnowledgeResultMap">
+        SELECT
+            ID,
+            CATEGORY,
+            TITLE,
+            QUESTION,
+            ANSWER,
+            KEYWORDS,
+            UPDATED_AT,
+            EMBEDDING
+        FROM CHATBOT_KNOWLEDGE
+        WHERE EMBEDDING IS NOT NULL
+    </select>
 
-	<update id="updateEmbedding">
-		UPDATE chatbot_knowledge
-		SET embedding = #{embedding},
-		updated_at = NOW()
-		WHERE id = #{id}
-	</update>
+    <update id="updateEmbedding">
+        UPDATE CHATBOT_KNOWLEDGE
+        SET
+            EMBEDDING = #{embedding},
+            UPDATED_AT = NOW()
+        WHERE ID = #{id}
+    </update>
 
-	<select id="searchByKeyword" resultMap="ChatKnowledgeResultMap">
-		SELECT
-		id,
-		category,
-		title,
-		question,
-		answer,
-		keywords,
-		updated_at,
-		embedding
-		FROM chatbot_knowledge
-		WHERE
-		MATCH(question, answer, keywords) AGAINST(#{keyword} IN BOOLEAN
-		MODE)
-		OR question LIKE CONCAT('%', #{keyword}, '%')
-		OR answer LIKE
-		CONCAT('%', #{keyword}, '%')
-		OR keywords LIKE CONCAT('%', #{keyword},
-		'%')
-		ORDER BY updated_at DESC
-		LIMIT 20
-	</select>
+    <select id="searchByKeyword" resultMap="ChatKnowledgeResultMap">
+        SELECT
+            ID,
+            CATEGORY,
+            TITLE,
+            QUESTION,
+            ANSWER,
+            KEYWORDS,
+            UPDATED_AT,
+            EMBEDDING
+        FROM CHATBOT_KNOWLEDGE
+        WHERE
+            MATCH(QUESTION, ANSWER, KEYWORDS)
+                AGAINST(#{keyword} IN BOOLEAN MODE)
+            OR QUESTION LIKE CONCAT('%', #{keyword}, '%')
+            OR ANSWER LIKE CONCAT('%', #{keyword}, '%')
+            OR KEYWORDS LIKE CONCAT('%', #{keyword}, '%')
+        ORDER BY UPDATED_AT DESC
+        LIMIT 20
+    </select>
 
-	<insert id="insert" parameterType="com.moa.domain.ChatKnowledge"
-		useGeneratedKeys="true" keyProperty="id">
-		INSERT INTO chatbot_knowledge
-		(category, title, question, answer, keywords, embedding)
-		VALUES
-		(#{category}, #{title}, #{question}, #{answer}, #{keywords},
-		#{embedding})
-	</insert>
+    <insert id="insert"
+            parameterType="com.moa.domain.ChatKnowledge"
+            useGeneratedKeys="true"
+            keyProperty="id">
+        INSERT INTO CHATBOT_KNOWLEDGE
+            (CATEGORY, TITLE, QUESTION, ANSWER, KEYWORDS, EMBEDDING)
+        VALUES
+            (#{category}, #{title}, #{question}, #{answer}, #{keywords}, #{embedding})
+    </insert>
 
 </mapper>

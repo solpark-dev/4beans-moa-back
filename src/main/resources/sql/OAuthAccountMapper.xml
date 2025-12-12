@@ -5,68 +5,71 @@
 
 <mapper namespace="com.moa.dao.oauth.OAuthAccountDao">
 
-	<resultMap id="oauthMap" type="com.moa.domain.OAuthAccount">
-		<id property="oauthId" column="OAUTH_ID" />
-		<result property="provider" column="PROVIDER" />
-		<result property="providerUserId" column="PROVIDER_USER_ID" />
-		<result property="userId" column="USER_ID" />
-		<result property="connectedDate" column="CONNECTED_DATE" />
-		<result property="releaseDate" column="RELEASE_DATE" />
-	</resultMap>
+    <resultMap id="oauthMap" type="com.moa.domain.OAuthAccount">
+        <id property="oauthId" column="OAUTH_ID" />
+        <result property="provider" column="PROVIDER" />
+        <result property="providerUserId" column="PROVIDER_USER_ID" />
+        <result property="userId" column="USER_ID" />
+        <result property="connectedDate" column="CONNECTED_DATE" />
+        <result property="releaseDate" column="RELEASE_DATE" />
+    </resultMap>
 
-	<insert id="addOAuthAccount">
-		INSERT INTO oauth_account
-		(OAUTH_ID, PROVIDER, PROVIDER_USER_ID, USER_ID, CONNECTED_DATE)
-		VALUES
-		(#{oauthId}, #{provider}, #{providerUserId}, #{userId}, NOW());
-	</insert>
+    <insert id="addOAuthAccount">
+        INSERT INTO OAUTH_ACCOUNT
+            (OAUTH_ID, PROVIDER, PROVIDER_USER_ID, USER_ID, CONNECTED_DATE)
+        VALUES
+            (#{oauthId}, #{provider}, #{providerUserId}, #{userId}, NOW())
+    </insert>
 
-	<select id="getOAuthAccount" resultMap="oauthMap">
-		SELECT *
-		FROM oauth_account
-		WHERE OAUTH_ID = #{oauthId}
-	</select>
+    <select id="getOAuthAccount" resultMap="oauthMap">
+        SELECT *
+        FROM OAUTH_ACCOUNT
+        WHERE OAUTH_ID = #{oauthId}
+    </select>
 
-	<select id="getOAuthAccountList" resultMap="oauthMap">
-		SELECT *
-		FROM oauth_account
-		WHERE USER_ID = #{userId}
-		ORDER BY CONNECTED_DATE DESC
-	</select>
+    <select id="getOAuthAccountList" resultMap="oauthMap">
+        SELECT *
+        FROM OAUTH_ACCOUNT
+        WHERE USER_ID = #{userId}
+        ORDER BY CONNECTED_DATE DESC
+    </select>
 
-	<select id="getOAuthByProvider" resultMap="oauthMap">
-		SELECT *
-		FROM oauth_account
-		WHERE PROVIDER = #{provider}
-		AND PROVIDER_USER_ID = #{providerUserId}
-	</select>
+    <select id="getOAuthByProvider" resultMap="oauthMap">
+        SELECT *
+        FROM OAUTH_ACCOUNT
+        WHERE PROVIDER = #{provider}
+          AND PROVIDER_USER_ID = #{providerUserId}
+    </select>
 
-	<update id="updateOAuthRelease">
-		UPDATE oauth_account
-		SET RELEASE_DATE = NOW()
-		WHERE OAUTH_ID = #{oauthId}
-	</update>
+    <update id="updateOAuthRelease">
+        UPDATE OAUTH_ACCOUNT
+        SET RELEASE_DATE = NOW()
+        WHERE OAUTH_ID = #{oauthId}
+    </update>
 
-	<update id="reconnectOAuthAccount">
-		UPDATE oauth_account
-		SET RELEASE_DATE = NULL,
-		CONNECTED_DATE = NOW()
-		WHERE OAUTH_ID = #{oauthId}
-	</update>
+    <update id="reconnectOAuthAccount">
+        UPDATE OAUTH_ACCOUNT
+        SET
+            RELEASE_DATE = NULL,
+            CONNECTED_DATE = NOW()
+        WHERE OAUTH_ID = #{oauthId}
+    </update>
 
-	<select id="getOAuthByUserAndProvider" resultMap="oauthMap">
-		SELECT *
-		FROM oauth_account
-		WHERE USER_ID = #{userId}
-		AND PROVIDER = #{provider}
-	</select>
+    <select id="getOAuthByUserAndProvider" resultMap="oauthMap">
+        SELECT *
+        FROM OAUTH_ACCOUNT
+        WHERE USER_ID = #{userId}
+          AND PROVIDER = #{provider}
+    </select>
 
-	<update id="transferOAuthUser">
-		UPDATE oauth_account
-		SET USER_ID = #{userId},
-		RELEASE_DATE = NULL,
-		CONNECTED_DATE = NOW()
-		WHERE PROVIDER = #{provider}
-		AND PROVIDER_USER_ID = #{providerUserId}
-	</update>
+    <update id="transferOAuthUser">
+        UPDATE OAUTH_ACCOUNT
+        SET
+            USER_ID = #{userId},
+            RELEASE_DATE = NULL,
+            CONNECTED_DATE = NOW()
+        WHERE PROVIDER = #{provider}
+          AND PROVIDER_USER_ID = #{providerUserId}
+    </update>
+ 
 </mapper>
