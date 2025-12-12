@@ -27,7 +27,7 @@
 		keywords,
 		updated_at,
 		embedding
-		FROM chatbot_knowledge
+		FROM CHATBOT_KNOWLEDGE
 		WHERE
 		question LIKE CONCAT('%', #{keyword}, '%')
 		OR answer LIKE
@@ -49,12 +49,12 @@
 		keywords,
 		updated_at,
 		embedding
-		FROM chatbot_knowledge
+		FROM CHATBOT_KNOWLEDGE
 		WHERE embedding IS NOT NULL
 	</select>
 
 	<update id="updateEmbedding">
-		UPDATE chatbot_knowledge
+		UPDATE CHATBOT_KNOWLEDGE
 		SET embedding = #{embedding},
 		updated_at = NOW()
 		WHERE id = #{id}
@@ -70,7 +70,7 @@
 		keywords,
 		updated_at,
 		embedding
-		FROM chatbot_knowledge
+		FROM CHATBOT_KNOWLEDGE
 		WHERE
 		MATCH(question, answer, keywords) AGAINST(#{keyword} IN BOOLEAN
 		MODE)
@@ -85,7 +85,7 @@
 
 	<insert id="insert" parameterType="com.moa.domain.ChatKnowledge"
 		useGeneratedKeys="true" keyProperty="id">
-		INSERT INTO chatbot_knowledge
+		INSERT INTO CHATBOT_KNOWLEDGE
 		(category, title, question, answer, keywords, embedding)
 		VALUES
 		(#{category}, #{title}, #{question}, #{answer}, #{keywords},
