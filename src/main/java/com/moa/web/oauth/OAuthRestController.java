@@ -9,6 +9,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -28,6 +29,7 @@ import com.moa.common.exception.ErrorCode;
 import com.moa.config.GoogleOAuthProperties;
 import com.moa.config.KakaoOAuthProperties;
 import com.moa.domain.OAuthAccount;
+import com.moa.service.auth.LoginHistoryService;
 import com.moa.service.oauth.OAuthAccountService;
 import com.moa.service.user.UserService;
 
@@ -43,6 +45,7 @@ public class OAuthRestController {
 	private final KakaoOAuthProperties kakao;
 	private final GoogleOAuthProperties google;
 	private final OAuthAccountService oauthService;
+	private final LoginHistoryService loginHistoryService;
 	private final JwtProvider jwtProvider;
 	private final UserService userService;
 
@@ -58,8 +61,10 @@ public class OAuthRestController {
 	}
 
 	@GetMapping("/kakao/callback")
-	public ApiResponse<?> kakaoCallback(@RequestParam("code") String code,
+	public ResponseEntity<Void> kakaoCallback(@RequestParam("code") String code,
 			@RequestParam(defaultValue = "login") String mode) {
+
+		System.out.println("KAKAO CALLBACK CODE = " + code);
 
 		RestTemplate rest = new RestTemplate();
 		String redirectUri = kakao.getRedirectUri();
@@ -91,20 +96,13 @@ public class OAuthRestController {
 		OAuthAccount oauth = oauthService.getOAuthByProvider(provider, providerUserId);
 		String currentUserId = getCurrentUserId();
 
-		// 1️⃣ 로그인 상태에서 연동 시도
+		String frontendBase = "https://moamoa.cloud:5173/oauth/callback";
+
 		if (currentUserId != null) {
-			if (oauth != null && oauth.getReleaseDate() == null && !oauth.getUserId().equals(currentUserId)) {
-				return ApiResponse.success(Map.of("status", "NEED_TRANSFER", "provider", provider, "providerUserId",
-						providerUserId, "fromUserId", oauth.getUserId(), "toUserId", currentUserId));
-			}
-
 			oauthService.connectOAuthAccount(currentUserId, provider, providerUserId);
-
-			return ApiResponse
-					.success(Map.of("status", "CONNECT", "provider", provider, "providerUserId", providerUserId));
+			return redirect(frontendBase + "?status=CONNECT&provider=kakao");
 		}
 
-		// 2️⃣ OAuth 계정이 이미 존재 → 바로 로그인
 		if (oauth != null && oauth.getReleaseDate() == null) {
 
 			UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(oauth.getUserId(), null,
@@ -112,27 +110,18 @@ public class OAuthRestController {
 
 			var token = jwtProvider.generateToken(auth);
 
-			return ApiResponse.success(Map.of("status", "LOGIN", "accessToken", token.getAccessToken(), "refreshToken",
-					token.getRefreshToken(), "accessTokenExpiresIn", token.getAccessTokenExpiresIn()));
+			loginHistoryService.recordSuccess(oauth.getUserId(), "KAKAO", null, null);
+
+			return redirect(frontendBase + "?status=LOGIN" + "&accessToken=" + token.getAccessToken() + "&refreshToken="
+					+ token.getRefreshToken() + "&expiresIn=" + token.getAccessTokenExpiresIn());
 		}
 
-		// 3️⃣ 휴대폰 기반 기존 계정 확인
-		Map<String, Object> kakaoAccount = (Map<String, Object>) profile.get("kakao_account");
-		String phone = kakaoAccount != null ? (String) kakaoAccount.get("phone_number") : null;
+		return redirect(
+				frontendBase + "?status=NEED_REGISTER" + "&provider=kakao" + "&providerUserId=" + providerUserId);
+	}
 
-		if (phone != null) {
-			phone = phone.replace("+82 ", "0").replace("-", "");
-
-			var userOpt = userService.findByPhone(phone);
-			if (userOpt.isPresent()) {
-				return ApiResponse.success(Map.of("status", "NEED_PHONE_CONNECT", "provider", provider,
-						"providerUserId", providerUserId, "phone", phone, "existingUserId", userOpt.get().getUserId()));
-			}
-		}
-
-		// 4️⃣ 완전 신규
-		return ApiResponse
-				.success(Map.of("status", "NEED_REGISTER", "provider", provider, "providerUserId", providerUserId));
+	private ResponseEntity<Void> redirect(String url) {
+		return ResponseEntity.status(302).header(HttpHeaders.LOCATION, url).build();
 	}
 
 	@GetMapping("/google/auth")
@@ -191,6 +180,7 @@ public class OAuthRestController {
 			}
 
 			oauthService.connectOAuthAccount(currentUser, "google", providerUserId);
+			loginHistoryService.recordSuccess(exists.getUserId(), "GOOGLE", null, null);
 
 			return ApiResponse.success(Map.of("status", "CONNECT", "userId", currentUser, "provider", "google",
 					"providerUserId", providerUserId));

@@ -27,6 +27,7 @@ import com.moa.dto.user.request.LoginRequest;
 import com.moa.dto.user.response.LoginResponse;
 import com.moa.service.auth.AuthService;
 import com.moa.service.auth.BackupCodeService;
+import com.moa.service.auth.LoginHistoryService;
 import com.moa.service.auth.OtpService;
 
 import lombok.RequiredArgsConstructor;
@@ -43,13 +44,16 @@ public class AuthServiceImpl implements AuthService {
 	private final JwtProvider jwtProvider;
 	private final OtpService otpService;
 	private final BackupCodeService backupCodeService;
+	private final LoginHistoryService loginHistoryService;
 
 	@Override
 	public LoginResponse login(LoginRequest request) {
+
 		User user = userDao.findByUserIdIncludeDeleted(request.getUserId().toLowerCase())
 				.orElseThrow(() -> new BusinessException(ErrorCode.INVALID_LOGIN));
 
 		if (user.getDeleteDate() != null && user.getStatus() == UserStatus.WITHDRAW) {
+			loginHistoryService.recordFailure(user.getUserId(), "PASSWORD", null, null, "탈퇴한 계정");
 			throw new BusinessException(ErrorCode.ACCOUNT_WITHDRAW, "탈퇴한 계정입니다.");
 		}
 
@@ -59,30 +63,38 @@ public class AuthServiceImpl implements AuthService {
 				userDao.resetLoginFailCount(user.getUserId());
 				user.setStatus(UserStatus.ACTIVE);
 			} else {
+				loginHistoryService.recordFailure(user.getUserId(), "PASSWORD", null, null, "잠금된 계정");
 				throw new BusinessException(ErrorCode.FORBIDDEN, "잠금 처리된 계정입니다.");
 			}
 		}
 
 		if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
 			userDao.increaseLoginFailCount(user.getUserId());
+
+			loginHistoryService.recordFailure(user.getUserId(), "PASSWORD", null, null, "비밀번호 불일치");
+
 			int failCount = userDao.getFailCount(user.getUserId());
 			if (failCount >= 5) {
 				userDao.blockUser(user.getUserId(), LocalDateTime.now().plusMinutes(60));
 				throw new BusinessException(ErrorCode.FORBIDDEN, "로그인 5회 실패로 잠금 처리되었습니다.");
 			}
+
 			throw new BusinessException(ErrorCode.INVALID_LOGIN);
 		}
 
 		if (user.getStatus() == UserStatus.PENDING) {
+			loginHistoryService.recordFailure(user.getUserId(), "PASSWORD", null, null, "이메일 미인증");
 			throw new BusinessException(ErrorCode.FORBIDDEN, "이메일 인증이 필요합니다.");
 		}
 
 		userDao.resetLoginFailCount(user.getUserId());
 
 		boolean otpEnabled = Boolean.TRUE.equals(user.getOtpEnabled());
-
 		if (otpEnabled) {
 			String otpToken = createOtpToken(user.getUserId());
+
+			loginHistoryService.recordSuccess(user.getUserId(), "PASSWORD_OTP_WAIT", null, null);
+
 			return LoginResponse.builder().otpRequired(true).otpToken(otpToken).build();
 		}
 
@@ -92,6 +104,8 @@ public class AuthServiceImpl implements AuthService {
 				List.of(new SimpleGrantedAuthority(user.getRole())));
 
 		TokenResponse token = jwtProvider.generateToken(authentication);
+
+		loginHistoryService.recordSuccess(user.getUserId(), "PASSWORD", null, null);
 
 		return LoginResponse.builder().otpRequired(false).accessToken(token.getAccessToken())
 				.refreshToken(token.getRefreshToken()).accessTokenExpiresIn(token.getAccessTokenExpiresIn()).build();
@@ -146,7 +160,10 @@ public class AuthServiceImpl implements AuthService {
 		Authentication authentication = new UsernamePasswordAuthenticationToken(userId, null,
 				List.of(new SimpleGrantedAuthority(user.getRole())));
 
-		return jwtProvider.generateToken(authentication);
+		TokenResponse token = jwtProvider.generateToken(authentication);
+		loginHistoryService.recordSuccess(userId, "OTP", null, null);
+
+		return token;
 	}
 
 	private String createOtpToken(String userId) {

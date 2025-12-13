@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,40 +19,31 @@ import com.moa.dao.account.AccountDao;
 import com.moa.dao.user.UserCardDao;
 import com.moa.domain.Account;
 import com.moa.domain.UserCard;
-import com.moa.dto.user.request.CommonCheckRequest;
 import com.moa.dto.user.request.DeleteUserRequest;
 import com.moa.dto.user.request.PasswordConfirmRequest;
 import com.moa.dto.user.request.PasswordFormatCheckRequest;
 import com.moa.dto.user.request.PasswordResetRequest;
 import com.moa.dto.user.request.PasswordResetStartRequest;
 import com.moa.dto.user.request.PasswordUpdateRequest;
-import com.moa.dto.user.request.UserCreateRequest;
 import com.moa.dto.user.request.UserUpdateRequest;
-import com.moa.dto.user.response.CommonCheckResponse;
 import com.moa.dto.user.response.UserResponse;
 import com.moa.service.oauth.OAuthAccountService;
-import com.moa.service.passauth.PassAuthService;
 import com.moa.service.user.UserService;
-
-import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping(value = "/api/users")
 public class UserRestController {
 
 	private final UserService userService;
-	private final PassAuthService passAuthService;
 	private final AccountDao accountDao;
 	private final UserCardDao userCardDao;
 	private final OAuthAccountService oauthService;
 
 	private final com.moa.service.payment.TossPaymentService tossPaymentService;
 
-	public UserRestController(UserService userService, PassAuthService passAuthService, AccountDao accountDao,
-			UserCardDao userCardDao, com.moa.service.payment.TossPaymentService tossPaymentService,
-			OAuthAccountService oauthService) {
+	public UserRestController(UserService userService, AccountDao accountDao, UserCardDao userCardDao,
+			com.moa.service.payment.TossPaymentService tossPaymentService, OAuthAccountService oauthService) {
 		this.userService = userService;
-		this.passAuthService = passAuthService;
 		this.accountDao = accountDao;
 		this.userCardDao = userCardDao;
 		this.oauthService = oauthService;
@@ -71,21 +61,6 @@ public class UserRestController {
 			return null;
 		}
 		return authentication.getName();
-	}
-
-	@PostMapping("/check")
-	public ApiResponse<CommonCheckResponse> check(@RequestBody CommonCheckRequest request) {
-		return ApiResponse.success(userService.check(request));
-	}
-
-	@PostMapping("/add")
-	public ApiResponse<?> add(@RequestBody @Valid UserCreateRequest request) {
-
-		if (request.getProvider() != null && !request.getProvider().isBlank()) {
-			return ApiResponse.success(userService.addUserAndLogin(request));
-		}
-
-		return ApiResponse.success(userService.addUser(request));
 	}
 
 	@GetMapping("/me")
@@ -169,65 +144,6 @@ public class UserRestController {
 		return ApiResponse.success(null);
 	}
 
-	@GetMapping("/pass/start")
-	public ApiResponse<Map<String, Object>> startPassAuth() {
-		return ApiResponse.success(passAuthService.requestCertification());
-	}
-
-	@PostMapping("/pass/verify")
-	public ApiResponse<Map<String, Object>> verifyPassAuth(@RequestBody Map<String, Object> body) throws Exception {
-
-		String impUid = (String) body.get("imp_uid");
-		String userId = (String) body.get("userId");
-
-		Map<String, Object> data = passAuthService.verifyCertification(impUid);
-
-		if (userId != null && !userId.isBlank()) {
-			String phone = (String) data.get("phone");
-			String ci = (String) data.get("ci");
-
-			userService.unlockByCertification(userId, phone, ci);
-		}
-
-		return ApiResponse.success(data);
-	}
-
-	@PostMapping("/find-id")
-	public ApiResponse<Map<String, String>> findIdByPhone(@RequestBody Map<String, String> request) {
-		String phone = request.get("phone");
-		String userId = userService.findUserIdByPhone(phone);
-		if (userId == null) {
-			throw new BusinessException(ErrorCode.USER_NOT_FOUND, "해당 번호로 가입된 아이디가 존재하지 않습니다.");
-		}
-		return ApiResponse.success(Map.of("email", userId));
-	}
-
-	@GetMapping("/exists-by-phone")
-	public ApiResponse<Map<String, Object>> existsByPhone(@RequestParam("phone") String phone) {
-		var userOpt = userService.findByPhone(phone);
-
-		if (userOpt.isEmpty()) {
-			return ApiResponse.success(Map.of("exists", false));
-		}
-
-		var user = userOpt.get();
-
-		return ApiResponse.success(Map.of("exists", true, "userId", user.getUserId()));
-	}
-
-	@PostMapping("/pass/verify-find-id")
-	public ApiResponse<Map<String, Object>> verifyPassAuthForFindId(@RequestBody Map<String, Object> body)
-			throws Exception {
-
-		String impUid = (String) body.get("imp_uid");
-		Map<String, Object> data = passAuthService.verifyCertification(impUid);
-
-		return ApiResponse.success(data);
-	}
-
-	/**
-	 * 내 정산 계좌 조회 GET /api/users/me/account
-	 */
 	@GetMapping("/me/account")
 	public ApiResponse<Account> getMyAccount() {
 		String userId = getCurrentUserId();

@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -25,6 +26,7 @@ import com.moa.auth.handler.JwtAuthenticationEntryPoint;
 import lombok.RequiredArgsConstructor;
 
 @Configuration
+@EnableMethodSecurity(prePostEnabled = true)
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -50,7 +52,7 @@ public class SecurityConfig {
 						.authenticationEntryPoint(jwtAuthenticationEntryPoint)
 						.accessDeniedHandler(jwtAccessDeniedHandler))
 				.authorizeHttpRequests(auth -> auth
-
+						.requestMatchers("/api/signup/**").permitAll()
 						// 인증 불필요: 로그인/토큰/이메일 인증/잠금 해제
 						.requestMatchers(
 								"/api/auth/login",
@@ -76,14 +78,12 @@ public class SecurityConfig {
 						.requestMatchers(
 								"/api/chatbot/**",
 								"/api/users/join",
-								"/api/users/add",
-								"/api/users/social/add",
 								"/api/users/check",
 								"/api/users/find-id",
 								"/api/users/pass/**",
 								"/api/users/resetPwd/**",
-								"/api/users/exists-by-phone", // --> 충돌난다면 이걸 활성화해야함
-								"/api/oauth/connect-by-phone", // --> 충돌난다면 이걸 활성화해야함
+								"/api/users/exists-by-phone",
+								"/api/oauth/connect-by-phone",
 								"/swagger-ui/**",
 								"/v3/api-docs/**",
 								"/uploads/**")
@@ -98,12 +98,18 @@ public class SecurityConfig {
 						.requestMatchers(HttpMethod.PUT, "/api/community/notice/**").hasAuthority("ADMIN")
 						.requestMatchers(HttpMethod.POST, "/api/community/faq/**").hasAuthority("ADMIN")
 						.requestMatchers(HttpMethod.PUT, "/api/community/faq/**").hasAuthority("ADMIN")
+						
+						.requestMatchers(HttpMethod.POST, "/api/signup/pass/**").permitAll()
+						.requestMatchers(HttpMethod.GET, "/api/signup/pass/**").permitAll()
 
 						// 커뮤니티 문의는 로그인 사용자만
 						.requestMatchers("/api/community/inquiry/**").authenticated()
 
 						// 관리자 API
 						.requestMatchers("/api/admin/**").hasAuthority("ADMIN")
+
+						// 푸시 관리자 API
+						.requestMatchers("/api/push/admin/**").hasAuthority("ADMIN")
 
 						// 상품 조회는 모두 허용
 						.requestMatchers(HttpMethod.GET, "/api/product/**").permitAll()
@@ -148,8 +154,10 @@ public class SecurityConfig {
 				"https://127.0.0.1:5173",
 				"http://192.168.*",
 				"https://192.168.*",
-				"http://moamoa.cloud:5173",
-			    "https://moamoa.cloud:5173"));
+			    "https://moamoa.cloud",
+			    "https://moamoa.cloud:*",
+			    "https://www.moamoa.cloud",
+			    "https://www.moamoa.cloud:*"));
 
 		config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
 		config.setAllowedHeaders(List.of(

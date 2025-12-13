@@ -39,7 +39,6 @@ public class PassAuthServiceImpl implements PassAuthService {
 		data.put("merchantUid", merchantUid);
 		data.put("impCode", impCode);
 
-		// Controller에서 ApiResponse로 감싸므로 여기서는 데이터만 반환
 		return data;
 	}
 
@@ -56,7 +55,6 @@ public class PassAuthServiceImpl implements PassAuthService {
 		ResponseEntity<Map> res = restTemplate.exchange("https://api.iamport.kr/certifications/" + impUid,
 				HttpMethod.GET, req, Map.class);
 
-		// PortOne API 응답 파싱
 		Map<String, Object> body = (Map<String, Object>) res.getBody();
 		Map<String, Object> response = (Map<String, Object>) body.get("response");
 
@@ -65,21 +63,17 @@ public class PassAuthServiceImpl implements PassAuthService {
 			customer = (Map<String, Object>) response.get("verifiedCustomer");
 		}
 
-		// 프론트엔드로 보낼 순수 데이터 구성
 		Map<String, Object> data = new HashMap<>();
 		data.put("phone", response.get("phone"));
 
 		if (customer != null) {
 			data.put("name", customer.get("name"));
 			data.put("ci", customer.get("ci"));
-			data.put("di", customer.get("di"));
 		} else {
-			data.put("name", response.get("name")); // 이름 정보가 바로 있을 수도 있음
+			data.put("name", response.get("name"));
 			data.put("ci", response.get("unique_key"));
-			data.put("di", response.get("unique_in_site"));
 		}
 
-		// [중요] 여기서 success: true 등으로 감싸지 않고 data 맵 자체를 반환함
 		return data;
 	}
 

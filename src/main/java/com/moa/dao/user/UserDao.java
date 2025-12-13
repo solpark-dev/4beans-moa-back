@@ -41,6 +41,8 @@ public interface UserDao {
 
 	int existsByNickname(@Param("nickname") String nickname);
 
+	int existsByNicknameExceptMe(@Param("nickname") String nickname, @Param("userId") String userId);
+
 	int existsByPhone(@Param("phone") String phone);
 
 	int updateUserStatus(@Param("userId") String userId, @Param("status") UserStatus status);

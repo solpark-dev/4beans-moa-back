@@ -383,8 +383,10 @@ public class UserServiceImpl implements UserService {
 
 		ensureNotBlocked(user);
 
-		if (!user.getNickname().equals(request.getNickname()) && userDao.existsByNickname(request.getNickname()) > 0) {
-			throw new BusinessException(ErrorCode.CONFLICT, "이미 사용 중인 닉네임입니다.");
+		if (!user.getNickname().equals(request.getNickname())) {
+			if (userDao.existsByNicknameExceptMe(request.getNickname(), userId) > 0) {
+				throw new BusinessException(ErrorCode.CONFLICT, "이미 사용 중인 닉네임입니다.");
+			}
 		}
 
 		User updated = User.builder().userId(user.getUserId()).password(user.getPassword())

@@ -130,6 +130,14 @@
 		AND DELETE_DATE IS NULL
 	</select>
 
+	<select id="existsByNicknameExceptMe" resultType="int">
+		SELECT COUNT(1)
+		FROM USERS
+		WHERE NICKNAME = #{nickname}
+		AND USER_ID != #{userId}
+		AND DELETE_DATE IS NULL
+	</select>
+
 	<update id="updateUserStatus">
 		UPDATE USERS
 		SET USER_STATUS = #{status}
