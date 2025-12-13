@@ -11,8 +11,6 @@ import java.util.Map;
 @Mapper
 public interface PushDao {
 
-    // ===== 기존 푸시 관련 =====
-
     int addPush(Push push);
 
     PushCode getPushCodeByName(@Param("codeName") String codeName);
@@ -37,8 +35,6 @@ public interface PushDao {
 
     int getUnreadCount(@Param("receiverId") String receiverId);
 
-    // ===== 관리자용: 푸시코드(템플릿) 관리 =====
-
     List<PushCode> getPushCodeList();
 
     PushCode getPushCodeById(@Param("pushCodeId") Integer pushCodeId);
@@ -52,8 +48,6 @@ public interface PushDao {
 
     int deletePushCode(@Param("pushCodeId") Integer pushCodeId);
 
-    // ===== 관리자용: 발송 내역 조회 =====
-
     List<Push> getPushHistory(@Param("offset") int offset,
                               @Param("limit") int limit,
                               @Param("pushCode") String pushCode,
@@ -66,7 +60,7 @@ public interface PushDao {
                             @Param("startDate") String startDate,
                             @Param("endDate") String endDate);
 
-    // ===== 관리자용: 사용자 검색 =====
-
     List<Map<String, String>> searchUsersForPush(@Param("keyword") String keyword);
+
+    List<String> getAllUserIdsExceptAdmin();
 }

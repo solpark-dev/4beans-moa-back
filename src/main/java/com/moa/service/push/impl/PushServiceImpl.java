@@ -27,8 +27,6 @@ public class PushServiceImpl implements PushService {
 
     private final PushDao pushDao;
 
-    // ===== 기존 푸시 관련 =====
-
     @Override
     @Transactional
     public void addPush(PushRequest request) {
@@ -137,8 +135,6 @@ public class PushServiceImpl implements PushService {
         pushDao.deleteAllPushs(receiverId);
     }
 
-    // ===== 관리자용: 푸시코드(템플릿) 관리 =====
-
     @Override
     public List<PushCodeResponse> getPushCodeList() {
         List<PushCode> list = pushDao.getPushCodeList();
@@ -159,7 +155,6 @@ public class PushServiceImpl implements PushService {
     @Override
     @Transactional
     public void addPushCode(PushCodeRequest request) {
-        // 중복 체크
         PushCode existing = pushDao.getPushCodeByName(request.getCodeName());
         if (existing != null) {
             throw new IllegalArgumentException("이미 존재하는 푸시 코드입니다: " + request.getCodeName());
@@ -172,7 +167,6 @@ public class PushServiceImpl implements PushService {
     @Override
     @Transactional
     public void updatePushCode(Integer pushCodeId, PushCodeRequest request) {
-        // 존재 확인
         PushCode existing = pushDao.getPushCodeById(pushCodeId);
         if (existing == null) {
             throw new IllegalArgumentException("존재하지 않는 푸시 코드입니다: " + pushCodeId);
@@ -184,7 +178,6 @@ public class PushServiceImpl implements PushService {
     @Override
     @Transactional
     public void deletePushCode(Integer pushCodeId) {
-        // 존재 확인
         PushCode existing = pushDao.getPushCodeById(pushCodeId);
         if (existing == null) {
             throw new IllegalArgumentException("존재하지 않는 푸시 코드입니다: " + pushCodeId);
@@ -192,8 +185,6 @@ public class PushServiceImpl implements PushService {
 
         pushDao.deletePushCode(pushCodeId);
     }
-
-    // ===== 관리자용: 발송 내역 조회 =====
 
     @Override
     public PageResponse<PushResponse> getPushHistory(int page, int size, String pushCode, String receiverId, String startDate, String endDate) {
@@ -208,8 +199,6 @@ public class PushServiceImpl implements PushService {
         return new PageResponse<>(responseList, page, size, totalCount);
     }
 
-    // ===== 관리자용: 수동 발송 =====
-
     @Override
     @Transactional
     public int sendAdminPush(AdminPushRequest request) {
@@ -221,7 +210,6 @@ public class PushServiceImpl implements PushService {
             String pushCodeName;
 
             if ("TEMPLATE".equals(request.getSendType())) {
-                // 템플릿 사용
                 PushCode pushCode = pushDao.getPushCodeByName(request.getPushCode());
                 if (pushCode == null) {
                     throw new IllegalArgumentException("존재하지 않는 푸시 코드입니다: " + request.getPushCode());
@@ -231,7 +219,6 @@ public class PushServiceImpl implements PushService {
                 content = replaceTemplateParams(pushCode.getContentTemplate(), request.getParams());
                 pushCodeName = request.getPushCode();
             } else {
-                // 직접 입력
                 title = request.getTitle();
                 content = request.getContent();
                 pushCodeName = "ADMIN_CUSTOM";
@@ -258,7 +245,51 @@ public class PushServiceImpl implements PushService {
         return pushDao.searchUsersForPush(keyword);
     }
 
-    // ===== Private Helper =====
+    @Override
+    @Transactional
+    public int sendPushToAllUsers(AdminPushRequest request) {
+        List<String> allUserIds = pushDao.getAllUserIdsExceptAdmin();
+
+        if (allUserIds.isEmpty()) {
+            return 0;
+        }
+
+        String title;
+        String content;
+        String pushCodeName;
+
+        if ("TEMPLATE".equals(request.getSendType())) {
+            PushCode pushCode = pushDao.getPushCodeByName(request.getPushCode());
+            if (pushCode == null) {
+                throw new IllegalArgumentException("존재하지 않는 푸시 코드입니다: " + request.getPushCode());
+            }
+
+            title = replaceTemplateParams(pushCode.getTitleTemplate(), request.getParams());
+            content = replaceTemplateParams(pushCode.getContentTemplate(), request.getParams());
+            pushCodeName = request.getPushCode();
+        } else {
+            title = request.getTitle();
+            content = request.getContent();
+            pushCodeName = "ADMIN_CUSTOM";
+        }
+
+        int count = 0;
+        for (String userId : allUserIds) {
+            Push push = Push.builder()
+                    .receiverId(userId)
+                    .pushCode(pushCodeName)
+                    .title(title)
+                    .content(content)
+                    .moduleId(request.getModuleId())
+                    .moduleType(request.getModuleType())
+                    .build();
+
+            pushDao.addPush(push);
+            count++;
+        }
+
+        return count;
+    }
 
     private String replaceTemplateParams(String template, Map<String, String> params) {
         if (template == null || params == null) {

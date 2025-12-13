@@ -24,8 +24,6 @@
         <result property="createdAt" column="CREATED_AT"/>
     </resultMap>
 
-    <!-- ===== 기존 푸시 관련 ===== -->
-
     <insert id="addPush" parameterType="com.moa.domain.Push" useGeneratedKeys="true" keyProperty="pushId">
         INSERT INTO PUSH (RECEIVER_ID, PUSH_CODE, TITLE, CONTENT, MODULE_ID, MODULE_TYPE, SENT_AT, IS_READ, IS_DELETED)
         VALUES (#{receiverId}, #{pushCode}, #{title}, #{content}, #{moduleId}, #{moduleType}, NOW(), 'N', 'N')
@@ -99,8 +97,6 @@
         WHERE RECEIVER_ID = #{receiverId} AND IS_READ = 'N' AND IS_DELETED = 'N'
     </select>
 
-    <!-- ===== 관리자용: 푸시코드(템플릿) 관리 ===== -->
-
     <select id="getPushCodeList" resultMap="PushCodeResultMap">
         SELECT PUSH_CODE_ID, CODE_NAME, TITLE_TEMPLATE, CONTENT_TEMPLATE, CREATED_AT
         FROM PUSH_CODE
@@ -130,8 +126,6 @@
         DELETE FROM PUSH_CODE
         WHERE PUSH_CODE_ID = #{pushCodeId}
     </delete>
-
-    <!-- ===== 관리자용: 발송 내역 조회 (필터) ===== -->
 
     <select id="getPushHistory" resultMap="PushResultMap">
         SELECT PUSH_ID, RECEIVER_ID, PUSH_CODE, TITLE, CONTENT, MODULE_ID, MODULE_TYPE, SENT_AT, READ_AT, IS_READ, IS_DELETED
@@ -173,18 +167,25 @@
         </where>
     </select>
 
-    <!-- ===== 관리자용: 사용자 검색 ===== -->
+    <select id="searchUsersForPush" resultType="java.util.Map">
+        SELECT USER_ID as userId, NICKNAME as nickname
+        FROM USERS
+        WHERE USER_STATUS = 'ACTIVE'
+          AND ROLE != 'ADMIN'
+        <if test="keyword != null and keyword != ''">
+            AND (USER_ID LIKE CONCAT('%', #{keyword}, '%')
+                 OR NICKNAME LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        ORDER BY NICKNAME ASC
+        LIMIT 50
+    </select>
 
-	<select id="searchUsersForPush" resultType="java.util.Map">
-	    SELECT USER_ID as userId, NICKNAME as nickname
-	    FROM USERS
-	    WHERE USER_STATUS = 'ACTIVE'
-	    <if test="keyword != null and keyword != ''">
-	        AND (USER_ID LIKE CONCAT('%', #{keyword}, '%')
-	             OR NICKNAME LIKE CONCAT('%', #{keyword}, '%'))
-	    </if>
-	    ORDER BY NICKNAME ASC
-	    LIMIT 50
-	</select>
+    <select id="getAllUserIdsExceptAdmin" resultType="String">
+        SELECT USER_ID
+        FROM USERS
+        WHERE USER_STATUS = 'ACTIVE'
+          AND ROLE != 'ADMIN'
+        ORDER BY USER_ID ASC
+    </select>
 
 </mapper>
