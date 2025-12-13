@@ -26,8 +26,6 @@ public class PushRestController {
 
     private final PushService pushService;
 
-    // ===== 일반 푸시 API =====
-
     @PostMapping
     public ResponseEntity<Map<String, Object>> addPush(@RequestBody PushRequest request) {
         pushService.addPush(request);
@@ -99,11 +97,6 @@ public class PushRestController {
         return ResponseEntity.ok(Map.of("success", true, "message", "전체 삭제되었습니다."));
     }
 
-    // ===== 관리자용 API =====
-
-    /**
-     * 푸시코드 템플릿 전체 목록 조회
-     */
     @GetMapping("/admin/codes")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<List<PushCodeResponse>> getPushCodeList() {
@@ -111,9 +104,6 @@ public class PushRestController {
         return ResponseEntity.ok(list);
     }
 
-    /**
-     * 푸시코드 템플릿 상세 조회
-     */
     @GetMapping("/admin/codes/{pushCodeId}")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<PushCodeResponse> getPushCode(@PathVariable Integer pushCodeId) {
@@ -121,9 +111,6 @@ public class PushRestController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * 푸시코드 템플릿 추가
-     */
     @PostMapping("/admin/codes")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<Map<String, Object>> addPushCode(@RequestBody PushCodeRequest request) {
@@ -131,9 +118,6 @@ public class PushRestController {
         return ResponseEntity.ok(Map.of("success", true, "message", "푸시 템플릿이 추가되었습니다."));
     }
 
-    /**
-     * 푸시코드 템플릿 수정
-     */
     @PutMapping("/admin/codes/{pushCodeId}")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<Map<String, Object>> updatePushCode(
@@ -143,9 +127,6 @@ public class PushRestController {
         return ResponseEntity.ok(Map.of("success", true, "message", "푸시 템플릿이 수정되었습니다."));
     }
 
-    /**
-     * 푸시코드 템플릿 삭제
-     */
     @DeleteMapping("/admin/codes/{pushCodeId}")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<Map<String, Object>> deletePushCode(@PathVariable Integer pushCodeId) {
@@ -153,9 +134,6 @@ public class PushRestController {
         return ResponseEntity.ok(Map.of("success", true, "message", "푸시 템플릿이 삭제되었습니다."));
     }
 
-    /**
-     * 전체 푸시 발송 내역 조회 (필터 가능)
-     */
     @GetMapping("/admin/history")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<PageResponse<PushResponse>> getPushHistory(
@@ -169,9 +147,6 @@ public class PushRestController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * 관리자 수동 푸시 발송
-     */
     @PostMapping("/admin/send")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<Map<String, Object>> sendAdminPush(@RequestBody AdminPushRequest request) {
@@ -183,9 +158,17 @@ public class PushRestController {
         ));
     }
 
-    /**
-     * 수신자 검색 (사용자 목록)
-     */
+    @PostMapping("/admin/send-all")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<Map<String, Object>> sendPushToAllUsers(@RequestBody AdminPushRequest request) {
+        int count = pushService.sendPushToAllUsers(request);
+        return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", "전체 " + count + "명에게 푸시 알림이 발송되었습니다.",
+                "count", count
+        ));
+    }
+
     @GetMapping("/admin/search")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<List<Map<String, String>>> searchUsers(
