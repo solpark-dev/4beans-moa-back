@@ -47,6 +47,10 @@ import com.moa.service.oauth.OAuthAccountService;
 import com.moa.service.user.UserAddValidator;
 import com.moa.service.user.UserService;
 
+import org.springframework.context.ApplicationEventPublisher;
+
+import com.moa.common.event.UserDeletedEvent;
+
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -63,6 +67,7 @@ public class UserServiceImpl implements UserService {
 	private final AdminDao adminDao;
 	private final UserAddValidator userAddValidator;
 	private final JwtProvider jwtProvider;
+	private final ApplicationEventPublisher eventPublisher;
 
 	@Value("${app.upload.user.profile-dir}")
 	private String profileUploadDir;
@@ -441,6 +446,9 @@ public class UserServiceImpl implements UserService {
 
 		String deleteType = request.getDeleteType() != null ? request.getDeleteType() : "USER_REQUEST";
 		String deleteDetail = request.getDeleteDetail();
+
+		// 사용자 삭제 이벤트 발행 (파티장/파티원 처리)
+		eventPublisher.publishEvent(UserDeletedEvent.of(userId, deleteType, deleteDetail));
 
 		userDao.softDeleteUser(user.getUserId(), UserStatus.WITHDRAW, deleteType, deleteDetail);
 	}

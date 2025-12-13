@@ -441,4 +441,12 @@
 		WHERE PARTY_ID = #{partyId}
 	</delete>
 
+	<!-- 특정 사용자가 파티장인 활성 파티 조회 (사용자 탈퇴 시 파티 해산용) -->
+	<select id="findActivePartiesByLeaderId" resultMap="PartyResultMap">
+		SELECT *
+		FROM PARTY
+		WHERE PARTY_LEADER_ID = #{leaderId}
+		  AND PARTY_STATUS IN ('PENDING_PAYMENT', 'RECRUITING', 'ACTIVE', 'SUSPENDED')
+	</select>
+
 </mapper>

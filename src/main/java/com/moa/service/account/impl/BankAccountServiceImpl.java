@@ -6,6 +6,7 @@ import com.moa.domain.Account;
 import com.moa.domain.openbanking.AccountVerification;
 import com.moa.dto.openbanking.*;
 import com.moa.service.account.BankAccountService;
+import com.moa.service.mail.EmailService;
 import com.moa.service.openbanking.MockOpenBankingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,8 +29,9 @@ public class BankAccountServiceImpl implements BankAccountService {
     private final AccountDao accountDao;
     private final AccountVerificationMapper verificationMapper;
     private final MockOpenBankingService mockOpenBankingService;
+    private final EmailService emailService;
 
-    private static final int VERIFY_EXPIRY_MINUTES = 5;
+    private static final int VERIFY_EXPIRY_MINUTES = 10;
 
     // 은행코드 → 은행명 매핑
     private String getBankName(String bankCode) {
@@ -46,6 +48,17 @@ public class BankAccountServiceImpl implements BankAccountService {
             case "092" -> "토스뱅크";
             default -> "기타은행";
         };
+    }
+
+    // 계좌번호 마스킹 (예: 110123456789 -> 110-***-***789)
+    private String maskAccountNumber(String accountNum) {
+        if (accountNum == null || accountNum.length() < 6) {
+            return accountNum;
+        }
+        int len = accountNum.length();
+        String front = accountNum.substring(0, 3);
+        String back = accountNum.substring(len - 3);
+        return front + "-***-***" + back;
     }
 
     @Override
@@ -75,10 +88,13 @@ public class BankAccountServiceImpl implements BankAccountService {
 
         log.info("[계좌인증] 인증 세션 생성 완료 - 거래ID: {}, 인증코드: {}", bankTranId, verifyCode);
 
-        // TODO: 실제로는 이메일로 인증코드 발송
-        // emailService.sendVerificationCode(userId, verifyCode);
+        // 이메일로 인증코드 발송 (userId가 이메일 주소)
+        String bankName = getBankName(bankCode);
+        String maskedAccount = maskAccountNumber(accountNum);
+        emailService.sendBankVerificationEmail(userId, bankName, maskedAccount, verifyCode);
 
-        return InquiryReceiveResponse.success(bankTranId, verifyCode);
+        LocalDateTime expiresAt = verification.getExpiredAt();
+        return InquiryReceiveResponse.success(bankTranId, verifyCode, maskedAccount, expiresAt);
     }
 
     @Override

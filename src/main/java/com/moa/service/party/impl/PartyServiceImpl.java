@@ -13,10 +13,12 @@ import com.moa.common.exception.ErrorCode;
 import com.moa.dao.party.PartyDao;
 import com.moa.dao.partymember.PartyMemberDao;
 import com.moa.dao.product.ProductDao;
+import com.moa.dao.user.UserDao;
 import com.moa.domain.Deposit;
 import com.moa.domain.Party;
 import com.moa.domain.PartyMember;
 import com.moa.domain.Product;
+import com.moa.domain.User;
 import com.moa.domain.enums.MemberStatus;
 import com.moa.domain.enums.PartyStatus;
 import com.moa.domain.enums.PushCodeType;
@@ -57,6 +59,9 @@ public class PartyServiceImpl implements PartyService {
     private final PushService pushService;
     private final com.moa.service.payment.TossPaymentService tossPaymentService;
     private final com.moa.service.refund.RefundRetryService refundRetryService;
+    // ========== 푸시알림 추가: UserDao ==========
+    private final UserDao userDao;
+    // ========== 푸시알림 추가 끝 ==========
 
     public PartyServiceImpl(
             PartyDao partyDao,
@@ -66,7 +71,11 @@ public class PartyServiceImpl implements PartyService {
             PaymentService paymentService,
             PushService pushService,
             com.moa.service.payment.TossPaymentService tossPaymentService,
-            com.moa.service.refund.RefundRetryService refundRetryService) {
+            com.moa.service.refund.RefundRetryService refundRetryService,
+            // ========== 푸시알림 추가: UserDao ==========
+            UserDao userDao
+            // ========== 푸시알림 추가 끝 ==========
+    ) {
         this.partyDao = partyDao;
         this.partyMemberDao = partyMemberDao;
         this.productDao = productDao;
@@ -75,6 +84,9 @@ public class PartyServiceImpl implements PartyService {
         this.pushService = pushService;
         this.tossPaymentService = tossPaymentService;
         this.refundRetryService = refundRetryService;
+        // ========== 푸시알림 추가: UserDao ==========
+        this.userDao = userDao;
+        // ========== 푸시알림 추가 끝 ==========
     }
 
     @Override
@@ -427,8 +439,11 @@ public class PartyServiceImpl implements PartyService {
             safeSendPush(() -> sendPartyStartPushToAllMembers(partyId, updatedParty));
         }
 
-        // 13. 파티 가입 완료 알림 발송
-        safeSendPush(() -> sendPartyJoinPush(userId, userId, party));
+        // ========== 푸시알림 추가: 파티 가입 알림 ==========
+        // 13. 파티 가입 완료 알림 발송 (본인 + 방장)
+        safeSendPush(() -> sendPartyJoinPush(userId, getUserNickname(userId), party));
+        safeSendPush(() -> sendPartyMemberJoinPushToLeader(userId, party));
+        // ========== 푸시알림 추가 끝 ==========
 
         return partyMemberDao.findByPartyMemberId(partyMember.getPartyMemberId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.PARTY_MEMBER_NOT_FOUND));
@@ -483,7 +498,7 @@ public class PartyServiceImpl implements PartyService {
                 depositService.processWithdrawalRefund(memberDeposit.getDepositId(), party);
             } catch (Exception e) {
                 // 환불 실패 시 로그만 남기고 계속 진행 (추후 수동 처리)
-                System.err.println("보증금 처리 실패: " + e.getMessage());
+                log.error("보증금 처리 실패: {}", e.getMessage());
             }
         }
 
@@ -492,7 +507,7 @@ public class PartyServiceImpl implements PartyService {
             try {
                 paymentService.refundPayment(partyId, member.getPartyMemberId(), "파티 시작 전 탈퇴 (구독료 환불)");
             } catch (Exception e) {
-                System.err.println("구독료 환불 실패: " + e.getMessage());
+                log.error("구독료 환불 실패: {}", e.getMessage());
             }
         }
 
@@ -504,6 +519,12 @@ public class PartyServiceImpl implements PartyService {
                 && updatedParty.getCurrentMembers() < updatedParty.getMaxMembers()) {
             partyDao.updatePartyStatus(partyId, PartyStatus.RECRUITING);
         }
+
+        // ========== 푸시알림 추가: 파티 탈퇴 알림 ==========
+        // 10. 파티 탈퇴 알림 발송 (본인 + 방장)
+        safeSendPush(() -> sendPartyWithdrawPush(userId, party));
+        safeSendPush(() -> sendPartyMemberWithdrawPushToLeader(userId, party));
+        // ========== 푸시알림 추가 끝 ==========
     }
 
     @Override
@@ -539,30 +560,98 @@ public class PartyServiceImpl implements PartyService {
         // OTT ID/PW 검증 제거 (생성 시점에는 선택 사항)
     }
 
-    // ========== ⭐ Private Push 메서드 (PARTY_JOIN, PARTY_START만) ==========
+    // ========== ⭐ Private Push 메서드 ==========
 
     private void safeSendPush(Runnable pushAction) {
         try {
             pushAction.run();
         } catch (Exception e) {
-            System.err.println("Push 발송 실패 (무시): " + e.getMessage());
+            log.error("Push 발송 실패 (무시): {}", e.getMessage());
         }
     }
 
+    /**
+     * 푸시알림: 사용자 닉네임 조회 헬퍼 메서드
+     */
+    private String getUserNickname(String userId) {
+        if (userId == null) return "파티원";
+
+        try {
+            return userDao.findByUserId(userId)
+                    .map(User::getNickname)
+                    .orElse("파티원");
+        } catch (Exception e) {
+            log.warn("사용자 조회 실패: userId={}", userId);
+            return "파티원";
+        }
+    }
+
+    /**
+     * 푸시알림: 상품명 조회 헬퍼 메서드
+     */
+    private String getProductName(Integer productId) {
+        if (productId == null) return "OTT 서비스";
+
+        try {
+            Product product = productDao.getProduct(productId);
+            return (product != null && product.getProductName() != null)
+                    ? product.getProductName() : "OTT 서비스";
+        } catch (Exception e) {
+            log.warn("상품 조회 실패: productId={}", productId);
+            return "OTT 서비스";
+        }
+    }
+
+    // ========== 파티 가입 푸시 ==========
+
+    /**
+     * 파티 가입 완료 알림 (가입한 본인에게)
+     */
     private void sendPartyJoinPush(String userId, String nickname, Party party) {
         TemplatePushRequest pushRequest = TemplatePushRequest.builder()
                 .receiverId(userId)
                 .pushCode(PushCodeType.PARTY_JOIN.getCode())
                 .params(Map.of(
                         "nickname", nickname,
-                        "product_name", getProductName(party.getProductId())))
+                        "productName", getProductName(party.getProductId()),
+                        "currentCount", String.valueOf(party.getCurrentMembers()),
+                        "maxCount", String.valueOf(party.getMaxMembers())))
                 .moduleId(String.valueOf(party.getPartyId()))
                 .moduleType(PushCodeType.PARTY_JOIN.getModuleType())
                 .build();
 
         pushService.addTemplatePush(pushRequest);
+        log.info("푸시알림 발송 완료: PARTY_JOIN -> userId={}", userId);
     }
 
+    /**
+     * 새 파티원 가입 알림 (방장에게)
+     */
+    private void sendPartyMemberJoinPushToLeader(String newMemberUserId, Party party) {
+        String nickname = getUserNickname(newMemberUserId);
+        String productName = getProductName(party.getProductId());
+
+        TemplatePushRequest pushRequest = TemplatePushRequest.builder()
+                .receiverId(party.getPartyLeaderId())
+                .pushCode(PushCodeType.PARTY_MEMBER_JOIN.getCode())
+                .params(Map.of(
+                        "nickname", nickname,
+                        "productName", productName,
+                        "currentCount", String.valueOf(party.getCurrentMembers()),
+                        "maxCount", String.valueOf(party.getMaxMembers())))
+                .moduleId(String.valueOf(party.getPartyId()))
+                .moduleType(PushCodeType.PARTY_MEMBER_JOIN.getModuleType())
+                .build();
+
+        pushService.addTemplatePush(pushRequest);
+        log.info("푸시알림 발송 완료: PARTY_MEMBER_JOIN -> leaderId={}", party.getPartyLeaderId());
+    }
+
+    // ========== 파티 시작 푸시 ==========
+
+    /**
+     * 파티 시작 알림 (모든 멤버에게)
+     */
     private void sendPartyStartPushToAllMembers(Integer partyId, Party party) {
         List<PartyMemberResponse> members = partyMemberDao.findMembersByPartyId(partyId);
         String productName = getProductName(party.getProductId());
@@ -571,23 +660,61 @@ public class PartyServiceImpl implements PartyService {
             TemplatePushRequest pushRequest = TemplatePushRequest.builder()
                     .receiverId(member.getUserId())
                     .pushCode(PushCodeType.PARTY_START.getCode())
-                    .params(Map.of("product_name", productName))
+                    .params(Map.of("productName", productName))
                     .moduleId(String.valueOf(partyId))
                     .moduleType(PushCodeType.PARTY_START.getModuleType())
                     .build();
 
             pushService.addTemplatePush(pushRequest);
         }
+        log.info("푸시알림 발송 완료: PARTY_START -> partyId={}, 멤버 {}명", partyId, members.size());
     }
 
-    private String getProductName(Integer productId) {
-        try {
-            Product product = productDao.getProduct(productId);
-            return product.getProductName();
-        } catch (Exception e) {
-            return "Unknown Product";
-        }
+    // ========== 파티 탈퇴 푸시 ==========
+
+    /**
+     * 파티 탈퇴 완료 알림 (탈퇴한 본인에게)
+     */
+    private void sendPartyWithdrawPush(String userId, Party party) {
+        String nickname = getUserNickname(userId);
+        String productName = getProductName(party.getProductId());
+
+        TemplatePushRequest pushRequest = TemplatePushRequest.builder()
+                .receiverId(userId)
+                .pushCode(PushCodeType.PARTY_WITHDRAW.getCode())
+                .params(Map.of(
+                        "nickname", nickname,
+                        "productName", productName))
+                .moduleId(String.valueOf(party.getPartyId()))
+                .moduleType(PushCodeType.PARTY_WITHDRAW.getModuleType())
+                .build();
+
+        pushService.addTemplatePush(pushRequest);
+        log.info("푸시알림 발송 완료: PARTY_WITHDRAW -> userId={}", userId);
     }
+
+    /**
+     * 파티원 탈퇴 알림 (방장에게)
+     */
+    private void sendPartyMemberWithdrawPushToLeader(String withdrawUserId, Party party) {
+        String nickname = getUserNickname(withdrawUserId);
+        String productName = getProductName(party.getProductId());
+
+        TemplatePushRequest pushRequest = TemplatePushRequest.builder()
+                .receiverId(party.getPartyLeaderId())
+                .pushCode(PushCodeType.PARTY_MEMBER_WITHDRAW.getCode())
+                .params(Map.of(
+                        "nickname", nickname,
+                        "productName", productName))
+                .moduleId(String.valueOf(party.getPartyId()))
+                .moduleType(PushCodeType.PARTY_MEMBER_WITHDRAW.getModuleType())
+                .build();
+
+        pushService.addTemplatePush(pushRequest);
+        log.info("푸시알림 발송 완료: PARTY_MEMBER_WITHDRAW -> leaderId={}", party.getPartyLeaderId());
+    }
+
+    // ========== 푸시알림 추가 끝 ==========
 
     @Override
     public void closeParty(Integer partyId, String reason) {

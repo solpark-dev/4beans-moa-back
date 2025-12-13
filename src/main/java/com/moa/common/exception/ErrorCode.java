@@ -30,6 +30,9 @@ public enum ErrorCode {
 	INVALID_PARTY_STATUS("P400", "잘못된 파티 상태입니다.", HttpStatus.BAD_REQUEST),
 	INVALID_MAX_MEMBERS("P400", "파티 최대 인원이 잘못되었습니다.", HttpStatus.BAD_REQUEST),
 	PARTY_NOT_RECRUITING("P400", "모집 중인 파티가 아닙니다.", HttpStatus.BAD_REQUEST),
+	PARTY_SUSPENDED("P410", "일시정지된 파티입니다.", HttpStatus.CONFLICT),
+	PARTY_DISBANDED("P411", "해산된 파티입니다.", HttpStatus.CONFLICT),
+	PARTY_LEADER_WITHDRAWAL("P412", "파티장이 탈퇴하여 파티가 해산되었습니다.", HttpStatus.CONFLICT),
 
 	BUSINESS_ERROR("E500", "이메일 발송 중 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
 
@@ -43,6 +46,7 @@ public enum ErrorCode {
 	// 계좌(Account) 관련 에러
 	ACCOUNT_NOT_FOUND("ACC404", "계좌 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
 	ACCOUNT_NOT_VERIFIED("ACC400", "인증되지 않은 계좌입니다.", HttpStatus.BAD_REQUEST),
+	ACCOUNT_NOT_REGISTERED("ACC401", "정산 계좌가 등록되지 않았습니다.", HttpStatus.BAD_REQUEST),
 
 	// 보증금(Deposit) 관련 에러
 	DEPOSIT_NOT_FOUND("DEP404", "보증금 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
@@ -62,6 +66,12 @@ public enum ErrorCode {
 	MAX_RETRY_EXCEEDED("PAY502", "최대 재시도 횟수를 초과했습니다.", HttpStatus.BAD_REQUEST),
 	RETRY_NOT_FOUND("PAY503", "재시도 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
 	INVALID_PAYMENT_STATUS("PAY400", "잘못된 결제 상태입니다.", HttpStatus.BAD_REQUEST),
+
+	// Refund Errors (Retryable vs Non-retryable)
+	REFUND_TEMPORARY_ERROR("REF501", "일시적인 환불 오류입니다. 재시도합니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+	REFUND_PERMANENT_ERROR("REF502", "영구적인 환불 오류입니다. 수동 처리가 필요합니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+	REFUND_ALREADY_DONE("REF409", "이미 환불 처리된 결제입니다.", HttpStatus.CONFLICT),
+	REFUND_NOT_ALLOWED("REF403", "환불이 허용되지 않는 결제입니다.", HttpStatus.FORBIDDEN),
 
 	// 상품(Product) 관련 에러
 	PRODUCT_NOT_FOUND("PR404", "상품을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),

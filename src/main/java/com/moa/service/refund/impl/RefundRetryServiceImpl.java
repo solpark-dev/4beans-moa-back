@@ -186,42 +186,115 @@ public class RefundRetryServiceImpl implements RefundRetryService {
 
     /**
      * 재시도 실패 처리 공통 로직
+     * 에러 유형에 따라 재시도 가능 여부 판단
      */
     private void handleRetryFailure(RefundRetryHistory retry, int nextAttempt, Exception e) {
+        String errorCode = classifyError(e);
+        boolean isRetryable = isRetryableError(errorCode);
+
+        // 재시도 불가능한 에러인 경우 즉시 최종 실패 처리
+        if (!isRetryable) {
+            log.error("재시도 불가능한 에러 발생, 즉시 최종 실패 처리: depositId={}, errorCode={}",
+                    retry.getDepositId(), errorCode);
+            handlePermanentFailure(retry, nextAttempt, e, errorCode);
+            return;
+        }
+
         if (nextAttempt >= MAX_RETRY_ATTEMPTS) {
             // Max attempts reached - permanent failure
             log.error("Max retry attempts reached for depositId={}", retry.getDepositId());
-
-            retry.setRetryStatus("FAILED");
-            retry.setAttemptNumber(nextAttempt);
-            retry.setAttemptDate(LocalDateTime.now());
-            retry.setNextRetryDate(null); // No more retries
-            retry.setErrorCode(e.getClass().getSimpleName());
-            retry.setErrorMessage(
-                    e.getMessage() != null ? e.getMessage().substring(0, Math.min(e.getMessage().length(), 500))
-                            : "Unknown error");
-            retry.setUpdatedAt(LocalDateTime.now());
-            retryDao.updateRetryStatus(retry);
-
-            // 4회 실패 시 관리자 알림 발송
-            sendAdminNotification(retry, e);
+            handlePermanentFailure(retry, nextAttempt, e, errorCode);
         } else {
             // Schedule next retry
             LocalDateTime nextRetryDate = calculateNextRetryDate(nextAttempt);
             log.info("Scheduling next retry: depositId={}, nextAttempt={}, nextRetryDate={}",
                     retry.getDepositId(), nextAttempt + 1, nextRetryDate);
 
-            retry.setRetryStatus("FAILED");
+            retry.setRetryStatus("PENDING");  // 재시도 대기 상태
             retry.setAttemptNumber(nextAttempt);
             retry.setAttemptDate(LocalDateTime.now());
             retry.setNextRetryDate(nextRetryDate);
-            retry.setErrorCode(e.getClass().getSimpleName());
+            retry.setErrorCode(errorCode);
             retry.setErrorMessage(
                     e.getMessage() != null ? e.getMessage().substring(0, Math.min(e.getMessage().length(), 500))
                             : "Unknown error");
             retry.setUpdatedAt(LocalDateTime.now());
             retryDao.updateRetryStatus(retry);
         }
+    }
+
+    /**
+     * 최종 실패 처리 (재시도 불가 또는 최대 횟수 초과)
+     */
+    private void handlePermanentFailure(RefundRetryHistory retry, int attemptNumber, Exception e, String errorCode) {
+        retry.setRetryStatus("FAILED");
+        retry.setAttemptNumber(attemptNumber);
+        retry.setAttemptDate(LocalDateTime.now());
+        retry.setNextRetryDate(null); // No more retries
+        retry.setErrorCode(errorCode);
+        retry.setErrorMessage(
+                e.getMessage() != null ? e.getMessage().substring(0, Math.min(e.getMessage().length(), 500))
+                        : "Unknown error");
+        retry.setUpdatedAt(LocalDateTime.now());
+        retryDao.updateRetryStatus(retry);
+
+        // 관리자 알림 발송
+        sendAdminNotification(retry, e);
+    }
+
+    /**
+     * 에러 코드 분류
+     * Toss API 에러 코드를 기반으로 분류
+     */
+    private String classifyError(Exception e) {
+        if (e instanceof com.moa.common.exception.TossPaymentException tpe) {
+            return tpe.getTossErrorCode();
+        }
+
+        // 일반적인 예외의 경우 클래스명 반환
+        return e.getClass().getSimpleName();
+    }
+
+    /**
+     * 재시도 가능한 에러인지 판단
+     *
+     * 재시도 불가 에러 (영구 실패):
+     * - ALREADY_CANCELED: 이미 취소된 결제
+     * - INVALID_CANCEL_AMOUNT: 잘못된 취소 금액
+     * - NOT_CANCELABLE_PAYMENT: 취소 불가능한 결제
+     * - EXCEED_CANCEL_AMOUNT: 취소 가능 금액 초과
+     * - INVALID_PAYMENT_KEY: 잘못된 결제 키
+     * - FORBIDDEN_REQUEST: 금지된 요청
+     *
+     * 재시도 가능 에러 (일시적 오류):
+     * - PROVIDER_ERROR: PG사 에러 (일시적)
+     * - FAILED_INTERNAL_SYSTEM_PROCESSING: 내부 시스템 오류
+     * - UNKNOWN_PAYMENT_ERROR: 알 수 없는 결제 오류
+     * - 네트워크/타임아웃 관련 에러
+     */
+    private boolean isRetryableError(String errorCode) {
+        if (errorCode == null) {
+            return true; // null이면 일단 재시도
+        }
+
+        // 재시도 불가능한 에러 코드 목록
+        return switch (errorCode) {
+            case "ALREADY_CANCELED",           // 이미 취소됨
+                 "ALREADY_REFUNDED",           // 이미 환불됨
+                 "INVALID_CANCEL_AMOUNT",      // 취소 금액 오류
+                 "NOT_CANCELABLE_PAYMENT",     // 취소 불가 결제
+                 "EXCEED_CANCEL_AMOUNT",       // 취소 가능 금액 초과
+                 "INVALID_PAYMENT_KEY",        // 잘못된 결제키
+                 "NOT_FOUND_PAYMENT",          // 결제 정보 없음
+                 "FORBIDDEN_REQUEST",          // 금지된 요청
+                 "INVALID_REQUEST",            // 잘못된 요청
+                 "UNAUTHORIZED_KEY",           // 인증 실패
+                 "CANCEL_PERIOD_EXPIRED"       // 취소 기간 만료
+                    -> false;
+
+            // 그 외는 재시도 가능 (일시적 오류)
+            default -> true;
+        };
     }
 
     @Override
