@@ -31,20 +31,31 @@ public class LoginHistoryServiceImpl implements LoginHistoryService {
 		if (userId == null || userId.isBlank()) {
 			return;
 		}
+
 		LoginHistory history = LoginHistory.builder().userId(userId.toLowerCase()).loginAt(LocalDateTime.now())
-				.success(true).loginIp(loginIp).userAgent(userAgent).failReason(null).loginType(loginType).build();
+				.success(1)
+				.loginIp(loginIp).userAgent(userAgent).failReason(null).loginType(loginType).build();
+
 		loginHistoryDao.insert(history);
 	}
 
 	@Override
 	public void recordFailure(String userId, String loginType, String loginIp, String userAgent, String failReason) {
-		if (userId == null || userId.isBlank()) {
-			return;
-		}
-		LoginHistory history = LoginHistory.builder().userId(userId.toLowerCase()).loginAt(LocalDateTime.now())
-				.success(false).loginIp(loginIp).userAgent(userAgent).failReason(failReason).loginType(loginType)
-				.build();
-		loginHistoryDao.insert(history);
+	    if (userId == null || userId.isBlank()) {
+	        return;
+	    }
+
+	    LoginHistory history = LoginHistory.builder()
+	        .userId(userId.toLowerCase())
+	        .loginAt(LocalDateTime.now())
+	        .success(0)
+	        .loginIp(loginIp)
+	        .userAgent(userAgent)
+	        .failReason(failReason)
+	        .loginType(loginType)
+	        .build();
+
+	    loginHistoryDao.insert(history);
 	}
 
 	@Override

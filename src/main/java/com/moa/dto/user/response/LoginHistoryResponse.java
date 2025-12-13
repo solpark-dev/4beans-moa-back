@@ -12,15 +12,16 @@ import lombok.Getter;
 public class LoginHistoryResponse {
 
 	private LocalDateTime loginAt;
-	private Boolean success;
+	private boolean success;
 	private String loginIp;
 	private String userAgent;
 	private String loginType;
 	private String failReason;
 
 	public static LoginHistoryResponse from(LoginHistory history) {
-		return LoginHistoryResponse.builder().loginAt(history.getLoginAt()).success(history.getSuccess())
-				.loginIp(history.getLoginIp()).userAgent(history.getUserAgent()).loginType(history.getLoginType())
-				.failReason(history.getFailReason()).build();
+		return LoginHistoryResponse.builder().loginAt(history.getLoginAt())
+				.success(history.getSuccess() != null && history.getSuccess() == 1).loginIp(history.getLoginIp())
+				.userAgent(history.getUserAgent()).loginType(history.getLoginType()).failReason(history.getFailReason())
+				.build();
 	}
 }

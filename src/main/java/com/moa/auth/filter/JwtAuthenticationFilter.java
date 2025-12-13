@@ -28,19 +28,47 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	protected boolean shouldNotFilter(HttpServletRequest request) {
 		String path = request.getRequestURI();
 
-		return path.startsWith("/api/signup/") || path.startsWith("/api/auth/") || path.startsWith("/api/users/join")
-				|| path.startsWith("/api/oauth/") || path.startsWith("/swagger-ui/") || path.startsWith("/v3/api-docs");
+		if (path.startsWith("/swagger-ui/") || path.startsWith("/v3/api-docs"))
+			return true;
+
+		if (path.startsWith("/api/signup/"))
+			return true;
+
+		if (path.equals("/api/auth/login"))
+			return true;
+		if (path.equals("/api/auth/login/otp-verify"))
+			return true;
+		if (path.equals("/api/auth/login/backup-verify"))
+			return true;
+		if (path.equals("/api/auth/refresh"))
+			return true;
+		if (path.equals("/api/auth/verify-email"))
+			return true;
+		if (path.equals("/api/auth/unlock"))
+			return true;
+
+		if (path.startsWith("/api/oauth/")) {
+			boolean isStart = path.endsWith("/auth") || path.endsWith("/start") || path.contains("/auth/");
+			boolean isCallback = path.contains("/callback");
+			return isStart || isCallback;
+		}
+
+		return false;
 	}
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 
-		String jwt = resolveToken(request);
+		try {
+			String jwt = resolveToken(request);
 
-		if (StringUtils.hasText(jwt) && jwtProvider.validateToken(jwt)) {
-			Authentication authentication = jwtProvider.getAuthentication(jwt);
-			SecurityContextHolder.getContext().setAuthentication(authentication);
+			if (StringUtils.hasText(jwt) && jwtProvider.validateToken(jwt)) {
+				Authentication authentication = jwtProvider.getAuthentication(jwt);
+				SecurityContextHolder.getContext().setAuthentication(authentication);
+			}
+		} catch (Exception e) {
+			SecurityContextHolder.clearContext();
 		}
 
 		filterChain.doFilter(request, response);

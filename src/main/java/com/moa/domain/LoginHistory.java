@@ -18,7 +18,7 @@ public class LoginHistory {
 	private Long id;
 	private String userId;
 	private LocalDateTime loginAt;
-	private Boolean success;
+	private Integer success;
 	private String loginIp;
 	private String userAgent;
 	private String failReason;
