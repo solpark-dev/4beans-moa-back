@@ -125,16 +125,23 @@ public class OAuthRestController {
 	}
 
 	@GetMapping("/google/auth")
-	public ApiResponse<?> googleAuth(@RequestParam(defaultValue = "login") String mode,
-			@RequestParam(required = true) String redirectUri) {
+	public ApiResponse<?> googleAuth(
+	        @RequestParam(defaultValue = "login") String mode) {
 
-		String scope = URLEncoder.encode("openid email profile", StandardCharsets.UTF_8);
+	    String scope = URLEncoder.encode("openid email profile", StandardCharsets.UTF_8);
+	    String redirectUri = google.getRedirectUri();
 
-		String url = "https://accounts.google.com/o/oauth2/v2/auth" + "?client_id=" + google.getClientId()
-				+ "&redirect_uri=" + URLEncoder.encode(redirectUri, StandardCharsets.UTF_8) + "&response_type=code"
-				+ "&scope=" + scope + "&access_type=offline" + "&prompt=consent" + "&state=" + mode;
+	    String url =
+	        "https://accounts.google.com/o/oauth2/v2/auth"
+	        + "?client_id=" + google.getClientId()
+	        + "&redirect_uri=" + URLEncoder.encode(redirectUri, StandardCharsets.UTF_8)
+	        + "&response_type=code"
+	        + "&scope=" + scope
+	        + "&access_type=offline"
+	        + "&prompt=consent"
+	        + "&state=" + mode;
 
-		return ApiResponse.success(Map.of("url", url));
+	    return ApiResponse.success(Map.of("url", url));
 	}
 
 	@GetMapping("/google/callback")
@@ -143,14 +150,12 @@ public class OAuthRestController {
 
 		RestTemplate rest = new RestTemplate();
 
-		String redirectUri = resolveFrontendOrigin(request) + "/oauth/google";
-
 		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 		params.add("grant_type", "authorization_code");
 		params.add("client_id", google.getClientId());
 		params.add("client_secret", google.getClientSecret());
-		params.add("redirect_uri", redirectUri);
 		params.add("code", code);
+		params.add("redirect_uri", google.getRedirectUri());
 
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
