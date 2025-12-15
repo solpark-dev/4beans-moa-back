@@ -1,6 +1,5 @@
 package com.moa.service.user.impl;
 
-import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -9,6 +8,7 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,13 +18,13 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.moa.auth.provider.JwtProvider;
+import com.moa.common.event.UserDeletedEvent;
 import com.moa.common.exception.BusinessException;
 import com.moa.common.exception.ErrorCode;
 import com.moa.dao.admin.AdminDao;
 import com.moa.dao.oauth.OAuthAccountDao;
 import com.moa.dao.user.EmailVerificationDao;
 import com.moa.dao.user.UserDao;
-import com.moa.domain.EmailVerification;
 import com.moa.domain.OAuthAccount;
 import com.moa.domain.User;
 import com.moa.domain.enums.UserStatus;
@@ -46,10 +46,6 @@ import com.moa.service.mail.EmailService;
 import com.moa.service.oauth.OAuthAccountService;
 import com.moa.service.user.UserAddValidator;
 import com.moa.service.user.UserService;
-
-import org.springframework.context.ApplicationEventPublisher;
-
-import com.moa.common.event.UserDeletedEvent;
 
 import lombok.RequiredArgsConstructor;
 
@@ -165,8 +161,7 @@ public class UserServiceImpl implements UserService {
 	@Transactional(noRollbackFor = BusinessException.class)
 	public UserResponse addUser(UserCreateRequest request) {
 
-		boolean isSocial = request.getProvider() != null && !request.getProvider().isBlank()
-				&& request.getProviderUserId() != null && !request.getProviderUserId().isBlank();
+		boolean isSocial = request.getProvider() != null && request.getProviderUserId() != null;
 
 		if (isSocial) {
 			userAddValidator.validateForSocialSignup(request);
@@ -174,78 +169,40 @@ public class UserServiceImpl implements UserService {
 			userAddValidator.validateForSignup(request);
 		}
 
+		String userId = request.getUserId().toLowerCase();
+
+		if (userDao.existsByUserId(userId) > 0) {
+			throw new BusinessException(ErrorCode.DUPLICATED_USER, "이미 가입된 이메일입니다.");
+		}
+
 		if (userDao.existsByPhone(request.getPhone()) > 0) {
-			if (!isSocial) {
-				throw new BusinessException(ErrorCode.DUPLICATED_PHONE, "이미 사용중인 휴대폰번호입니다.");
-			}
-			String provider = request.getProvider();
-			String providerUserId = request.getProviderUserId();
-			String phone = request.getPhone();
-
-			Optional<String> existingUserIdOpt = userDao.findUserIdByPhone(phone);
-			if (existingUserIdOpt.isEmpty()) {
-				throw new BusinessException(ErrorCode.CONFLICT, "휴대폰번호로 회원을 찾을 수 없습니다.");
-			}
-
-			String existingUserId = existingUserIdOpt.get();
-
-			OAuthAccount existing = oauthAccountService.getOAuthByProvider(provider, providerUserId);
-			if (existing != null && !existing.getUserId().equals(existingUserId)) {
-				throw new BusinessException(ErrorCode.CONFLICT, "이미 다른 계정과 연결된 소셜 계정입니다.");
-			}
-
-			oauthAccountService.connectOAuthAccount(existingUserId, provider, providerUserId);
-
-			User existingUser = userDao.findByUserId(existingUserId)
-					.orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
-
-			return UserResponse.from(existingUser);
+			throw new BusinessException(ErrorCode.DUPLICATED_PHONE, "이미 가입된 휴대폰 번호입니다.");
 		}
-
-		String profileImageUrl = null;
-		if (request.getProfileImageBase64() != null && !request.getProfileImageBase64().isBlank()) {
-			profileImageUrl = saveProfileImageFromBase64(request.getProfileImageBase64());
-		}
-
-		LocalDateTime now = LocalDateTime.now();
-		LocalDateTime passCertifiedAt = null;
-		if (request.getCi() != null && !request.getCi().isBlank()) {
-			passCertifiedAt = now;
-		}
-
-		String userId = isSocial
-				? ("social_" + request.getProvider().toLowerCase() + "_"
-						+ UUID.randomUUID().toString().replace("-", ""))
-				: request.getUserId().toLowerCase();
 
 		String encodedPassword = isSocial ? passwordEncoder.encode(UUID.randomUUID().toString())
 				: passwordEncoder.encode(request.getPassword());
 
-		User user = User.builder().userId(userId).password(encodedPassword).nickname(request.getNickname())
-				.phone(request.getPhone()).profileImage(profileImageUrl).role("USER")
-				.status(isSocial ? UserStatus.ACTIVE : UserStatus.PENDING).regDate(now).ci(request.getCi())
-				.passCertifiedAt(passCertifiedAt).loginFailCount(0).provider(isSocial ? request.getProvider() : null)
+		User user = User.builder()
+				.userId(userId)
+				.password(encodedPassword)
+				.nickname(request.getNickname())
+				.phone(request.getPhone())
+				.role("USER")
+				.status(isSocial ? UserStatus.ACTIVE : UserStatus.PENDING)
+				.provider(isSocial ? request.getProvider() : null)
+				.ci(request.getCi())
 				.build();
 
 		userDao.insertUser(user);
 
-		if (!isSocial) {
-			emailVerificationDao.expirePreviousTokens(user.getUserId());
-
-			String token = UUID.randomUUID().toString();
-
-			EmailVerification emailVerification = EmailVerification.builder().userId(user.getUserId()).token(token)
-					.expiresAt(LocalDateTime.now().plusHours(24)).build();
-
-			emailVerificationDao.insert(emailVerification);
-
-			emailService.sendSignupVerificationEmail(user.getUserId(), user.getNickname(), token);
-		}
-
 		if (isSocial) {
-			OAuthAccount account = OAuthAccount.builder().oauthId(UUID.randomUUID().toString())
-					.provider(request.getProvider()).providerUserId(request.getProviderUserId())
-					.userId(user.getUserId()).build();
+			OAuthAccount account = 
+					OAuthAccount
+					.builder()
+					.oauthId(UUID.randomUUID().toString())
+					.provider(request.getProvider())
+					.providerUserId(request.getProviderUserId())
+					.userId(userId).build();
 
 			oauthAccountService.addOAuthAccount(account);
 		}
@@ -264,8 +221,14 @@ public class UserServiceImpl implements UserService {
 
 		TokenResponse token = jwtProvider.generateToken(authentication);
 
-		return Map.of("user", user, "accessToken", token.getAccessToken(), "refreshToken", token.getRefreshToken(),
-				"accessTokenExpiresIn", token.getAccessTokenExpiresIn());
+		return Map.of(
+			    "signupType", "SOCIAL",
+			    "user", user,
+			    "accessToken", token.getAccessToken(),
+			    "refreshToken", token.getRefreshToken(),
+			    "accessTokenExpiresIn", token.getAccessTokenExpiresIn()
+			);
+		
 	}
 
 	@Override

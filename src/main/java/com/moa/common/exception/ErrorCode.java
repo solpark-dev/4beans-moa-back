@@ -86,10 +86,11 @@ public enum ErrorCode {
 
 	// 회원(User) 관련 에러
 	USER_NOT_FOUND("U404", "사용자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
-	DUPLICATED_PHONE("E013", "이미 사용중인 휴대폰번호입니다.", HttpStatus.CONFLICT),
-	ACCOUNT_WITHDRAW("U410", "탈퇴한 계정입니다.", HttpStatus.FORBIDDEN),
-	ACCOUNT_BLOCKED("U403", "블랙리스트 계정입니다. 이용이 제한되었습니다.", HttpStatus.FORBIDDEN),
-	INVALID_LOGIN("U401", "아이디 또는 비밀번호가 올바르지 않습니다.", HttpStatus.UNAUTHORIZED),
+	DUPLICATED_PHONE("D013", "이미 사용중인 휴대폰번호입니다.", HttpStatus.CONFLICT),
+	DUPLICATED_USER("D014", "이미 사용중인 휴대폰번호입니다.", HttpStatus.CONFLICT),
+	ACCOUNT_WITHDRAW("R410", "탈퇴한 계정입니다.", HttpStatus.FORBIDDEN),
+	ACCOUNT_BLOCKED("B403", "블랙리스트 계정입니다. 이용이 제한되었습니다.", HttpStatus.FORBIDDEN),
+	INVALID_LOGIN("N401", "아이디 또는 비밀번호가 올바르지 않습니다.", HttpStatus.UNAUTHORIZED),
 	INVALID_PARAMETER("E400", "잘못된 요청 파라미터입니다.", HttpStatus.BAD_REQUEST),
 	INVALID_INPUT_VALUE("E444", "잘못된 입력값입니다.", HttpStatus.BAD_REQUEST);
 
