@@ -147,32 +147,18 @@ public class SecurityConfig {
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 
-		CorsConfiguration config = new CorsConfiguration();
+	    CorsConfiguration config = new CorsConfiguration();
 
-		config.setAllowedOriginPatterns(List.of(
-				"http://localhost:5173",
-				"https://localhost:5173",
-				"http://127.0.0.1:5173",
-				"https://127.0.0.1:5173",
-				"http://192.168.*",
-				"https://192.168.*",
-			    "https://moamoa.cloud",
-			    "https://moamoa.cloud:*",
-			    "https://www.moamoa.cloud",
-			    "https://www.moamoa.cloud:*"));
+	    List<String> origins = List.of(allowedOrigins.split(","));
+	    config.setAllowedOriginPatterns(origins);
 
-		config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-		config.setAllowedHeaders(List.of(
-				"Authorization",
-				"Content-Type",
-				"Refresh-Token",
-				"*"));
+	    config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+	    config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Refresh-Token", "*"));
+	    config.setAllowCredentials(true);
 
-		config.setAllowCredentials(true);
-
-		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-		source.registerCorsConfiguration("/**", config);
-		return source;
+	    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+	    source.registerCorsConfiguration("/**", config);
+	    return source;
 	}
 
 	@Bean

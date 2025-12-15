@@ -11,6 +11,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.util.LinkedMultiValueMap;
@@ -36,7 +37,6 @@ import com.moa.service.auth.LoginHistoryService;
 import com.moa.service.oauth.OAuthAccountService;
 import com.moa.service.user.UserService;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
@@ -72,13 +72,12 @@ public class OAuthRestController {
 	        @RequestParam(defaultValue = "login") String mode) {
 
 	    RestTemplate rest = new RestTemplate();
-	    String redirectUri = kakao.getRedirectUri();
 
 	    MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 	    params.add("grant_type", "authorization_code");
 	    params.add("client_id", kakao.getClientId());
 	    params.add("client_secret", kakao.getClientSecret());
-	    params.add("redirect_uri", redirectUri);
+	    params.add("redirect_uri", kakao.getRedirectUri());
 	    params.add("code", code);
 
 	    HttpHeaders headers = new HttpHeaders();
@@ -105,13 +104,10 @@ public class OAuthRestController {
 	    String provider = "kakao";
 	    String providerUserId = String.valueOf(profile.get("id"));
 
-	    // 🔥 핵심: 이메일 추출
 	    Map<String, Object> kakaoAccount =
 	            (Map<String, Object>) profile.get("kakao_account");
 
-	    String email = kakaoAccount != null
-	            ? (String) kakaoAccount.get("email")
-	            : null;
+	    String email = kakaoAccount != null ? (String) kakaoAccount.get("email") : null;
 
 	    if (email == null || email.isBlank()) {
 	        throw new BusinessException(
@@ -122,12 +118,11 @@ public class OAuthRestController {
 
 	    OAuthAccount oauth = oauthService.getOAuthByProvider(provider, providerUserId);
 	    String currentUserId = getCurrentUserId();
-
-	    String frontendBase = "https://moamoa.cloud:5173/oauth/callback";
+	    String redirectBase = frontendUrl + "/oauth/callback";
 
 	    if (currentUserId != null) {
 	        oauthService.connectOAuthAccount(currentUserId, provider, providerUserId);
-	        return redirect(frontendBase + "?status=CONNECT&provider=kakao");
+	        return redirect(redirectBase + "?status=CONNECT&provider=kakao");
 	    }
 
 	    if (oauth != null && oauth.getReleaseDate() == null) {
@@ -143,23 +138,39 @@ public class OAuthRestController {
 
 	        loginHistoryService.recordSuccess(oauth.getUserId(), "KAKAO", null, null);
 
-	        return redirect(
-	                frontendBase
-	                        + "?status=LOGIN"
-	                        + "&accessToken=" + token.getAccessToken()
-	                        + "&refreshToken=" + token.getRefreshToken()
-	                        + "&expiresIn=" + token.getAccessTokenExpiresIn()
-	        );
+	        ResponseCookie accessCookie = ResponseCookie.from("accessToken", token.getAccessToken())
+	                .httpOnly(true)
+	                .secure(true)
+	                .sameSite("None")
+	                .path("/")
+	                .maxAge(token.getAccessTokenExpiresIn())
+	                .build();
+
+	        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", token.getRefreshToken())
+	                .httpOnly(true)
+	                .secure(true)
+	                .sameSite("None")
+	                .path("/")
+	                .maxAge(60 * 60 * 24 * 14)
+	                .build();
+
+	        return ResponseEntity.status(HttpStatus.FOUND)
+	                .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
+	                .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
+	                .header(HttpHeaders.LOCATION, redirectBase + "?status=LOGIN")
+	                .build();
 	    }
 
+	    // 3️⃣ 신규 회원 → 회원가입 유도
 	    return redirect(
-	            frontendBase
+	            redirectBase
 	                    + "?status=NEED_REGISTER"
 	                    + "&provider=kakao"
 	                    + "&providerUserId=" + providerUserId
 	                    + "&email=" + URLEncoder.encode(email, StandardCharsets.UTF_8)
 	    );
 	}
+
 
 	private ResponseEntity<Void> redirect(String url) {
 		return ResponseEntity.status(302).header(HttpHeaders.LOCATION, url).build();
@@ -382,14 +393,5 @@ public class OAuthRestController {
 		}
 
 		return name;
-	}
-
-	private String resolveFrontendOrigin(HttpServletRequest request) {
-		String origin = request.getHeader("Origin");
-		if (origin != null && !origin.isBlank()) {
-			return origin;
-		}
-
-		return "https://192.168.0.169.nip.io:5173";
 	}
 }

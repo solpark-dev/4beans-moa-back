@@ -34,23 +34,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		if (path.startsWith("/api/signup/"))
 			return true;
 
-		if (path.equals("/api/auth/login"))
+		if (path.equals("/api/auth/login") || path.equals("/api/auth/login/otp-verify")
+				|| path.equals("/api/auth/login/backup-verify") || path.equals("/api/auth/refresh")
+				|| path.equals("/api/auth/verify-email") || path.equals("/api/auth/unlock")) {
 			return true;
-		if (path.equals("/api/auth/login/otp-verify"))
-			return true;
-		if (path.equals("/api/auth/login/backup-verify"))
-			return true;
-		if (path.equals("/api/auth/refresh"))
-			return true;
-		if (path.equals("/api/auth/verify-email"))
-			return true;
-		if (path.equals("/api/auth/unlock"))
-			return true;
+		}
 
 		if (path.startsWith("/api/oauth/")) {
-			boolean isStart = path.endsWith("/auth") || path.endsWith("/start") || path.contains("/auth/");
-			boolean isCallback = path.contains("/callback");
-			return isStart || isCallback;
+			return path.contains("/auth") || path.contains("/callback");
 		}
 
 		return false;
@@ -68,6 +59,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 				SecurityContextHolder.getContext().setAuthentication(authentication);
 			}
 		} catch (Exception e) {
+			log.warn("JWT authentication failed: {}", e.getMessage());
 			SecurityContextHolder.clearContext();
 		}
 
@@ -75,20 +67,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	}
 
 	private String resolveToken(HttpServletRequest request) {
+
 		String bearerToken = request.getHeader("Authorization");
 		if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
 			return bearerToken.substring(7);
 		}
-
-		try {
-			if (request.getCookies() != null) {
-				for (var c : request.getCookies()) {
-					if ("ACCESS_TOKEN".equals(c.getName()) && StringUtils.hasText(c.getValue())) {
-						return c.getValue();
-					}
+		if (request.getCookies() != null) {
+			for (var c : request.getCookies()) {
+				if ("accessToken".equals(c.getName()) && StringUtils.hasText(c.getValue())) {
+					return c.getValue();
 				}
 			}
-		} catch (Exception e) {
 		}
 
 		return null;
