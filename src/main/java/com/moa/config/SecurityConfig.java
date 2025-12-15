@@ -116,6 +116,8 @@ public class SecurityConfig {
 
 						// 파티 목록 조회는 모두 허용
 						.requestMatchers(HttpMethod.GET, "/api/parties").permitAll()
+						.requestMatchers(HttpMethod.GET, "/api/parties/**").permitAll()
+						.requestMatchers(HttpMethod.GET, "/api/subscriptions/products").permitAll()
 
 						// OAuth 관련 기타 API는 인증 필요
 						.requestMatchers("/api/oauth/**").authenticated()

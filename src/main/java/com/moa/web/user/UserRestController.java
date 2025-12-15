@@ -153,9 +153,6 @@ public class UserRestController {
 		return ApiResponse.success(accountDao.findByUserId(userId).orElse(null));
 	}
 
-	/**
-	 * 내 결제 카드 조회 GET /api/users/me/card
-	 */
 	@GetMapping("/me/card")
 	public ApiResponse<UserCard> getMyCard() {
 		String userId = getCurrentUserId();
@@ -165,9 +162,6 @@ public class UserRestController {
 		return ApiResponse.success(userCardDao.findByUserId(userId).orElse(null));
 	}
 
-	/**
-	 * 결제 카드 등록/수정 (Toss Payments 빌링키) POST /api/users/me/card
-	 */
 	@PostMapping("/me/card")
 	public ApiResponse<UserCard> registerCard(@RequestBody Map<String, String> request) {
 		String userId = getCurrentUserId();
@@ -183,10 +177,8 @@ public class UserRestController {
 			throw new BusinessException(ErrorCode.INVALID_INPUT_VALUE, "빌링키가 필요합니다.");
 		}
 
-		// 기존 카드 삭제 (있는 경우)
 		userCardDao.deleteUserCard(userId);
 
-		// 새 카드 등록
 		UserCard userCard = UserCard.builder().userId(userId).billingKey(billingKey).cardCompany(cardCompany)
 				.cardNumber(cardNumber).regDate(java.time.LocalDateTime.now()).build();
 
@@ -195,9 +187,6 @@ public class UserRestController {
 		return ApiResponse.success(userCard);
 	}
 
-	/**
-	 * 빌링키 발급 (Toss Payments 인증키로 빌링키 발급) POST /api/users/me/billing-key/issue
-	 */
 	@PostMapping("/me/billing-key/issue")
 	public ApiResponse<Map<String, Object>> issueBillingKey(@RequestBody Map<String, String> request) {
 		String userId = getCurrentUserId();
@@ -210,7 +199,6 @@ public class UserRestController {
 			throw new BusinessException(ErrorCode.INVALID_INPUT_VALUE, "인증키가 필요합니다.");
 		}
 
-		// Toss Payments API를 통해 빌링키 발급 (서버에서 안전하게 처리)
 		Map<String, Object> billingData = tossPaymentService.issueBillingKey(authKey, userId);
 
 		return ApiResponse.success(billingData);

@@ -38,10 +38,18 @@ public class SignupRestController {
 	public ApiResponse<?> add(@RequestBody @Valid UserCreateRequest request) {
 
 		if (request.getProvider() != null && !request.getProvider().isBlank()) {
-			return ApiResponse.success(userService.addUserAndLogin(request));
+			return ApiResponse.success(
+					userService.addUserAndLogin(request)
+			);
 		}
-		return ApiResponse.success(userService.addUser(request));
+		return ApiResponse.success(
+				Map.of(
+					"signupType", "NORMAL",
+					"user", userService.addUser(request)
+				)
+		);
 	}
+
 
 	@GetMapping("/pass/start")
 	public ApiResponse<Map<String, Object>> startPassAuth() {
