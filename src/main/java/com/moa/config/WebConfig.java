@@ -13,21 +13,57 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @MapperScan(basePackages = "com.moa.dao")
 public class WebConfig implements WebMvcConfigurer {
 
-	@Value("${app.upload.product-image-dir}")
-	private String productImageUploadDir;
+    @Value("${app.upload.user.profile-dir}")
+    private String profileUploadDir;
 
-	@Value("${app.upload.user.profile-dir}")
-	private String profileUploadDir;
+    @Value("${app.upload.user.profile-url-prefix}")
+    private String profileUrlPrefix;
 
-	@Override
-	public void addResourceHandlers(ResourceHandlerRegistry registry) {
+    @Value("${app.upload.product-image-dir}")
+    private String productImageUploadDir;
 
-		registry.addResourceHandler("/uploads/user/profile/**")
-				.addResourceLocations(Paths.get(profileUploadDir).toAbsolutePath().toUri().toString());
+    @Value("${app.upload.product-image-url-prefix}")
+    private String productImageUrlPrefix;
+    
+    @Value("${app.upload.community.inquiry-dir}")
+    private String communityInquiryDir;
 
-		registry.addResourceHandler("/uploads/product-image/**")
-				.addResourceLocations(Paths.get(productImageUploadDir).toAbsolutePath().toUri().toString());
-	}
+    @Value("${app.upload.community.inquiry-url-prefix}")
+    private String communityInquiryUrlPrefix;
+
+    @Value("${app.upload.community.answer-dir}")
+    private String communityAnswerDir;
+
+    @Value("${app.upload.community.answer-url-prefix}")
+    private String communityAnswerUrlPrefix;
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+
+        registry.addResourceHandler(profileUrlPrefix + "/**")
+                .addResourceLocations(Paths.get(profileUploadDir)
+                        .toAbsolutePath()
+                        .toUri()
+                        .toString());
+
+        registry.addResourceHandler(productImageUrlPrefix + "/**")
+                .addResourceLocations(Paths.get(productImageUploadDir)
+                        .toAbsolutePath()
+                        .toUri()
+                        .toString());
+        
+        registry.addResourceHandler(communityInquiryUrlPrefix + "/**")
+        .addResourceLocations(Paths.get(communityInquiryDir)
+        		.toAbsolutePath()
+        		.toUri()
+        		.toString());
+        
+        registry.addResourceHandler(communityAnswerUrlPrefix + "/**")
+        .addResourceLocations(Paths.get(communityAnswerDir)
+        		.toAbsolutePath()
+        		.toUri()
+        		.toString());
+    }
 
 	@Override
 	public void addViewControllers(ViewControllerRegistry registry) {

@@ -23,9 +23,6 @@ public class CommunityRestController {
     
     private final CommunityService communityService;
     
-    @Value("${app.upload.community.inquiry-dir}")
-    private String inquiryUploadDir;
-    
     @GetMapping("/notice")
     public ResponseEntity<PageResponse<NoticeResponse>> getNoticeList(
             @RequestParam(defaultValue = "1") int page,
@@ -51,13 +48,7 @@ public class CommunityRestController {
         communityService.updateNotice(communityId, request);
         return ResponseEntity.ok().build();
     }
-    
-//    @DeleteMapping("/notice/{communityId}")
-//    public ResponseEntity<Void> deleteNotice(@PathVariable Integer communityId) {
-//        communityService.deleteNotice(communityId);
-//        return ResponseEntity.ok().build();
-//    }
-    
+
     @GetMapping("/notice/search")
     public ResponseEntity<PageResponse<NoticeResponse>> searchNotice(
             @RequestParam String keyword,
@@ -92,12 +83,6 @@ public class CommunityRestController {
         return ResponseEntity.ok().build();
     }
     
-//    @DeleteMapping("/faq/{communityId}")
-//    public ResponseEntity<Void> deleteFaq(@PathVariable Integer communityId) {
-//        communityService.deleteFaq(communityId);
-//        return ResponseEntity.ok().build();
-//    }
-    
     @GetMapping("/faq/search")
     public ResponseEntity<PageResponse<FaqResponse>> searchFaq(
             @RequestParam String keyword,
@@ -124,28 +109,7 @@ public class CommunityRestController {
     @GetMapping("/inquiry/{communityId}")
     public ResponseEntity<InquiryResponse> getInquiry(@PathVariable Integer communityId) {
         return ResponseEntity.ok(communityService.getInquiry(communityId));
-    }
-    
-    @GetMapping("/inquiry/image/{fileUuid}")
-    public ResponseEntity<Resource> getInquiryImage(@PathVariable String fileUuid) {
-        try {
-            Path filePath = Paths.get(inquiryUploadDir).resolve(fileUuid);
-            Resource resource = new UrlResource(filePath.toUri());
-            
-            if (resource.exists() && resource.isReadable()) {
-                String contentType = "image/png";
-                if (fileUuid.toLowerCase().endsWith(".jpg") || fileUuid.toLowerCase().endsWith(".jpeg")) {
-                    contentType = "image/jpeg";
-                }
-                
-                return ResponseEntity.ok()
-                        .header(HttpHeaders.CONTENT_TYPE, contentType)
-                        .body(resource);
-            }
-            return ResponseEntity.notFound().build();
-        } catch (MalformedURLException e) {
-            return ResponseEntity.notFound().build();
-        }
+       
     }
     
     @PostMapping("/inquiry")
@@ -158,12 +122,6 @@ public class CommunityRestController {
         communityService.addInquiry(userId, communityCodeId, title, content, file);
         return ResponseEntity.ok().build();
     }
-    
-//    @DeleteMapping("/inquiry/{communityId}")
-//    public ResponseEntity<Void> deleteInquiry(@PathVariable Integer communityId) {
-//        communityService.deleteInquiry(communityId);
-//        return ResponseEntity.ok().build();
-//    }
     
     @PostMapping("/inquiry/answer")
     public ResponseEntity<Void> addAnswer(@RequestBody AnswerRequest request) {
