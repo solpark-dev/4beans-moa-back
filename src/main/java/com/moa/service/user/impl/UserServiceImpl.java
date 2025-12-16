@@ -359,13 +359,18 @@ public class UserServiceImpl implements UserService {
 	            throw new BusinessException(ErrorCode.CONFLICT, "이미 사용 중인 닉네임입니다.");
 	        }
 	    }
+	    String profileImage = user.getProfileImage();
+	    if (request.getProfileImage() != null &&
+	        request.getProfileImage().startsWith("/uploads/")) {
+	        profileImage = request.getProfileImage();
+	    }
 
 	    User updated = User.builder()
 	        .userId(user.getUserId())
 	        .password(user.getPassword())
 	        .nickname(request.getNickname())
 	        .phone(request.getPhone())
-	        .profileImage(request.getProfileImage())
+	        .profileImage(profileImage)
 	        .agreeMarketing(request.isAgreeMarketing())
 	        .role(user.getRole())
 	        .status(user.getStatus())
