@@ -27,6 +27,7 @@ import com.moa.dao.admin.AdminDao;
 import com.moa.dao.oauth.OAuthAccountDao;
 import com.moa.dao.user.EmailVerificationDao;
 import com.moa.dao.user.UserDao;
+import com.moa.dao.user.UserCardDao;
 import com.moa.domain.OAuthAccount;
 import com.moa.domain.User;
 import com.moa.domain.enums.UserStatus;
@@ -62,6 +63,7 @@ public class UserServiceImpl implements UserService {
 	private final EmailService emailService;
 	private final PasswordEncoder passwordEncoder;
 	private final OAuthAccountService oauthAccountService;
+	private final UserCardDao userCardDao;
 	private final AdminDao adminDao;
 	private final UserAddValidator userAddValidator;
 	private final JwtProvider jwtProvider;
@@ -198,8 +200,7 @@ public class UserServiceImpl implements UserService {
 		userDao.insertUser(user);
 
 		if (isSocial) {
-			OAuthAccount account = 
-					OAuthAccount
+			OAuthAccount account = OAuthAccount
 					.builder()
 					.oauthId(UUID.randomUUID().toString())
 					.provider(request.getProvider())
@@ -224,13 +225,12 @@ public class UserServiceImpl implements UserService {
 		TokenResponse token = jwtProvider.generateToken(authentication);
 
 		return Map.of(
-			    "signupType", "SOCIAL",
-			    "user", user,
-			    "accessToken", token.getAccessToken(),
-			    "refreshToken", token.getRefreshToken(),
-			    "accessTokenExpiresIn", token.getAccessTokenExpiresIn()
-			);
-		
+				"signupType", "SOCIAL",
+				"user", user,
+				"accessToken", token.getAccessToken(),
+				"refreshToken", token.getRefreshToken(),
+				"accessTokenExpiresIn", token.getAccessTokenExpiresIn());
+
 	}
 
 	@Override
@@ -261,20 +261,20 @@ public class UserServiceImpl implements UserService {
 
 				String dbColumn = null;
 				switch (property) {
-				case "lastLoginDate":
-					dbColumn = "u.LAST_LOGIN_DATE";
-					break;
-				case "regDate":
-					dbColumn = "u.REG_DATE";
-					break;
-				case "userId":
-					dbColumn = "u.USER_ID";
-					break;
-				case "status":
-					dbColumn = "u.USER_STATUS";
-					break;
-				default:
-					continue;
+					case "lastLoginDate":
+						dbColumn = "u.LAST_LOGIN_DATE";
+						break;
+					case "regDate":
+						dbColumn = "u.REG_DATE";
+						break;
+					case "userId":
+						dbColumn = "u.USER_ID";
+						break;
+					case "status":
+						dbColumn = "u.USER_STATUS";
+						break;
+					default:
+						continue;
 				}
 
 				if (dbColumn != null) {
@@ -326,8 +326,9 @@ public class UserServiceImpl implements UserService {
 				.orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND, "사용자를 찾을 수 없습니다."));
 
 		List<OAuthAccount> oauthAccounts = oauthAccountDao.getOAuthAccountList(userId);
+		boolean hasBillingKey = userCardDao.findByUserId(userId).isPresent();
 
-		return UserResponse.from(user, oauthAccounts);
+		return UserResponse.from(user, oauthAccounts, hasBillingKey);
 	}
 
 	@Override

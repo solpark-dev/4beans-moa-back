@@ -529,20 +529,26 @@ public class PartyServiceImpl implements PartyService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<PartyListResponse> getMyParties(String userId) {
-        return partyDao.findMyParties(userId);
+    public List<PartyListResponse> getMyParties(String userId, boolean includeClosed) {
+        return partyDao.findMyParties(userId, includeClosed);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<PartyListResponse> getMyLeadingParties(String userId) {
-        return partyDao.findMyLeadingParties(userId);
+    public List<PartyListResponse> getMyLeadingParties(String userId, boolean includeClosed) {
+        return partyDao.findMyLeadingParties(userId, includeClosed);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<PartyListResponse> getMyParticipatingParties(String userId) {
-        return partyDao.findMyParticipatingParties(userId);
+    public List<PartyListResponse> getMyParticipatingParties(String userId, boolean includeClosed) {
+        return partyDao.findMyParticipatingParties(userId, includeClosed);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<PartyListResponse> getMyClosedParties(String userId) {
+        return partyDao.findMyClosedParties(userId);
     }
 
     // ========== Private 검증 메서드 ==========

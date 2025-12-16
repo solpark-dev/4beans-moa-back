@@ -106,22 +106,26 @@ public class BankAccountServiceImpl implements BankAccountService {
         AccountVerification verification = verificationMapper.findByBankTranId(bankTranId);
 
         if (verification == null) {
+            log.warn("[계좌인증] 인증 실패 - 세션 없음 (ID: {})", bankTranId);
             return InquiryVerifyResponse.fail("A0004", "인증 세션을 찾을 수 없습니다");
         }
 
         // 사용자 확인
         if (!verification.getUserId().equals(userId)) {
+            log.warn("[계좌인증] 인증 실패 - 사용자 불일치 (Req: {}, DB: {})", userId, verification.getUserId());
             return InquiryVerifyResponse.fail("A0004", "잘못된 인증 요청입니다");
         }
 
         // 만료 확인
         if (LocalDateTime.now().isAfter(verification.getExpiredAt())) {
             verificationMapper.updateStatus(verification.getVerificationId(), "EXPIRED");
+            log.warn("[계좌인증] 인증 실패 - 세션 만료");
             return InquiryVerifyResponse.fail("A0004", "인증 세션이 만료되었습니다");
         }
 
         // 이미 처리된 세션 확인
-        if (!"PENDING".equals(verification.getStatus())) {
+        if (VerificationStatus.PENDING != verification.getStatus()) {
+            log.warn("[계좌인증] 인증 실패 - 상태 오류 (Current: {})", verification.getStatus());
             return InquiryVerifyResponse.fail("A0004", "이미 처리된 인증 세션입니다");
         }
 
@@ -133,8 +137,10 @@ public class BankAccountServiceImpl implements BankAccountService {
         if (!verification.getVerifyCode().equals(verifyCode)) {
             if (newAttemptCount >= 3) {
                 verificationMapper.updateStatus(verification.getVerificationId(), "FAILED");
+                log.warn("[계좌인증] 인증 실패 - 시도횟수 초과");
                 return InquiryVerifyResponse.fail("A0005", "인증 시도 횟수를 초과했습니다");
             }
+            log.warn("[계좌인증] 코드 불일치 - DB: [{}], Input: [{}]", verification.getVerifyCode(), verifyCode);
             return InquiryVerifyResponse.fail("A0003", "인증코드가 일치하지 않습니다");
         }
 

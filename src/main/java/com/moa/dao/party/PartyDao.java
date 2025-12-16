@@ -44,11 +44,19 @@ public interface PartyDao {
 
 	int decrementCurrentMembers(@Param("partyId") Integer partyId);
 
-	List<PartyListResponse> findMyParties(@Param("userId") String userId);
+	List<PartyListResponse> findMyParties(
+			@Param("userId") String userId,
+			@Param("includeClosed") boolean includeClosed);
 
-	List<PartyListResponse> findMyLeadingParties(@Param("userId") String userId);
+	List<PartyListResponse> findMyLeadingParties(
+			@Param("userId") String userId,
+			@Param("includeClosed") boolean includeClosed);
 
-	List<PartyListResponse> findMyParticipatingParties(@Param("userId") String userId);
+	List<PartyListResponse> findMyParticipatingParties(
+			@Param("userId") String userId,
+			@Param("includeClosed") boolean includeClosed);
+
+	List<PartyListResponse> findMyClosedParties(@Param("userId") String userId);
 
 	List<Party> findActiveParties();
 

@@ -241,7 +241,7 @@ class PartyRestControllerTest {
 				.partyId(1)
 				.build();
 
-		given(partyService.getMyParties(testUserId)).willReturn(List.of(listResponse));
+		given(partyService.getMyParties(testUserId, false)).willReturn(List.of(listResponse));
 
 		// when & then
 		mockMvc.perform(get("/api/parties/my")

@@ -68,4 +68,9 @@
         WHERE USER_ID = #{userId} AND (STATUS = 'ACTIVE' OR STATUS IS NULL)
     </select>
 
+    <!-- 사용자 계좌 삭제 -->
+    <delete id="deleteByUserId">
+        DELETE FROM ACCOUNT WHERE USER_ID = #{userId}
+    </delete>
+
 </mapper>

@@ -156,26 +156,37 @@ public interface PartyService {
 	 * 내가 참여 중인 모든 파티 목록 조회 (방장 + 파티원)
 	 * - 내가 방장인 파티와 파티원인 파티 모두 포함
 	 *
-	 * @param userId 사용자 ID
+	 * @param userId        사용자 ID
+	 * @param includeClosed 종료된 파티 포함 여부
 	 * @return 파티 목록
 	 */
-	List<PartyListResponse> getMyParties(String userId);
+	List<PartyListResponse> getMyParties(String userId, boolean includeClosed);
 
 	/**
 	 * 내가 방장인 파티 목록 조회
 	 *
-	 * @param userId 사용자 ID
+	 * @param userId        사용자 ID
+	 * @param includeClosed 종료된 파티 포함 여부
 	 * @return 파티 목록
 	 */
-	List<PartyListResponse> getMyLeadingParties(String userId);
+	List<PartyListResponse> getMyLeadingParties(String userId, boolean includeClosed);
 
 	/**
 	 * 내가 멤버로 참여중인 파티 목록 조회 (방장 제외)
 	 *
-	 * @param userId 사용자 ID
+	 * @param userId        사용자 ID
+	 * @param includeClosed 종료된 파티 포함 여부
 	 * @return 파티 목록
 	 */
-	List<PartyListResponse> getMyParticipatingParties(String userId);
+	List<PartyListResponse> getMyParticipatingParties(String userId, boolean includeClosed);
+
+	/**
+	 * 내가 참여했던 종료된 파티 목록 조회
+	 *
+	 * @param userId 사용자 ID
+	 * @return 종료된 파티 목록
+	 */
+	List<PartyListResponse> getMyClosedParties(String userId);
 
 	/**
 	 * 파티 종료 처리 (Scheduler용)

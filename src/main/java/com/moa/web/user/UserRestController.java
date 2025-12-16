@@ -224,4 +224,24 @@ public class UserRestController {
 		return ApiResponse.success(null);
 	}
 
+	@org.springframework.web.bind.annotation.DeleteMapping("/me/account")
+	public ApiResponse<Void> deleteMyAccount() {
+		String userId = getCurrentUserId();
+		if (userId == null) {
+			throw new BusinessException(ErrorCode.UNAUTHORIZED, "로그인이 필요합니다.");
+		}
+		accountDao.deleteByUserId(userId);
+		return ApiResponse.success(null);
+	}
+
+	@org.springframework.web.bind.annotation.DeleteMapping("/me/card")
+	public ApiResponse<Void> deleteMyCard() {
+		String userId = getCurrentUserId();
+		if (userId == null) {
+			throw new BusinessException(ErrorCode.UNAUTHORIZED, "로그인이 필요합니다.");
+		}
+		userCardDao.deleteUserCard(userId);
+		return ApiResponse.success(null);
+	}
+
 }

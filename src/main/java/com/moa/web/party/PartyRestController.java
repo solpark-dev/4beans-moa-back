@@ -271,7 +271,7 @@ public class PartyRestController {
 	 * 내가 가입한 모든 파티 조회 (방장 + 멤버)
 	 * GET /api/parties/my
 	 *
-	 * @return 내가 가입한 파티 목록
+	 * @return 내가 가입한 파티 목록 (종료된 파티 제외)
 	 */
 	@GetMapping("/my")
 	public ApiResponse<List<PartyListResponse>> getMyParties() {
@@ -280,7 +280,7 @@ public class PartyRestController {
 			throw new BusinessException(ErrorCode.UNAUTHORIZED);
 		}
 
-		List<PartyListResponse> response = partyService.getMyParties(userId);
+		List<PartyListResponse> response = partyService.getMyParties(userId, false);
 		return ApiResponse.success(response);
 	}
 
@@ -288,7 +288,7 @@ public class PartyRestController {
 	 * 내가 방장인 파티 목록 조회
 	 * GET /api/parties/my/leading
 	 *
-	 * @return 내가 방장인 파티 목록
+	 * @return 내가 방장인 파티 목록 (종료된 파티 제외)
 	 */
 	@GetMapping("/my/leading")
 	public ApiResponse<List<PartyListResponse>> getMyLeadingParties() {
@@ -297,7 +297,7 @@ public class PartyRestController {
 			throw new BusinessException(ErrorCode.UNAUTHORIZED);
 		}
 
-		List<PartyListResponse> response = partyService.getMyLeadingParties(userId);
+		List<PartyListResponse> response = partyService.getMyLeadingParties(userId, false);
 		return ApiResponse.success(response);
 	}
 
@@ -305,7 +305,7 @@ public class PartyRestController {
 	 * 내가 멤버로 참여중인 파티 목록 조회 (방장 제외)
 	 * GET /api/parties/my/participating
 	 *
-	 * @return 내가 멤버로 참여중인 파티 목록
+	 * @return 내가 멤버로 참여중인 파티 목록 (종료된 파티 제외)
 	 */
 	@GetMapping("/my/participating")
 	public ApiResponse<List<PartyListResponse>> getMyParticipatingParties() {
@@ -314,7 +314,24 @@ public class PartyRestController {
 			throw new BusinessException(ErrorCode.UNAUTHORIZED);
 		}
 
-		List<PartyListResponse> response = partyService.getMyParticipatingParties(userId);
+		List<PartyListResponse> response = partyService.getMyParticipatingParties(userId, false);
+		return ApiResponse.success(response);
+	}
+
+	/**
+	 * 내가 참여했던 종료된 파티 목록 조회
+	 * GET /api/parties/my/closed
+	 *
+	 * @return 종료된 파티 목록
+	 */
+	@GetMapping("/my/closed")
+	public ApiResponse<List<PartyListResponse>> getMyClosedParties() {
+		String userId = getCurrentUserId();
+		if (userId == null) {
+			throw new BusinessException(ErrorCode.UNAUTHORIZED);
+		}
+
+		List<PartyListResponse> response = partyService.getMyClosedParties(userId);
 		return ApiResponse.success(response);
 	}
 }

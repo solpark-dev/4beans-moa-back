@@ -23,9 +23,8 @@ public class SettlementRetryHistory {
 
     private Integer retryId; // 재시도 이력 ID (PK)
     private Integer settlementId; // 정산 ID (FK)
-    private Integer partyId; // 파티 ID (FK)
-    private String partyLeaderId; // 파티장 ID (FK)
-    private Integer accountId; // 정산 계좌 ID (FK)
+    // partyId, partyLeaderId, accountId는 스키마에서 정규화로 제거됨
+    // 필요 시 SETTLEMENT 테이블 JOIN으로 조회
 
     private Integer attemptNumber; // 시도 횟수 (1=초기, 2~4=재시도)
     private LocalDateTime attemptDate; // 시도 일시

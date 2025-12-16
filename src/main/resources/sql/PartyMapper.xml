@@ -159,6 +159,7 @@
 		LEFT JOIN PRODUCT PR ON P.PRODUCT_ID = PR.PRODUCT_ID
 		INNER JOIN USERS U ON P.PARTY_LEADER_ID = U.USER_ID
 		<where>
+			P.PARTY_STATUS != 'PENDING_PAYMENT'
 			<if test="productId != null">
 				AND PR.PRODUCT_ID = #{productId}
 			</if>
@@ -249,7 +250,7 @@
 		  AND CURRENT_MEMBERS > 0
 	</update>
 
-	<!-- 내가 가입한 모든 파티 조회 (방장 + 멤버) - CLOSED 파티 제외 -->
+	<!-- 내가 가입한 모든 파티 조회 (방장 + 멤버) -->
 	<select id="findMyParties" resultMap="PartyListResponseMap">
 		SELECT
 			P.PARTY_ID,
@@ -274,7 +275,9 @@
 				 LEFT JOIN PRODUCT PR ON P.PRODUCT_ID = PR.PRODUCT_ID
 				 INNER JOIN USERS U ON P.PARTY_LEADER_ID = U.USER_ID
 		WHERE P.PARTY_LEADER_ID = #{userId}
+		<if test="!includeClosed">
 		  AND P.PARTY_STATUS != 'CLOSED'
+		</if>
 
 		UNION
 
@@ -303,12 +306,14 @@
 				 INNER JOIN USERS U ON P.PARTY_LEADER_ID = U.USER_ID
 		WHERE PM.USER_ID = #{userId}
 		  AND PM.MEMBER_STATUS = 'ACTIVE'
+		<if test="!includeClosed">
 		  AND P.PARTY_STATUS != 'CLOSED'
+		</if>
 
 		ORDER BY REG_DATE DESC
 	</select>
 
-	<!-- 내가 방장인 파티 목록 조회 - CLOSED 파티 제외 -->
+	<!-- 내가 방장인 파티 목록 조회 -->
 	<select id="findMyLeadingParties" resultMap="PartyListResponseMap">
 		SELECT
 			P.PARTY_ID,
@@ -333,11 +338,13 @@
 				 LEFT JOIN PRODUCT PR ON P.PRODUCT_ID = PR.PRODUCT_ID
 				 INNER JOIN USERS U ON P.PARTY_LEADER_ID = U.USER_ID
 		WHERE P.PARTY_LEADER_ID = #{userId}
+		<if test="!includeClosed">
 		  AND P.PARTY_STATUS != 'CLOSED'
+		</if>
 		ORDER BY P.REG_DATE DESC
 	</select>
 
-	<!-- 내가 멤버로 참여중인 파티 목록 조회 (방장 제외) - CLOSED 파티 제외 -->
+	<!-- 내가 멤버로 참여중인 파티 목록 조회 (방장 제외) -->
 	<select id="findMyParticipatingParties" resultMap="PartyListResponseMap">
 		SELECT
 			P.PARTY_ID,
@@ -365,8 +372,68 @@
 		WHERE PM.USER_ID = #{userId}
 		  AND PM.MEMBER_STATUS = 'ACTIVE'
 		  AND P.PARTY_LEADER_ID != #{userId}
+		<if test="!includeClosed">
 		  AND P.PARTY_STATUS != 'CLOSED'
+		</if>
 		ORDER BY P.REG_DATE DESC
+	</select>
+
+	<!-- 내가 참여했던 종료된 파티 목록 조회 -->
+	<select id="findMyClosedParties" resultMap="PartyListResponseMap">
+		SELECT
+			P.PARTY_ID,
+			P.PRODUCT_ID,
+			P.PARTY_LEADER_ID,
+			P.PARTY_STATUS,
+			P.MAX_MEMBERS,
+			P.CURRENT_MEMBERS,
+			P.MONTHLY_FEE,
+			P.REG_DATE,
+			P.START_DATE,
+			P.END_DATE,
+
+			PR.PRODUCT_ID,
+			PR.PRODUCT_NAME,
+			PR.IMAGE,
+
+			U.NICKNAME AS LEADER_NICKNAME,
+
+			(P.MAX_MEMBERS - P.CURRENT_MEMBERS) AS REMAINING_SLOTS
+		FROM PARTY P
+				 LEFT JOIN PRODUCT PR ON P.PRODUCT_ID = PR.PRODUCT_ID
+				 INNER JOIN USERS U ON P.PARTY_LEADER_ID = U.USER_ID
+		WHERE P.PARTY_LEADER_ID = #{userId}
+		  AND P.PARTY_STATUS = 'CLOSED'
+
+		UNION
+
+		SELECT
+			P.PARTY_ID,
+			P.PRODUCT_ID,
+			P.PARTY_LEADER_ID,
+			P.PARTY_STATUS,
+			P.MAX_MEMBERS,
+			P.CURRENT_MEMBERS,
+			P.MONTHLY_FEE,
+			P.REG_DATE,
+			P.START_DATE,
+			P.END_DATE,
+
+			PR.PRODUCT_ID,
+			PR.PRODUCT_NAME,
+			PR.IMAGE,
+
+			U.NICKNAME AS LEADER_NICKNAME,
+
+			(P.MAX_MEMBERS - P.CURRENT_MEMBERS) AS REMAINING_SLOTS
+		FROM PARTY P
+				 INNER JOIN PARTY_MEMBER PM ON P.PARTY_ID = PM.PARTY_ID
+				 LEFT JOIN PRODUCT PR ON P.PRODUCT_ID = PR.PRODUCT_ID
+				 INNER JOIN USERS U ON P.PARTY_LEADER_ID = U.USER_ID
+		WHERE PM.USER_ID = #{userId}
+		  AND P.PARTY_STATUS = 'CLOSED'
+
+		ORDER BY REG_DATE DESC
 	</select>
 
 	<!-- 활성 상태인 모든 파티 조회 (정산용) -->

@@ -20,4 +20,6 @@ public interface AccountDao {
     Optional<Account> findActiveByUserId(@Param("userId") String userId);
 
     int updateStatus(@Param("accountId") Integer accountId, @Param("status") String status);
+
+    int deleteByUserId(@Param("userId") String userId);
 }

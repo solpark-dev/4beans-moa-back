@@ -29,13 +29,18 @@ public class UserResponse {
 	private Boolean agreeMarketing;
 	private Boolean blacklisted;
 	private Boolean otpEnabled;
+	private Boolean hasBillingKey;
 	private String provider;
 
 	public static UserResponse from(User user) {
-		return from(user, null);
+		return from(user, null, false);
 	}
 
 	public static UserResponse from(User user, List<OAuthAccount> oauthAccounts) {
+		return from(user, oauthAccounts, false);
+	}
+
+	public static UserResponse from(User user, List<OAuthAccount> oauthAccounts, Boolean hasBillingKey) {
 		List<OAuthConnectionResponse> connections = null;
 		if (oauthAccounts != null && !oauthAccounts.isEmpty()) {
 			connections = oauthAccounts.stream()
@@ -44,20 +49,21 @@ public class UserResponse {
 		}
 
 		return UserResponse.builder()
-		        .userId(user.getUserId())
-		        .nickname(user.getNickname())
-		        .phone(user.getPhone())
-		        .profileImage(user.getProfileImage())
-		        .status(user.getStatus() != null ? user.getStatus().name() : null)
-		        .role(user.getRole())
-		        .regDate(user.getRegDate() != null ? user.getRegDate().toLocalDate() : null)
-		        .lastLoginDate(user.getLastLoginDate() != null ? user.getLastLoginDate().toLocalDate() : null)
-		        .loginProvider(user.getProvider())
-		        .oauthConnections(connections)
-		        .agreeMarketing(user.getAgreeMarketing())
-		        .blacklisted(false)
-		        .otpEnabled(user.getOtpEnabled())
-		        .provider(user.getProvider())
-		        .build();
+				.userId(user.getUserId())
+				.nickname(user.getNickname())
+				.phone(user.getPhone())
+				.profileImage(user.getProfileImage())
+				.status(user.getStatus() != null ? user.getStatus().name() : null)
+				.role(user.getRole())
+				.regDate(user.getRegDate() != null ? user.getRegDate().toLocalDate() : null)
+				.lastLoginDate(user.getLastLoginDate() != null ? user.getLastLoginDate().toLocalDate() : null)
+				.loginProvider(user.getProvider())
+				.oauthConnections(connections)
+				.agreeMarketing(user.getAgreeMarketing())
+				.blacklisted(false)
+				.otpEnabled(user.getOtpEnabled())
+				.hasBillingKey(hasBillingKey)
+				.provider(user.getProvider())
+				.build();
 	}
 }
