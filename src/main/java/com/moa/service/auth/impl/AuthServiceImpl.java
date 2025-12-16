@@ -46,11 +46,10 @@ public class AuthServiceImpl implements AuthService {
 	private final BackupCodeService backupCodeService;
 	private final LoginHistoryService loginHistoryService;
 
-	@Override
 	public LoginResponse login(LoginRequest request) {
 
 		User user = userDao.findByUserIdIncludeDeleted(request.getUserId().toLowerCase())
-				.orElseThrow(() -> new BusinessException(ErrorCode.INVALID_LOGIN));
+				.orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND, "아이디를 확인해주세요."));
 
 		if (user.getDeleteDate() != null && user.getStatus() == UserStatus.WITHDRAW) {
 			loginHistoryService.recordFailure(user.getUserId(), "PASSWORD", null, null, "탈퇴한 계정");
@@ -79,7 +78,7 @@ public class AuthServiceImpl implements AuthService {
 				throw new BusinessException(ErrorCode.FORBIDDEN, "로그인 5회 실패로 잠금 처리되었습니다.");
 			}
 
-			throw new BusinessException(ErrorCode.INVALID_LOGIN);
+			throw new BusinessException(ErrorCode.INVALID_LOGIN,"비밀번호를 확인해주세요.");
 		}
 
 		if (user.getStatus() == UserStatus.PENDING) {

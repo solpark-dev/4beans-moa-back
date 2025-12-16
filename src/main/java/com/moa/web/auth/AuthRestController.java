@@ -67,34 +67,34 @@ public class AuthRestController {
 	        }
 
 	        loginHistoryService.recordSuccess(userId, loginType, clientIp, userAgent);
-	        ResponseCookie accessCookie = ResponseCookie.from("ACCESS_TOKEN", response.getAccessToken())
-	                .httpOnly(true)
-	                .secure(true)
-	                .sameSite("None")
-	                .path("/")
-	                .maxAge(response.getAccessTokenExpiresIn())
-	                .build();
 
-	        ResponseCookie refreshCookie = ResponseCookie.from("REFRESH_TOKEN", response.getRefreshToken())
-	                .httpOnly(true)
-	                .secure(true)
-	                .sameSite("None")
-	                .path("/")
-	                .maxAge(60 * 60 * 24 * 14)
-	                .build();
+	        if (!response.isOtpRequired()) {
+	            ResponseCookie accessCookie = ResponseCookie.from("ACCESS_TOKEN", response.getAccessToken())
+	                    .httpOnly(true)
+	                    .secure(true)
+	                    .sameSite("None")
+	                    .path("/")
+	                    .maxAge(response.getAccessTokenExpiresIn())
+	                    .build();
 
-	        httpResponse.addHeader("Set-Cookie", accessCookie.toString());
-	        httpResponse.addHeader("Set-Cookie", refreshCookie.toString());
+	            ResponseCookie refreshCookie = ResponseCookie.from("REFRESH_TOKEN", response.getRefreshToken())
+	                    .httpOnly(true)
+	                    .secure(true)
+	                    .sameSite("None")
+	                    .path("/")
+	                    .maxAge(60 * 60 * 24 * 14)
+	                    .build();
+
+	            httpResponse.addHeader("Set-Cookie", accessCookie.toString());
+	            httpResponse.addHeader("Set-Cookie", refreshCookie.toString());
+	        }
 
 	        return ApiResponse.success(response);
 
 	    } catch (BusinessException e) {
-	        String userId = extractUserIdFromLoginRequest(request);
-	        loginHistoryService.recordFailure(userId, loginType, clientIp, userAgent, e.getMessage());
 	        throw e;
 	    }
 	}
-
 
 	@PostMapping("/login/otp-verify")
 	public ApiResponse<TokenResponse> verifyLoginOtp(@RequestBody @Valid OtpLoginVerifyRequest request,

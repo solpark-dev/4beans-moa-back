@@ -12,9 +12,8 @@ public class LoginResponse {
 	private boolean otpRequired;
 
 	private String otpToken;
-
 	private String accessToken;
 	private String refreshToken;
-	private long accessTokenExpiresIn;
+	private Long accessTokenExpiresIn;
 	private String userId;
 }
