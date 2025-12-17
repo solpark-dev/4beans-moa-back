@@ -49,12 +49,11 @@ public class SecurityConfig {
 				.securityContext(security -> security.requireExplicitSave(false))
 				.rememberMe(remember -> remember.disable())
 				.exceptionHandling(exception -> exception
-						.authenticationEntryPoint(jwtAuthenticationEntryPoint)
-						.accessDeniedHandler(jwtAccessDeniedHandler))
+				.authenticationEntryPoint(jwtAuthenticationEntryPoint)
+				.accessDeniedHandler(jwtAccessDeniedHandler))
 				.authorizeHttpRequests(auth -> auth
-						.requestMatchers("/api/signup/**").permitAll()
-						// 인증 불필요: 로그인/토큰/이메일 인증/잠금 해제
-						.requestMatchers(
+				.requestMatchers("/api/signup/**").permitAll()
+				.requestMatchers(
 								"/api/auth/login",
 								"/api/auth/login/otp-verify",
 								"/api/auth/login/backup-verify",
@@ -62,20 +61,16 @@ public class SecurityConfig {
 								"/api/auth/verify-email",
 								"/api/auth/unlock",
 								"/api/community/**")
-						.permitAll()
-
-				// OAuth 콜백 및 인증 시작
+				.permitAll()
 				.requestMatchers(
-					"/api/oauth/kakao/callback",
-					"/api/oauth/google/callback",
-					"/api/oauth/kakao/auth",
-					"/api/oauth/google/auth",
-					"/oauth/google",
-				    "/oauth/kakao"
-				).permitAll()
-
-						// 챗봇, 회원가입/본인인증/비밀번호 재설정
-						.requestMatchers(
+								"/api/oauth/kakao/callback",
+								"/api/oauth/google/callback",
+								"/api/oauth/kakao/auth",
+								"/api/oauth/google/auth",
+								"/oauth/google",
+							    "/oauth/kakao")
+				.permitAll()
+				.requestMatchers(
 								"/api/chatbot/**",
 								"/api/users/join",
 								"/api/users/check",
@@ -88,58 +83,42 @@ public class SecurityConfig {
 								"/v3/api-docs/**",
 								"/uploads/**")
 						.permitAll()
-
-						// 커뮤니티: 공지/FAQ 조회는 모두 허용
 						.requestMatchers(HttpMethod.GET, "/api/community/notice/**").permitAll()
 						.requestMatchers(HttpMethod.GET, "/api/community/faq/**").permitAll()
 
-						// 커뮤니티: 공지/FAQ 등록/수정은 ADMIN만
+						.requestMatchers(HttpMethod.POST, "/api/signup/pass/**").permitAll()
+						.requestMatchers(HttpMethod.GET, "/api/signup/pass/**").permitAll()
+						
 						.requestMatchers(HttpMethod.POST, "/api/community/notice/**").hasAuthority("ADMIN")
 						.requestMatchers(HttpMethod.PUT, "/api/community/notice/**").hasAuthority("ADMIN")
 						.requestMatchers(HttpMethod.POST, "/api/community/faq/**").hasAuthority("ADMIN")
 						.requestMatchers(HttpMethod.PUT, "/api/community/faq/**").hasAuthority("ADMIN")
-						
-						.requestMatchers(HttpMethod.POST, "/api/signup/pass/**").permitAll()
-						.requestMatchers(HttpMethod.GET, "/api/signup/pass/**").permitAll()
 
-						// 커뮤니티 문의는 로그인 사용자만
 						.requestMatchers("/api/community/inquiry/**").authenticated()
-
-						// 관리자 API
 						.requestMatchers("/api/admin/**").hasAuthority("ADMIN")
-
-						// 푸시 관리자 API
 						.requestMatchers("/api/push/admin/**").hasAuthority("ADMIN")
-
-						// 상품 조회는 모두 허용
+						
 						.requestMatchers(HttpMethod.GET, "/api/product/**").permitAll()
-
-						// 파티 목록 조회는 모두 허용
 						.requestMatchers(HttpMethod.GET, "/api/parties").permitAll()
 						.requestMatchers(HttpMethod.GET, "/api/parties/**").permitAll()
 						.requestMatchers(HttpMethod.GET, "/api/subscriptions/products").permitAll()
 
-						// OAuth 관련 기타 API는 인증 필요
 						.requestMatchers("/api/oauth/**").authenticated()
 
-						// 내 정보 조회
 						.requestMatchers("/api/users/me").authenticated()
 
-						// OTP 설정/해제/백업코드 발급은 로그인 사용자만
 						.requestMatchers(
-								"/api/auth/otp/setup",
-								"/api/auth/otp/verify",
-								"/api/auth/otp/disable",
-								"/api/auth/otp/disable-verify",
-								"/api/auth/otp/backup/**")
+										"/api/auth/otp/setup",
+										"/api/auth/otp/verify",
+										"/api/auth/otp/disable",
+										"/api/auth/otp/disable-verify",
+										"/api/auth/otp/backup/**")
 						.authenticated()
 
-						// 로그아웃 인증 필요
 						.requestMatchers("/api/auth/logout").authenticated()
 
-						// 나머지는 기본적으로 인증 필요
 						.anyRequest().authenticated())
-				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+						.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();
 	}

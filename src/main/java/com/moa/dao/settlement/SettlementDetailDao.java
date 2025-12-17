@@ -10,7 +10,7 @@ import com.moa.dto.settlement.response.SettlementDetailResponse;
 
 @Mapper
 public interface SettlementDetailDao {
-    int insertSettlementDetail(SettlementDetail detail);
+	int insertSettlementDetail(SettlementDetail detail);
 
-    List<SettlementDetailResponse> findBySettlementId(@Param("settlementId") Integer settlementId);
+	List<SettlementDetailResponse> findBySettlementId(@Param("settlementId") Integer settlementId);
 }

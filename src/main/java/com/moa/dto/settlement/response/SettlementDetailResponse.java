@@ -18,7 +18,7 @@ public class SettlementDetailResponse {
     private Integer settlementId;
     private Integer paymentId;
     private String userId;
-    private String userNickname; // 추가: 정산 상세 조회 시 필요
+    private String userNickname;
     private Integer paymentAmount;
     private LocalDateTime regDate;
 }

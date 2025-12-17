@@ -20,60 +20,36 @@ public interface PartyDao {
 
 	Optional<PartyDetailResponse> findDetailById(@Param("partyId") Integer partyId);
 
-	List<PartyListResponse> findPartyList(
-			@Param("productId") Integer productId,
-			@Param("partyStatus") PartyStatus partyStatus,
-			@Param("keyword") String keyword,
-			@Param("startDate") java.time.LocalDate startDate,
-			@Param("offset") int offset,
-			@Param("size") int size,
+	List<PartyListResponse> findPartyList(@Param("productId") Integer productId,
+			@Param("partyStatus") PartyStatus partyStatus, @Param("keyword") String keyword,
+			@Param("startDate") java.time.LocalDate startDate, @Param("offset") int offset, @Param("size") int size,
 			@Param("sort") String sort);
 
 	int updateParty(Party party);
 
-	int updateOttAccount(
-			@Param("partyId") Integer partyId,
-			@Param("ottId") String ottId,
+	int updateOttAccount(@Param("partyId") Integer partyId, @Param("ottId") String ottId,
 			@Param("ottPassword") String ottPassword);
 
-	int updatePartyStatus(
-			@Param("partyId") Integer partyId,
-			@Param("status") PartyStatus status);
+	int updatePartyStatus(@Param("partyId") Integer partyId, @Param("status") PartyStatus status);
 
 	int incrementCurrentMembers(@Param("partyId") Integer partyId);
 
 	int decrementCurrentMembers(@Param("partyId") Integer partyId);
 
-	List<PartyListResponse> findMyParties(
-			@Param("userId") String userId,
+	List<PartyListResponse> findMyParties(@Param("userId") String userId,
 			@Param("includeClosed") boolean includeClosed);
 
-	List<PartyListResponse> findMyLeadingParties(
-			@Param("userId") String userId,
+	List<PartyListResponse> findMyLeadingParties(@Param("userId") String userId,
 			@Param("includeClosed") boolean includeClosed);
 
-	List<PartyListResponse> findMyParticipatingParties(
-			@Param("userId") String userId,
+	List<PartyListResponse> findMyParticipatingParties(@Param("userId") String userId,
 			@Param("includeClosed") boolean includeClosed);
 
 	List<PartyListResponse> findMyClosedParties(@Param("userId") String userId);
 
 	List<Party> findActiveParties();
 
-	/**
-	 * Find active parties by payment day (supports edge cases for 29/30/31)
-	 * Used by PaymentScheduler to determine which parties need payment today
-	 *
-	 * Edge case handling:
-	 * - If party starts on 31st and today is Feb 28 (last day), party is included
-	 * - If party starts on 30th and today is Feb 28 (last day), party is included
-	 *
-	 * @param currentDay     Day of month today (1-31)
-	 * @param lastDayOfMonth Last day of current month (28-31)
-	 * @return List of active parties needing payment today
-	 */
-	List<Party> findPartiesByPaymentDay(
-			@Param("currentDay") int currentDay,
+	List<Party> findPartiesByPaymentDay(@Param("currentDay") int currentDay,
 			@Param("lastDayOfMonth") int lastDayOfMonth);
 
 	long countAllParties();
@@ -82,38 +58,14 @@ public interface PartyDao {
 
 	List<Party> findExpiredActiveParties(@Param("now") java.time.LocalDateTime now);
 
-	List<Party> findExpiredPendingPaymentParties(
-			@Param("status") PartyStatus status,
+	List<Party> findExpiredPendingPaymentParties(@Param("status") PartyStatus status,
 			@Param("timeoutThreshold") java.time.LocalDateTime timeoutThreshold);
 
-	/**
-	 * 30일 경과한 CLOSED 파티 조회 (삭제용)
-	 * @param retentionThreshold 보관 기준일 (현재 - 30일)
-	 * @return 삭제 대상 파티 목록
-	 */
-	List<Party> findExpiredClosedParties(
-			@Param("retentionThreshold") java.time.LocalDateTime retentionThreshold);
+	List<Party> findExpiredClosedParties(@Param("retentionThreshold") java.time.LocalDateTime retentionThreshold);
 
-	/**
-	 * 30일 경과한 CLOSED 파티 삭제
-	 * @param retentionThreshold 보관 기준일 (현재 - 30일)
-	 * @return 삭제된 파티 수
-	 */
-	int deleteExpiredClosedParties(
-			@Param("retentionThreshold") java.time.LocalDateTime retentionThreshold);
+	int deleteExpiredClosedParties(@Param("retentionThreshold") java.time.LocalDateTime retentionThreshold);
 
-	/**
-	 * 특정 파티의 멤버 전체 삭제 (파티 삭제 전 호출)
-	 * @param partyId 파티 ID
-	 * @return 삭제된 멤버 수
-	 */
 	int deletePartyMembersByPartyId(@Param("partyId") Integer partyId);
 
-	/**
-	 * 특정 사용자가 파티장인 활성 파티 조회
-	 * (PENDING_PAYMENT, RECRUITING, ACTIVE, SUSPENDED 상태)
-	 * @param leaderId 파티장 ID
-	 * @return 활성 파티 목록
-	 */
 	List<Party> findActivePartiesByLeaderId(@Param("leaderId") String leaderId);
 }

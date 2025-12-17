@@ -1,4 +1,3 @@
-// JwtAuthenticationEntryPoint.java
 package com.moa.auth.handler;
 
 import java.io.IOException;

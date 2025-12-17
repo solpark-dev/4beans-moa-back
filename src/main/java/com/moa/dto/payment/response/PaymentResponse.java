@@ -8,10 +8,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/**
- * 결제 응답 DTO
- * 결제 목록 조회 시 사용
- */
 @Getter
 @Setter
 @Builder
@@ -19,31 +15,27 @@ import lombok.Setter;
 @AllArgsConstructor
 public class PaymentResponse {
 
-    // === 결제 기본 정보 ===
-    private Integer paymentId;
-    private Integer partyId;
-    private String userId; // 추가: 정산 시 필요
-    private Integer partyMemberId; // 추가: 정산 시 필요
-    private String paymentType;
-    private Integer paymentAmount;
-    private String paymentStatus; // Enum → String 변환
-    private String paymentMethod;
-    private LocalDateTime paymentDate;
-    private String targetMonth; // YYYY-MM
+	private Integer paymentId;
+	private Integer partyId;
+	private String userId;
+	private Integer partyMemberId;
+	private String paymentType;
+	private Integer paymentAmount;
+	private String paymentStatus;
+	private String paymentMethod;
+	private LocalDateTime paymentDate;
+	private String targetMonth;
 
-    // === 파티 정보 (JOIN) ===
-    private String productName; // 상품명
-    private String partyLeaderNickname; // 방장 닉네임
-    private String userNickname; // 사용자 닉네임 (추가)
+	private String productName;
+	private String partyLeaderNickname;
+	private String userNickname;
 
-    // === 카드 정보 ===
-    private String cardNumber; // 카드 번호 (마스킹 처리된)
-    private String cardCompany; // 카드사
+	private String cardNumber;
+	private String cardCompany;
 
-    // === 재시도 정보 (JOIN with PAYMENT_RETRY_HISTORY) ===
-    private String retryStatus; // 최신 재시도 상태: SUCCESS, FAILED, null
-    private Integer attemptNumber; // 현재 시도 횟수 (1-4)
-    private LocalDateTime nextRetryDate; // 다음 재시도 예정일
-    private String retryReason; // 결제 실패 사유
-    private String errorMessage; // 상세 에러 메시지
+	private String retryStatus;
+	private Integer attemptNumber;
+	private LocalDateTime nextRetryDate;
+	private String retryReason;
+	private String errorMessage;
 }

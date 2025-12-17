@@ -31,406 +31,280 @@ import com.moa.service.refund.RefundRetryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-/**
- * 사용자 삭제/탈퇴 이벤트 리스너
- *
- * 사용자 탈퇴 시 파티장/파티원 상태에 따른 예외처리:
- *
- * 1. 파티장 탈퇴 시:
- *    - PENDING_PAYMENT: 파티 삭제 (방장 보증금 결제 전이므로)
- *    - RECRUITING: 파티 해산, 가입된 파티원들 보증금+첫달 구독료 환불
- *    - ACTIVE: 파티 해산, 모든 파티원들 보증금 환불 (월구독료는 정책에 따라)
- *
- * 2. 파티원 탈퇴 시:
- *    - PENDING_PAYMENT: 해당 멤버만 제거
- *    - ACTIVE: 보증금 처리 (정책에 따라 환불/몰수)
- *
- * @author MOA Team
- * @since 2025-12-12
- */
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class UserDeletionEventListener {
 
-    private final PartyDao partyDao;
-    private final PartyMemberDao partyMemberDao;
-    private final DepositDao depositDao;
-    private final DepositService depositService;
-    private final RefundRetryService refundRetryService;
-    private final PushService pushService;
-    private final ProductDao productDao;
+	private final PartyDao partyDao;
+	private final PartyMemberDao partyMemberDao;
+	private final DepositDao depositDao;
+	private final DepositService depositService;
+	private final RefundRetryService refundRetryService;
+	private final PushService pushService;
+	private final ProductDao productDao;
 
-    /**
-     * 사용자 삭제 이벤트 처리
-     *
-     * @param event UserDeletedEvent
-     */
-    @EventListener
-    @Async
-    @Transactional
-    public void handleUserDeleted(UserDeletedEvent event) {
-        log.info("===== 사용자 삭제 이벤트 처리 시작 =====");
-        log.info("Event: {}", event);
+	@EventListener
+	@Async
+	@Transactional
+	public void handleUserDeleted(UserDeletedEvent event) {
+		log.info("===== 사용자 삭제 이벤트 처리 시작 =====");
+		log.info("Event: {}", event);
 
-        String userId = event.getUserId();
-        String deleteReason = event.getDeleteReason() != null
-                ? event.getDeleteReason()
-                : "사용자 탈퇴";
+		String userId = event.getUserId();
+		String deleteReason = event.getDeleteReason() != null ? event.getDeleteReason() : "사용자 탈퇴";
 
-        try {
-            // 1. 파티장으로 있는 파티 처리
-            handleLeaderParties(userId, deleteReason);
+		try {
+			handleLeaderParties(userId, deleteReason);
+			handleMemberParties(userId, deleteReason);
 
-            // 2. 파티원으로 있는 파티 처리
-            handleMemberParties(userId, deleteReason);
+			log.info("===== 사용자 삭제 이벤트 처리 완료 =====");
 
-            log.info("===== 사용자 삭제 이벤트 처리 완료 =====");
+		} catch (Exception e) {
+			log.error("사용자 삭제 이벤트 처리 실패: userId={}, error={}", userId, e.getMessage(), e);
 
-        } catch (Exception e) {
-            log.error("사용자 삭제 이벤트 처리 실패: userId={}, error={}", userId, e.getMessage(), e);
-            // 실패해도 사용자 삭제는 진행되어야 하므로 예외를 던지지 않음
-        }
-    }
+		}
+	}
 
-    /**
-     * 파티장으로 있는 파티 처리
-     */
-    private void handleLeaderParties(String userId, String deleteReason) {
-        log.info("파티장 파티 처리 시작: userId={}", userId);
+	private void handleLeaderParties(String userId, String deleteReason) {
+		log.info("파티장 파티 처리 시작: userId={}", userId);
 
-        // 활성 상태의 파티만 조회 (CLOSED, DISBANDED 제외)
-        List<Party> leaderParties = partyDao.findActivePartiesByLeaderId(userId);
+		List<Party> leaderParties = partyDao.findActivePartiesByLeaderId(userId);
 
-        if (leaderParties.isEmpty()) {
-            log.info("파티장으로 있는 활성 파티 없음");
-            return;
-        }
+		if (leaderParties.isEmpty()) {
+			log.info("파티장으로 있는 활성 파티 없음");
+			return;
+		}
 
-        log.info("처리할 파티장 파티 수: {}", leaderParties.size());
+		log.info("처리할 파티장 파티 수: {}", leaderParties.size());
 
-        for (Party party : leaderParties) {
-            try {
-                processLeaderPartyDisbandment(party, deleteReason);
-            } catch (Exception e) {
-                log.error("파티장 파티 해산 처리 실패: partyId={}, error={}",
-                        party.getPartyId(), e.getMessage(), e);
-            }
-        }
-    }
+		for (Party party : leaderParties) {
+			try {
+				processLeaderPartyDisbandment(party, deleteReason);
+			} catch (Exception e) {
+				log.error("파티장 파티 해산 처리 실패: partyId={}, error={}", party.getPartyId(), e.getMessage(), e);
+			}
+		}
+	}
 
-    /**
-     * 파티장 파티 해산 처리
-     */
-    private void processLeaderPartyDisbandment(Party party, String deleteReason) {
-        Integer partyId = party.getPartyId();
-        PartyStatus status = party.getPartyStatus();
+	private void processLeaderPartyDisbandment(Party party, String deleteReason) {
+		Integer partyId = party.getPartyId();
+		PartyStatus status = party.getPartyStatus();
 
-        log.info("파티장 파티 해산 처리: partyId={}, status={}", partyId, status);
+		log.info("파티장 파티 해산 처리: partyId={}, status={}", partyId, status);
 
-        switch (status) {
-            case PENDING_PAYMENT:
-                // 방장 보증금 결제 전 - 파티 삭제
-                log.info("PENDING_PAYMENT 파티 삭제: partyId={}", partyId);
-                partyDao.updatePartyStatus(partyId, PartyStatus.DISBANDED);
-                break;
+		switch (status) {
+		case PENDING_PAYMENT:
+			log.info("PENDING_PAYMENT 파티 삭제: partyId={}", partyId);
+			partyDao.updatePartyStatus(partyId, PartyStatus.DISBANDED);
+			break;
 
-            case RECRUITING:
-                // 모집중 - 파티 해산, 가입된 파티원 보증금+첫달 구독료 환불
-                log.info("RECRUITING 파티 해산: partyId={}", partyId);
-                disbandRecruitingParty(party, deleteReason);
-                break;
+		case RECRUITING:
+			log.info("RECRUITING 파티 해산: partyId={}", partyId);
+			disbandRecruitingParty(party, deleteReason);
+			break;
 
-            case ACTIVE:
-                // 이용중 - 파티 해산, 모든 파티원 보증금 환불
-                log.info("ACTIVE 파티 해산: partyId={}", partyId);
-                disbandActiveParty(party, deleteReason);
-                break;
+		case ACTIVE:
+			log.info("ACTIVE 파티 해산: partyId={}", partyId);
+			disbandActiveParty(party, deleteReason);
+			break;
 
-            case SUSPENDED:
-                // 일시정지 - 파티 해산, 보증금 환불
-                log.info("SUSPENDED 파티 해산: partyId={}", partyId);
-                disbandActiveParty(party, deleteReason);
-                break;
+		case SUSPENDED:
+			log.info("SUSPENDED 파티 해산: partyId={}", partyId);
+			disbandActiveParty(party, deleteReason);
+			break;
 
-            default:
-                log.warn("처리 불필요한 파티 상태: partyId={}, status={}", partyId, status);
-        }
-    }
+		default:
+			log.warn("처리 불필요한 파티 상태: partyId={}, status={}", partyId, status);
+		}
+	}
 
-    /**
-     * RECRUITING 상태 파티 해산
-     * - 가입된 파티원들 보증금 + 첫달 구독료 환불
-     * - 방장 보증금은 환불 (이미 결제되어 있음)
-     */
-    private void disbandRecruitingParty(Party party, String deleteReason) {
-        Integer partyId = party.getPartyId();
+	private void disbandRecruitingParty(Party party, String deleteReason) {
+		Integer partyId = party.getPartyId();
 
-        // 1. 파티원들 보증금 환불
-        List<PartyMemberResponse> members = partyMemberDao.findMembersByPartyId(partyId);
+		List<PartyMemberResponse> members = partyMemberDao.findMembersByPartyId(partyId);
 
-        for (PartyMemberResponse member : members) {
-            if ("ACTIVE".equals(member.getMemberStatus())) {
-                try {
-                    refundMemberDeposit(partyId, member.getUserId(),
-                            "파티장 탈퇴로 인한 파티 해산 (전액 환불)");
+		for (PartyMemberResponse member : members) {
+			if ("ACTIVE".equals(member.getMemberStatus())) {
+				try {
+					refundMemberDeposit(partyId, member.getUserId(), "파티장 탈퇴로 인한 파티 해산 (전액 환불)");
 
-                    // 파티원 상태 변경
-                    updateMemberStatus(member.getPartyMemberId(), MemberStatus.INACTIVE);
+					updateMemberStatus(member.getPartyMemberId(), MemberStatus.INACTIVE);
+					sendPartyDisbandedPush(member.getUserId(), party, deleteReason);
 
-                    // 파티 해산 알림
-                    sendPartyDisbandedPush(member.getUserId(), party, deleteReason);
+				} catch (Exception e) {
+					log.error("파티원 환불 실패: partyMemberId={}, error={}", member.getPartyMemberId(), e.getMessage());
+				}
+			}
+		}
+		try {
+			refundMemberDeposit(partyId, party.getPartyLeaderId(), "파티장 탈퇴로 인한 보증금 환불");
+		} catch (Exception e) {
+			log.error("방장 보증금 환불 실패: partyId={}, error={}", partyId, e.getMessage());
+		}
 
-                } catch (Exception e) {
-                    log.error("파티원 환불 실패: partyMemberId={}, error={}",
-                            member.getPartyMemberId(), e.getMessage());
-                }
-            }
-        }
+		partyDao.updatePartyStatus(partyId, PartyStatus.DISBANDED);
+	}
 
-        // 2. 방장 보증금 환불
-        try {
-            refundMemberDeposit(partyId, party.getPartyLeaderId(),
-                    "파티장 탈퇴로 인한 보증금 환불");
-        } catch (Exception e) {
-            log.error("방장 보증금 환불 실패: partyId={}, error={}", partyId, e.getMessage());
-        }
+	private void disbandActiveParty(Party party, String deleteReason) {
+		Integer partyId = party.getPartyId();
+		List<PartyMemberResponse> members = partyMemberDao.findMembersByPartyId(partyId);
 
-        // 3. 파티 상태 변경
-        partyDao.updatePartyStatus(partyId, PartyStatus.DISBANDED);
-    }
+		for (PartyMemberResponse member : members) {
+			if ("ACTIVE".equals(member.getMemberStatus())) {
+				try {
+					refundMemberDeposit(partyId, member.getUserId(), "파티장 탈퇴로 인한 강제 해산 (전액 환불)");
 
-    /**
-     * ACTIVE 상태 파티 해산
-     * - 모든 파티원 보증금 환불 (정책에 따라)
-     * - 방장 보증금은 정책에 따라 처리
-     */
-    private void disbandActiveParty(Party party, String deleteReason) {
-        Integer partyId = party.getPartyId();
+					updateMemberStatus(member.getPartyMemberId(), MemberStatus.INACTIVE);
+					sendPartyDisbandedPush(member.getUserId(), party, deleteReason);
 
-        // 1. 파티원들 보증금 환불 (강제 해산이므로 전액 환불)
-        List<PartyMemberResponse> members = partyMemberDao.findMembersByPartyId(partyId);
+				} catch (Exception e) {
+					log.error("파티원 환불 실패: partyMemberId={}, error={}", member.getPartyMemberId(), e.getMessage());
+				}
+			}
+		}
+		try {
+			refundMemberDeposit(partyId, party.getPartyLeaderId(), "파티장 탈퇴로 인한 보증금 환불");
+		} catch (Exception e) {
+			log.error("방장 보증금 환불 실패: partyId={}, error={}", partyId, e.getMessage());
+		}
 
-        for (PartyMemberResponse member : members) {
-            if ("ACTIVE".equals(member.getMemberStatus())) {
-                try {
-                    // 강제 해산이므로 전액 환불
-                    refundMemberDeposit(partyId, member.getUserId(),
-                            "파티장 탈퇴로 인한 강제 해산 (전액 환불)");
+		partyDao.updatePartyStatus(partyId, PartyStatus.DISBANDED);
+	}
 
-                    // 파티원 상태 변경
-                    updateMemberStatus(member.getPartyMemberId(), MemberStatus.INACTIVE);
+	private void handleMemberParties(String userId, String deleteReason) {
+		log.info("파티원 파티 처리 시작: userId={}", userId);
 
-                    // 파티 해산 알림
-                    sendPartyDisbandedPush(member.getUserId(), party, deleteReason);
+		List<PartyMember> memberRecords = partyMemberDao.findActiveMembershipsByUserId(userId);
 
-                } catch (Exception e) {
-                    log.error("파티원 환불 실패: partyMemberId={}, error={}",
-                            member.getPartyMemberId(), e.getMessage());
-                }
-            }
-        }
+		if (memberRecords.isEmpty()) {
+			log.info("파티원으로 있는 활성 멤버십 없음");
+			return;
+		}
 
-        // 2. 방장 보증금은 탈퇴이므로 정책에 따라 처리 (여기서는 몰수 없음, 환불)
-        try {
-            refundMemberDeposit(partyId, party.getPartyLeaderId(),
-                    "파티장 탈퇴로 인한 보증금 환불");
-        } catch (Exception e) {
-            log.error("방장 보증금 환불 실패: partyId={}, error={}", partyId, e.getMessage());
-        }
+		log.info("처리할 파티원 멤버십 수: {}", memberRecords.size());
 
-        // 3. 파티 상태 변경
-        partyDao.updatePartyStatus(partyId, PartyStatus.DISBANDED);
-    }
+		for (PartyMember member : memberRecords) {
+			try {
+				processMemberWithdrawal(member, deleteReason);
+			} catch (Exception e) {
+				log.error("파티원 탈퇴 처리 실패: partyMemberId={}, error={}", member.getPartyMemberId(), e.getMessage(), e);
+			}
+		}
+	}
 
-    /**
-     * 파티원으로 있는 파티 처리
-     */
-    private void handleMemberParties(String userId, String deleteReason) {
-        log.info("파티원 파티 처리 시작: userId={}", userId);
+	private void processMemberWithdrawal(PartyMember member, String deleteReason) {
+		Integer partyId = member.getPartyId();
+		Integer partyMemberId = member.getPartyMemberId();
+		String userId = member.getUserId();
 
-        // 활성 멤버로 있는 파티 멤버 조회
-        List<PartyMember> memberRecords = partyMemberDao.findActiveMembershipsByUserId(userId);
+		log.info("파티원 강제 탈퇴 처리: partyId={}, partyMemberId={}, userId={}", partyId, partyMemberId, userId);
 
-        if (memberRecords.isEmpty()) {
-            log.info("파티원으로 있는 활성 멤버십 없음");
-            return;
-        }
+		Party party = partyDao.findById(partyId).orElse(null);
+		if (party == null) {
+			log.warn("파티를 찾을 수 없음: partyId={}", partyId);
+			return;
+		}
 
-        log.info("처리할 파티원 멤버십 수: {}", memberRecords.size());
+		if (party.getPartyLeaderId().equals(userId)) {
+			log.info("파티장이므로 파티원 처리 스킵: partyId={}", partyId);
+			return;
+		}
+		try {
+			Deposit deposit = depositDao.findByPartyIdAndUserId(partyId, userId).orElse(null);
+			if (deposit != null && deposit.getDepositStatus() == DepositStatus.PAID) {
+				depositService.processWithdrawalRefund(deposit.getDepositId(), party);
+			}
+		} catch (Exception e) {
+			log.error("보증금 처리 실패: partyMemberId={}, error={}", partyMemberId, e.getMessage());
+		}
 
-        for (PartyMember member : memberRecords) {
-            try {
-                processMemberWithdrawal(member, deleteReason);
-            } catch (Exception e) {
-                log.error("파티원 탈퇴 처리 실패: partyMemberId={}, error={}",
-                        member.getPartyMemberId(), e.getMessage(), e);
-            }
-        }
-    }
+		member.setMemberStatus(MemberStatus.INACTIVE);
+		member.setWithdrawDate(LocalDateTime.now());
+		partyMemberDao.updatePartyMember(member);
+		partyDao.decrementCurrentMembers(partyId);
 
-    /**
-     * 파티원 강제 탈퇴 처리
-     */
-    private void processMemberWithdrawal(PartyMember member, String deleteReason) {
-        Integer partyId = member.getPartyId();
-        Integer partyMemberId = member.getPartyMemberId();
-        String userId = member.getUserId();
+		Party updatedParty = partyDao.findById(partyId).orElse(null);
+		if (updatedParty != null && updatedParty.getPartyStatus() == PartyStatus.ACTIVE
+				&& updatedParty.getCurrentMembers() < updatedParty.getMaxMembers()) {
+			partyDao.updatePartyStatus(partyId, PartyStatus.RECRUITING);
+		}
+		try {
+			sendMemberWithdrawnPush(party.getPartyLeaderId(), userId, party, deleteReason);
+		} catch (Exception e) {
+			log.error("알림 발송 실패: error={}", e.getMessage());
+		}
+	}
 
-        log.info("파티원 강제 탈퇴 처리: partyId={}, partyMemberId={}, userId={}",
-                partyId, partyMemberId, userId);
+	private void refundMemberDeposit(Integer partyId, String userId, String reason) {
+		Deposit deposit = depositDao.findByPartyIdAndUserId(partyId, userId).orElse(null);
 
-        // 1. 파티 조회
-        Party party = partyDao.findById(partyId).orElse(null);
-        if (party == null) {
-            log.warn("파티를 찾을 수 없음: partyId={}", partyId);
-            return;
-        }
+		if (deposit == null) {
+			log.warn("보증금을 찾을 수 없음: partyId={}, userId={}", partyId, userId);
+			return;
+		}
 
-        // 파티장은 이 메서드에서 처리하지 않음 (handleLeaderParties에서 처리)
-        if (party.getPartyLeaderId().equals(userId)) {
-            log.info("파티장이므로 파티원 처리 스킵: partyId={}", partyId);
-            return;
-        }
+		if (deposit.getDepositStatus() != DepositStatus.PAID) {
+			log.warn("환불 불가능한 보증금 상태: depositId={}, status={}", deposit.getDepositId(), deposit.getDepositStatus());
+			return;
+		}
 
-        // 2. 보증금 처리 (강제 탈퇴이므로 정책에 따라 처리)
-        try {
-            Deposit deposit = depositDao.findByPartyIdAndUserId(partyId, userId).orElse(null);
-            if (deposit != null && deposit.getDepositStatus() == DepositStatus.PAID) {
-                // 강제 탈퇴 시 보증금 정책 적용 (파티 시작 여부에 따라)
-                depositService.processWithdrawalRefund(deposit.getDepositId(), party);
-            }
-        } catch (Exception e) {
-            log.error("보증금 처리 실패: partyMemberId={}, error={}", partyMemberId, e.getMessage());
-        }
+		try {
+			depositService.refundDeposit(deposit.getDepositId(), reason);
+		} catch (Exception e) {
+			log.error("보증금 환불 실패, 재시도 등록: depositId={}, error={}", deposit.getDepositId(), e.getMessage());
+			refundRetryService.recordFailure(deposit, e, reason);
+		}
+	}
 
-        // 3. 파티원 상태 변경
-        member.setMemberStatus(MemberStatus.INACTIVE);
-        member.setWithdrawDate(LocalDateTime.now());
-        partyMemberDao.updatePartyMember(member);
+	private void updateMemberStatus(Integer partyMemberId, MemberStatus status) {
+		partyMemberDao.leaveParty(partyMemberId);
+	}
 
-        // 4. 파티 인원 감소
-        partyDao.decrementCurrentMembers(partyId);
+	private String getProductName(Integer productId) {
+		if (productId == null)
+			return "OTT 서비스";
+		try {
+			Product product = productDao.getProduct(productId);
+			return (product != null && product.getProductName() != null) ? product.getProductName() : "OTT 서비스";
+		} catch (Exception e) {
+			return "OTT 서비스";
+		}
+	}
 
-        // 5. 파티 상태 업데이트 (ACTIVE → RECRUITING)
-        Party updatedParty = partyDao.findById(partyId).orElse(null);
-        if (updatedParty != null
-                && updatedParty.getPartyStatus() == PartyStatus.ACTIVE
-                && updatedParty.getCurrentMembers() < updatedParty.getMaxMembers()) {
-            partyDao.updatePartyStatus(partyId, PartyStatus.RECRUITING);
-        }
+	private void sendPartyDisbandedPush(String receiverId, Party party, String reason) {
+		try {
+			String productName = getProductName(party.getProductId());
 
-        // 6. 파티장에게 알림
-        try {
-            sendMemberWithdrawnPush(party.getPartyLeaderId(), userId, party, deleteReason);
-        } catch (Exception e) {
-            log.error("알림 발송 실패: error={}", e.getMessage());
-        }
-    }
+			Map<String, String> params = Map.of("productName", productName, "reason",
+					reason != null ? reason : "파티장 탈퇴");
 
-    /**
-     * 보증금 환불 처리
-     */
-    private void refundMemberDeposit(Integer partyId, String userId, String reason) {
-        Deposit deposit = depositDao.findByPartyIdAndUserId(partyId, userId).orElse(null);
+			TemplatePushRequest pushRequest = TemplatePushRequest.builder().receiverId(receiverId)
+					.pushCode(PushCodeType.PARTY_DISBANDED.getCode()).params(params)
+					.moduleId(String.valueOf(party.getPartyId())).moduleType("PARTY").build();
 
-        if (deposit == null) {
-            log.warn("보증금을 찾을 수 없음: partyId={}, userId={}", partyId, userId);
-            return;
-        }
+			pushService.addTemplatePush(pushRequest);
+			log.info("파티 해산 알림 발송: receiverId={}", receiverId);
+		} catch (Exception e) {
+			log.error("푸시 발송 실패: {}", e.getMessage());
+		}
+	}
 
-        if (deposit.getDepositStatus() != DepositStatus.PAID) {
-            log.warn("환불 불가능한 보증금 상태: depositId={}, status={}",
-                    deposit.getDepositId(), deposit.getDepositStatus());
-            return;
-        }
+	private void sendMemberWithdrawnPush(String leaderId, String withdrawnUserId, Party party, String reason) {
+		try {
+			String productName = getProductName(party.getProductId());
 
-        try {
-            depositService.refundDeposit(deposit.getDepositId(), reason);
-        } catch (Exception e) {
-            log.error("보증금 환불 실패, 재시도 등록: depositId={}, error={}",
-                    deposit.getDepositId(), e.getMessage());
-            // 실패 시 재시도 등록
-            refundRetryService.recordFailure(deposit, e, reason);
-        }
-    }
+			Map<String, String> params = Map.of("productName", productName, "memberNickname", withdrawnUserId, "reason",
+					reason != null ? reason : "회원 탈퇴");
 
-    /**
-     * 파티원 상태 업데이트 (탈퇴 처리)
-     */
-    private void updateMemberStatus(Integer partyMemberId, MemberStatus status) {
-        // leaveParty 메서드 사용 - MEMBER_STATUS = 'LEFT', WITHDRAW_DATE = NOW()
-        partyMemberDao.leaveParty(partyMemberId);
-    }
+			TemplatePushRequest pushRequest = TemplatePushRequest.builder().receiverId(leaderId)
+					.pushCode(PushCodeType.MEMBER_WITHDRAWN.getCode()).params(params)
+					.moduleId(String.valueOf(party.getPartyId())).moduleType("PARTY").build();
 
-    // ========== 푸시 알림 메서드 ==========
-
-    /**
-     * 상품명 조회
-     */
-    private String getProductName(Integer productId) {
-        if (productId == null) return "OTT 서비스";
-        try {
-            Product product = productDao.getProduct(productId);
-            return (product != null && product.getProductName() != null)
-                    ? product.getProductName() : "OTT 서비스";
-        } catch (Exception e) {
-            return "OTT 서비스";
-        }
-    }
-
-    /**
-     * 파티 해산 알림 발송
-     */
-    private void sendPartyDisbandedPush(String receiverId, Party party, String reason) {
-        try {
-            String productName = getProductName(party.getProductId());
-
-            Map<String, String> params = Map.of(
-                "productName", productName,
-                "reason", reason != null ? reason : "파티장 탈퇴"
-            );
-
-            TemplatePushRequest pushRequest = TemplatePushRequest.builder()
-                .receiverId(receiverId)
-                .pushCode(PushCodeType.PARTY_DISBANDED.getCode())
-                .params(params)
-                .moduleId(String.valueOf(party.getPartyId()))
-                .moduleType("PARTY")
-                .build();
-
-            pushService.addTemplatePush(pushRequest);
-            log.info("파티 해산 알림 발송: receiverId={}", receiverId);
-        } catch (Exception e) {
-            log.error("푸시 발송 실패: {}", e.getMessage());
-        }
-    }
-
-    /**
-     * 파티원 탈퇴 알림 (파티장에게)
-     */
-    private void sendMemberWithdrawnPush(String leaderId, String withdrawnUserId, Party party, String reason) {
-        try {
-            String productName = getProductName(party.getProductId());
-
-            Map<String, String> params = Map.of(
-                "productName", productName,
-                "memberNickname", withdrawnUserId, // TODO: 실제 닉네임 조회
-                "reason", reason != null ? reason : "회원 탈퇴"
-            );
-
-            TemplatePushRequest pushRequest = TemplatePushRequest.builder()
-                .receiverId(leaderId)
-                .pushCode(PushCodeType.MEMBER_WITHDRAWN.getCode())
-                .params(params)
-                .moduleId(String.valueOf(party.getPartyId()))
-                .moduleType("PARTY")
-                .build();
-
-            pushService.addTemplatePush(pushRequest);
-            log.info("파티원 탈퇴 알림 발송: leaderId={}", leaderId);
-        } catch (Exception e) {
-            log.error("푸시 발송 실패: {}", e.getMessage());
-        }
-    }
+			pushService.addTemplatePush(pushRequest);
+			log.info("파티원 탈퇴 알림 발송: leaderId={}", leaderId);
+		} catch (Exception e) {
+			log.error("푸시 발송 실패: {}", e.getMessage());
+		}
+	}
 }

@@ -8,10 +8,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/**
- * 파티 목록 조회 응답 DTO
- * 페이징과 필터링을 위한 간소화된 정보
- */
 @Getter
 @Setter
 @Builder
@@ -19,7 +15,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class PartyListResponse {
 
-	// === 파티 기본 정보 ===
 	private Integer partyId;
 	private String partyStatus;
 	private Integer maxMembers;
@@ -29,15 +24,12 @@ public class PartyListResponse {
 	private LocalDate startDate;
 	private LocalDate endDate;
 
-	// === 상품 정보 ===
 	private Integer productId;
 	private String productName;
 	private String productImage;
 
-	// === 방장 정보 ===
-	private String partyLeaderId; // 방장 사용자 ID (역할 판별용)
+	private String partyLeaderId;
 	private String leaderNickname;
 
-	// === 계산 필드 ===
-	private Integer remainingSlots; // 남은 자리 (maxMembers - currentMembers)
+	private Integer remainingSlots;
 }

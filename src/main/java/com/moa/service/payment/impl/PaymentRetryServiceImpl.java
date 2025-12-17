@@ -3,7 +3,6 @@ package com.moa.service.payment.impl;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -15,171 +14,109 @@ import com.moa.dao.party.PartyDao;
 import com.moa.dao.partymember.PartyMemberDao;
 import com.moa.dao.payment.PaymentDao;
 import com.moa.dao.payment.PaymentRetryDao;
-import com.moa.domain.Party;
-import com.moa.domain.PartyMember;
 import com.moa.domain.Payment;
 import com.moa.domain.PaymentRetryHistory;
 import com.moa.domain.enums.PaymentStatus;
-import com.moa.domain.enums.PushCodeType;
-import com.moa.dto.push.request.TemplatePushRequest;
 import com.moa.service.payment.PaymentRetryService;
 import com.moa.service.payment.PaymentService;
 import com.moa.service.push.PushService;
 
 import lombok.extern.slf4j.Slf4j;
 
-/**
- * Payment Retry Service Implementation
- * Handles payment retry logic with exponential backoff
- *
- * @author MOA Team
- * @since 2025-12-04
- */
 @Service
 @Transactional
 @Slf4j
 public class PaymentRetryServiceImpl implements PaymentRetryService {
 
-    private final PaymentRetryDao retryDao;
-    private final PaymentDao paymentDao;
-    private final PaymentService paymentService;
-    
-    // ========== 푸시알림 추가 ==========
-    private final PushService pushService;
-    private final PartyDao partyDao;
-    private final PartyMemberDao partyMemberDao;
-    // ========== 푸시알림 추가 끝 ==========
+	private final PaymentRetryDao retryDao;
+	private final PaymentDao paymentDao;
+	private final PaymentService paymentService;
 
-    /**
-     * Constructor with @Lazy injection for PaymentService to break circular dependency
-     * Circular dependency: PaymentService → PaymentRetryService → PaymentService
-     */
-    public PaymentRetryServiceImpl(
-            PaymentRetryDao retryDao,
-            PaymentDao paymentDao,
-            @Lazy PaymentService paymentService,
-            // ========== 푸시알림 추가 ==========
-            PushService pushService,
-            PartyDao partyDao,
-            PartyMemberDao partyMemberDao
-            // ========== 푸시알림 추가 끝 ==========
-    ) {
-        this.retryDao = retryDao;
-        this.paymentDao = paymentDao;
-        this.paymentService = paymentService;
-        // ========== 푸시알림 추가 ==========
-        this.pushService = pushService;
-        this.partyDao = partyDao;
-        this.partyMemberDao = partyMemberDao;
-        // ========== 푸시알림 추가 끝 ==========
-    }
+	private final PushService pushService;
+	private final PartyDao partyDao;
+	private final PartyMemberDao partyMemberDao;
 
-    @Override
-    public void recordSuccess(Payment payment, int attemptNumber) {
-        log.info("Recording successful payment attempt: paymentId={}, attemptNumber={}",
-                payment.getPaymentId(), attemptNumber);
+	public PaymentRetryServiceImpl(PaymentRetryDao retryDao, PaymentDao paymentDao, @Lazy PaymentService paymentService,
+			PushService pushService, PartyDao partyDao, PartyMemberDao partyMemberDao) {
+		this.retryDao = retryDao;
+		this.paymentDao = paymentDao;
+		this.paymentService = paymentService;
+		this.pushService = pushService;
+		this.partyDao = partyDao;
+		this.partyMemberDao = partyMemberDao;
+	}
 
-        PaymentRetryHistory history = PaymentRetryHistory.builder()
-                .paymentId(payment.getPaymentId())
-                .partyId(payment.getPartyId())
-                .partyMemberId(payment.getPartyMemberId())
-                .attemptNumber(attemptNumber)
-                .attemptDate(LocalDateTime.now())
-                .retryStatus("SUCCESS")
-                .nextRetryDate(null) // No retry needed
-                .build();
+	@Override
+	public void recordSuccess(Payment payment, int attemptNumber) {
+		log.info("Recording successful payment attempt: paymentId={}, attemptNumber={}", payment.getPaymentId(),
+				attemptNumber);
 
-        retryDao.insert(history);
-        log.debug("Retry history recorded: retryId={}", history.getRetryId());
-    }
+		PaymentRetryHistory history = PaymentRetryHistory.builder().paymentId(payment.getPaymentId())
+				.partyId(payment.getPartyId()).partyMemberId(payment.getPartyMemberId()).attemptNumber(attemptNumber)
+				.attemptDate(LocalDateTime.now()).retryStatus("SUCCESS").nextRetryDate(null).build();
 
-    @Override
-    public void recordFailureWithRetry(
-            Payment payment,
-            int attemptNumber,
-            String errorCode,
-            String errorMessage,
-            LocalDateTime nextRetryDate) {
+		retryDao.insert(history);
+		log.debug("Retry history recorded: retryId={}", history.getRetryId());
+	}
 
-        log.warn("Recording failed payment attempt with retry: paymentId={}, attemptNumber={}, nextRetry={}",
-                payment.getPaymentId(), attemptNumber, nextRetryDate);
+	@Override
+	public void recordFailureWithRetry(Payment payment, int attemptNumber, String errorCode, String errorMessage,
+			LocalDateTime nextRetryDate) {
 
-        PaymentRetryHistory history = PaymentRetryHistory.builder()
-                .paymentId(payment.getPaymentId())
-                .partyId(payment.getPartyId())
-                .partyMemberId(payment.getPartyMemberId())
-                .attemptNumber(attemptNumber)
-                .attemptDate(LocalDateTime.now())
-                .retryStatus("FAILED")
-                .retryReason(errorMessage)
-                .nextRetryDate(nextRetryDate)
-                .errorCode(errorCode)
-                .errorMessage(errorMessage)
-                .build();
+		log.warn("Recording failed payment attempt with retry: paymentId={}, attemptNumber={}, nextRetry={}",
+				payment.getPaymentId(), attemptNumber, nextRetryDate);
 
-        retryDao.insert(history);
-        log.info("Payment retry scheduled: retryId={}, nextRetry={}",
-                history.getRetryId(), nextRetryDate);
-    }
+		PaymentRetryHistory history = PaymentRetryHistory.builder().paymentId(payment.getPaymentId())
+				.partyId(payment.getPartyId()).partyMemberId(payment.getPartyMemberId()).attemptNumber(attemptNumber)
+				.attemptDate(LocalDateTime.now()).retryStatus("FAILED").retryReason(errorMessage)
+				.nextRetryDate(nextRetryDate).errorCode(errorCode).errorMessage(errorMessage).build();
 
-    @Override
-    public void recordPermanentFailure(
-            Payment payment,
-            int attemptNumber,
-            BusinessException exception) {
+		retryDao.insert(history);
+		log.info("Payment retry scheduled: retryId={}, nextRetry={}", history.getRetryId(), nextRetryDate);
+	}
 
-        log.error("Recording permanent payment failure: paymentId={}, attemptNumber={}",
-                payment.getPaymentId(), attemptNumber);
+	@Override
+	public void recordPermanentFailure(Payment payment, int attemptNumber, BusinessException exception) {
 
-        PaymentRetryHistory history = PaymentRetryHistory.builder()
-                .paymentId(payment.getPaymentId())
-                .partyId(payment.getPartyId())
-                .partyMemberId(payment.getPartyMemberId())
-                .attemptNumber(attemptNumber)
-                .attemptDate(LocalDateTime.now())
-                .retryStatus("FAILED")
-                .retryReason("Max retry attempts exceeded")
-                .nextRetryDate(null) // No more retries
-                .errorCode(exception.getErrorCode().getCode())
-                .errorMessage(exception.getMessage())
-                .build();
+		log.error("Recording permanent payment failure: paymentId={}, attemptNumber={}", payment.getPaymentId(),
+				attemptNumber);
 
-        retryDao.insert(history);
-        log.info("Permanent failure recorded: retryId={}", history.getRetryId());
-    }
+		PaymentRetryHistory history = PaymentRetryHistory.builder().paymentId(payment.getPaymentId())
+				.partyId(payment.getPartyId()).partyMemberId(payment.getPartyMemberId()).attemptNumber(attemptNumber)
+				.attemptDate(LocalDateTime.now()).retryStatus("FAILED").retryReason("Max retry attempts exceeded")
+				.nextRetryDate(null).errorCode(exception.getErrorCode().getCode()).errorMessage(exception.getMessage())
+				.build();
 
-    @Override
-    @Transactional(readOnly = true)
-    public List<PaymentRetryHistory> findPendingRetries(LocalDate today) {
-        log.info("Finding pending retries for date: {}", today);
+		retryDao.insert(history);
+		log.info("Permanent failure recorded: retryId={}", history.getRetryId());
+	}
 
-        List<PaymentRetryHistory> retries = retryDao.findByNextRetryDate(today);
-        log.info("Found {} pending retries", retries.size());
+	@Override
+	@Transactional(readOnly = true)
+	public List<PaymentRetryHistory> findPendingRetries(LocalDate today) {
+		log.info("Finding pending retries for date: {}", today);
 
-        return retries;
-    }
+		List<PaymentRetryHistory> retries = retryDao.findByNextRetryDate(today);
+		log.info("Found {} pending retries", retries.size());
 
-    @Override
-    public void retryPayment(PaymentRetryHistory retry, String targetMonth) {
-        log.info("Retrying payment: paymentId={}, attemptNumber={}",
-                retry.getPaymentId(), retry.getAttemptNumber());
+		return retries;
+	}
 
-        // 1. Load payment
-        Payment payment = paymentDao.findById(retry.getPaymentId())
-                .orElseThrow(() -> new BusinessException(ErrorCode.PAYMENT_NOT_FOUND));
+	@Override
+	public void retryPayment(PaymentRetryHistory retry, String targetMonth) {
+		log.info("Retrying payment: paymentId={}, attemptNumber={}", retry.getPaymentId(), retry.getAttemptNumber());
 
-        // 2. Check if already completed (defensive check)
-        if (payment.getPaymentStatus() == PaymentStatus.COMPLETED) {
-            log.warn("Payment already completed, skipping retry: paymentId={}",
-                    payment.getPaymentId());
-            return;
-        }
+		Payment payment = paymentDao.findById(retry.getPaymentId())
+				.orElseThrow(() -> new BusinessException(ErrorCode.PAYMENT_NOT_FOUND));
 
-        // 3. Attempt payment again with incremented attempt number
-        int nextAttempt = retry.getAttemptNumber() + 1;
-        log.info("Attempting payment execution: paymentId={}, attempt={}",
-                payment.getPaymentId(), nextAttempt);
+		if (payment.getPaymentStatus() == PaymentStatus.COMPLETED) {
+			log.warn("Payment already completed, skipping retry: paymentId={}", payment.getPaymentId());
+			return;
+		}
 
-        paymentService.attemptPaymentExecution(payment, nextAttempt);
-    }
+		int nextAttempt = retry.getAttemptNumber() + 1;
+		log.info("Attempting payment execution: paymentId={}, attempt={}", payment.getPaymentId(), nextAttempt);
+
+		paymentService.attemptPaymentExecution(payment, nextAttempt);
+	}
 }

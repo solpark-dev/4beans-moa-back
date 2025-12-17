@@ -28,6 +28,6 @@ public class Settlement {
     private Integer netAmount;
     private SettlementStatus settlementStatus;
     private LocalDateTime settlementDate;
-    private String bankTranId; // 오픈뱅킹 거래고유번호
+    private String bankTranId;
     private LocalDateTime regDate;
 }

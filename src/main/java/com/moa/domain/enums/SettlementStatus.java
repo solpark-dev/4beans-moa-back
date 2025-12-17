@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum SettlementStatus {
     PENDING("정산대기"),
-    PENDING_ACCOUNT("계좌대기"),     // 방장 계좌 미등록으로 대기 중
+    PENDING_ACCOUNT("계좌대기"),
     IN_PROGRESS("처리중"),
     COMPLETED("정산완료"),
     FAILED("정산실패");

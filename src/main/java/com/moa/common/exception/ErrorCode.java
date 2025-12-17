@@ -4,9 +4,7 @@ import org.springframework.http.HttpStatus;
 
 public enum ErrorCode {
 
-	SUCCESS("S000", "성공", HttpStatus.OK),
-
-	BAD_REQUEST("E400", "잘못된 요청입니다.", HttpStatus.BAD_REQUEST),
+	SUCCESS("S000", "성공", HttpStatus.OK), BAD_REQUEST("E400", "잘못된 요청입니다.", HttpStatus.BAD_REQUEST),
 	UNAUTHORIZED("E401", "인증이 필요합니다.", HttpStatus.UNAUTHORIZED),
 	FORBIDDEN("E403", "접근 권한이 없습니다.", HttpStatus.FORBIDDEN), NOT_FOUND("E404", "대상을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
 	VALIDATION_ERROR("E422", "유효성 검증 실패입니다.", HttpStatus.UNPROCESSABLE_ENTITY),
@@ -14,10 +12,10 @@ public enum ErrorCode {
 	INTERNAL_ERROR("E999", "서버 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
 	FEATURE_NOT_AVAILABLE("F400", "현재 버전에서는 지원하지 않는 기능입니다.", HttpStatus.BAD_REQUEST),
 	EMBEDDING_FAILED("E900", "임베딩 생성 실패", HttpStatus.INTERNAL_SERVER_ERROR),
-
 	SUBSCRIPTION_ID_REQUIRED("V002", "구독 ID는 필수입니다.", HttpStatus.BAD_REQUEST),
 	SUBSCRIPTION_NOT_FOUND("SB404", "구독 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
 
+	// 파티(Party)
 	PARTY_NOT_FOUND("P404", "파티를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
 	PARTY_FULL("P409", "파티 인원이 가득 찼습니다.", HttpStatus.CONFLICT),
 	ALREADY_JOINED("P409", "이미 참여 중입니다.", HttpStatus.CONFLICT),
@@ -36,25 +34,25 @@ public enum ErrorCode {
 
 	BUSINESS_ERROR("E500", "이메일 발송 중 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
 
-	// 정산(Settlement) 관련 에러
+	// 정산(Settlement)
 	SETTLEMENT_NOT_FOUND("ST404", "정산 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
 	DUPLICATE_SETTLEMENT("ST409", "이미 정산된 내역입니다.", HttpStatus.CONFLICT),
 	SETTLEMENT_ALREADY_COMPLETED("ST409", "이미 완료된 정산입니다.", HttpStatus.CONFLICT),
 	SETTLEMENT_FAILED("ST500", "정산 처리 중 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
 	SETTLEMENT_PERIOD_NOT_COMPLETED("ST400", "정산 기간이 아직 완료되지 않았습니다.", HttpStatus.BAD_REQUEST),
 
-	// 계좌(Account) 관련 에러
+	// 계좌(Account)
 	ACCOUNT_NOT_FOUND("ACC404", "계좌 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
 	ACCOUNT_NOT_VERIFIED("ACC400", "인증되지 않은 계좌입니다.", HttpStatus.BAD_REQUEST),
 	ACCOUNT_NOT_REGISTERED("ACC401", "정산 계좌가 등록되지 않았습니다.", HttpStatus.BAD_REQUEST),
 
-	// 보증금(Deposit) 관련 에러
+	// 보증금(Deposit)
 	DEPOSIT_NOT_FOUND("DEP404", "보증금 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
 	DEPOSIT_ALREADY_PAID("DEP409", "이미 결제된 보증금입니다.", HttpStatus.CONFLICT),
 	DEPOSIT_ALREADY_REFUNDED("DEP410", "이미 환불된 보증금입니다.", HttpStatus.CONFLICT),
 	DEPOSIT_AMOUNT_MISMATCH("DEP400", "보증금 금액이 일치하지 않습니다.", HttpStatus.BAD_REQUEST),
 
-	// 결제(Payment) 관련 에러
+	// 결제(Payment)
 	PAYMENT_NOT_FOUND("PAY404", "결제 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
 	DUPLICATE_PAYMENT("PAY409", "이미 해당 월에 결제한 내역이 있습니다.", HttpStatus.CONFLICT),
 	PAYMENT_FAILED("PAY500", "결제 처리 중 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
@@ -67,24 +65,24 @@ public enum ErrorCode {
 	RETRY_NOT_FOUND("PAY503", "재시도 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
 	INVALID_PAYMENT_STATUS("PAY400", "잘못된 결제 상태입니다.", HttpStatus.BAD_REQUEST),
 
-	// Refund Errors (Retryable vs Non-retryable)
+	// Refund Errors
 	REFUND_TEMPORARY_ERROR("REF501", "일시적인 환불 오류입니다. 재시도합니다.", HttpStatus.INTERNAL_SERVER_ERROR),
 	REFUND_PERMANENT_ERROR("REF502", "영구적인 환불 오류입니다. 수동 처리가 필요합니다.", HttpStatus.INTERNAL_SERVER_ERROR),
 	REFUND_ALREADY_DONE("REF409", "이미 환불 처리된 결제입니다.", HttpStatus.CONFLICT),
 	REFUND_NOT_ALLOWED("REF403", "환불이 허용되지 않는 결제입니다.", HttpStatus.FORBIDDEN),
 
-	// 상품(Product) 관련 에러
+	// 상품(Product)
 	PRODUCT_NOT_FOUND("PR404", "상품을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
 	PRODUCT_ID_REQUIRED("V001", "상품 ID는 필수입니다.", HttpStatus.BAD_REQUEST),
 	FILE_EMPTY("F400", "파일이 비어있습니다.", HttpStatus.BAD_REQUEST),
 
-	// 유효성 검증 관련 에러
+	// 유효성 검증
 	START_DATE_REQUIRED("V004", "파티 시작일은 필수입니다.", HttpStatus.BAD_REQUEST),
 	OTT_ID_REQUIRED("V006", "OTT 계정 ID는 필수입니다.", HttpStatus.BAD_REQUEST),
 	OTT_PASSWORD_REQUIRED("V007", "OTT 계정 비밀번호는 필수입니다.", HttpStatus.BAD_REQUEST),
 	BACKUP_CODE_ALREADY_ISSUED("E450", "이미 발급된 백업 코드가 있습니다.", HttpStatus.BAD_REQUEST),
 
-	// 회원(User) 관련 에러
+	// 회원(User)
 	USER_NOT_FOUND("U404", "사용자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
 	DUPLICATED_PHONE("D013", "이미 사용중인 휴대폰번호입니다.", HttpStatus.CONFLICT),
 	DUPLICATED_USER("D014", "이미 사용중인 휴대폰번호입니다.", HttpStatus.CONFLICT),

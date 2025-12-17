@@ -1,15 +1,12 @@
 package com.moa.domain.openbanking;
 
+import java.time.LocalDateTime;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
-/**
- * 1원 인증 세션 도메인
- */
 @Data
 @Builder
 @NoArgsConstructor
@@ -24,7 +21,7 @@ public class AccountVerification {
     private String accountHolder;
     private String verifyCode;
     private Integer attemptCount;
-    private VerificationStatus status; // PENDING, VERIFIED, EXPIRED, FAILED
+    private VerificationStatus status;
     private LocalDateTime expiredAt;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

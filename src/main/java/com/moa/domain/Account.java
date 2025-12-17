@@ -20,11 +20,11 @@ public class Account {
     private String bankName;
     private String accountNumber;
     private String accountHolder;
-    private String isVerified; // 'Y' or 'N'
+    private String isVerified;
     private String fintechUseNum;
     private LocalDateTime regDate;
     private LocalDateTime verifyDate;
-    private String status; // ACTIVE, INACTIVE, BLOCK
+    private String status;
 
     public String getMaskedAccountNumber() {
         if (this.accountNumber == null || this.accountNumber.length() < 8) {

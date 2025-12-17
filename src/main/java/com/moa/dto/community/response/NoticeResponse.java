@@ -21,8 +21,6 @@ public class NoticeResponse {
     private String content;
     private LocalDateTime createdAt;
     private Integer viewCount;
-//    private String fileOriginal;
-//    private String fileUuid;
     private String category;
     private String categoryName;
     
@@ -35,8 +33,6 @@ public class NoticeResponse {
                 .content(community.getContent())
                 .createdAt(community.getCreatedAt())
                 .viewCount(community.getViewCount())
-                //.fileOriginal(community.getFileOriginal())
-                //.fileUuid(community.getFileUuid())
                 .category(community.getCategory())
                 .categoryName(community.getCodeName())
                 .build();

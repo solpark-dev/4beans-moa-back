@@ -1,7 +1,8 @@
 package com.moa.domain;
 
-import lombok.Data;
 import java.sql.Date;
+
+import lombok.Data;
 
 @Data
 public class Subscription {

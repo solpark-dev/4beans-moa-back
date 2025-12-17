@@ -25,135 +25,99 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SettlementScheduler {
 
-    private final PartyDao partyDao;
-    private final SettlementDao settlementDao;
-    private final SettlementService settlementService;
-    private final ApplicationEventPublisher eventPublisher;
+	private final PartyDao partyDao;
+	private final SettlementDao settlementDao;
+	private final SettlementService settlementService;
+	private final ApplicationEventPublisher eventPublisher;
+	private static final int MAX_RETRY_ATTEMPTS = 3;
+	private static final int RETRY_DELAY_HOURS = 2;
 
-    // 재시도 설정
-    private static final int MAX_RETRY_ATTEMPTS = 3;
-    private static final int RETRY_DELAY_HOURS = 2; // 재시도 간격 (시간)
+	@Scheduled(cron = "0 0 4 1 * *")
+	public void runMonthlySettlement() {
+		log.info("Starting monthly settlement scheduler...");
+		LocalDate now = LocalDate.now();
+		LocalDate lastMonth = now.minusMonths(1);
+		String targetMonth = lastMonth.format(DateTimeFormatter.ofPattern("yyyy-MM"));
 
-    /**
-     * 월별 정산 스케줄러
-     * 매월 1일 새벽 4시에 실행
-     * 전월 사용분에 대한 정산을 생성하고 즉시 이체 처리 (Full Automation)
-     */
-    @Scheduled(cron = "0 0 4 1 * *")
-    public void runMonthlySettlement() {
-        log.info("Starting monthly settlement scheduler...");
+		List<Party> activeParties = partyDao.findActiveParties();
+		if (activeParties.isEmpty()) {
+			log.info("No active parties found for settlement.");
+			return;
+		}
 
-        // 1. 정산 대상 월 계산 (이번 달 1일 실행 -> 지난 달이 대상)
-        LocalDate now = LocalDate.now();
-        LocalDate lastMonth = now.minusMonths(1);
-        String targetMonth = lastMonth.format(DateTimeFormatter.ofPattern("yyyy-MM"));
+		for (Party party : activeParties) {
+			try {
+				Settlement settlement = settlementService.createMonthlySettlement(party.getPartyId(), targetMonth);
 
-        List<Party> activeParties = partyDao.findActiveParties();
-        if (activeParties.isEmpty()) {
-            log.info("No active parties found for settlement.");
-            return;
-        }
+				if (settlement == null) {
+					log.info("No payments to settle for partyId: {} in month: {}", party.getPartyId(), targetMonth);
+					continue;
+				}
 
-        for (Party party : activeParties) {
-            try {
-                // 1. 정산 생성
-                Settlement settlement = settlementService.createMonthlySettlement(party.getPartyId(), targetMonth);
+				settlementService.completeSettlement(settlement.getSettlementId());
+				eventPublisher.publishEvent(new SettlementCompletedEvent(party.getPartyId(), settlement.getNetAmount(),
+						party.getPartyLeaderId()));
 
-                // 정산할 내역이 없으면 스킵
-                if (settlement == null) {
-                    log.info("No payments to settle for partyId: {} in month: {}", party.getPartyId(), targetMonth);
-                    continue;
-                }
+			} catch (Exception e) {
+				log.error("Failed to process settlement for partyId: {}", party.getPartyId(), e);
+			}
+		}
 
-                // 2. 정산 완료 (이체)
-                settlementService.completeSettlement(settlement.getSettlementId());
+		log.info("Monthly settlement scheduler finished.");
+	}
 
-                // 3. 이벤트 발행
-                eventPublisher.publishEvent(new SettlementCompletedEvent(
-                        party.getPartyId(),
-                        settlement.getNetAmount(), // netAmount 사용
-                        party.getPartyLeaderId()));
+	@Scheduled(cron = "0 0 * * * *")
+	public void retryFailedSettlements() {
+		log.info("Starting failed settlement retry scheduler...");
 
-            } catch (Exception e) {
-                log.error("Failed to process settlement for partyId: {}", party.getPartyId(), e);
-                // 개별 파티 실패가 전체 프로세스를 중단시키지 않도록 예외 처리
-            }
-        }
+		List<Settlement> failedSettlements = settlementDao.findFailedSettlements();
+		if (failedSettlements.isEmpty()) {
+			log.info("No failed settlements to retry.");
+			return;
+		}
 
-        log.info("Monthly settlement scheduler finished.");
-    }
+		log.info("Found {} failed settlements to retry", failedSettlements.size());
 
-    /**
-     * 실패한 정산 재시도 스케줄러
-     * 매시간 정각에 실행
-     */
-    @Scheduled(cron = "0 0 * * * *")
-    public void retryFailedSettlements() {
-        log.info("Starting failed settlement retry scheduler...");
+		for (Settlement settlement : failedSettlements) {
+			try {
+				if (settlement.getBankTranId() != null && !settlement.getBankTranId().isEmpty()) {
+					log.warn("Settlement {} has bankTranId but status is FAILED. Manual intervention required.",
+							settlement.getSettlementId());
+					continue;
+				}
+				LocalDateTime createdTime = settlement.getRegDate();
+				LocalDateTime now = LocalDateTime.now();
+				long hoursSinceCreation = java.time.Duration.between(createdTime, now).toHours();
 
-        List<Settlement> failedSettlements = settlementDao.findFailedSettlements();
-        if (failedSettlements.isEmpty()) {
-            log.info("No failed settlements to retry.");
-            return;
-        }
+				if (hoursSinceCreation < RETRY_DELAY_HOURS) {
+					log.debug("Settlement {} too recent to retry ({}h < {}h)", settlement.getSettlementId(),
+							hoursSinceCreation, RETRY_DELAY_HOURS);
+					continue;
+				}
+				if (hoursSinceCreation > 24) {
+					log.warn("Settlement {} retry timed out ({}h > 24h). Stopping retries.",
+							settlement.getSettlementId(), hoursSinceCreation);
+					continue;
+				}
+				log.info("Retrying settlement {}", settlement.getSettlementId());
+				settlementDao.updateSettlementStatus(settlement.getSettlementId(), SettlementStatus.PENDING.name(),
+						null);
+				settlementService.completeSettlement(settlement.getSettlementId());
 
-        log.info("Found {} failed settlements to retry", failedSettlements.size());
+				Party party = partyDao.findById(settlement.getPartyId()).orElse(null);
+				if (party != null) {
+					eventPublisher.publishEvent(new SettlementCompletedEvent(settlement.getPartyId(),
+							settlement.getNetAmount(), settlement.getPartyLeaderId()));
+				}
 
-        for (Settlement settlement : failedSettlements) {
-            try {
-                // 재시도 가능 여부 확인
-                // 1. 이미 bankTranId가 있으면 API 호출은 성공했으나 DB 업데이트 실패한 것 → 재시도 불가
-                if (settlement.getBankTranId() != null && !settlement.getBankTranId().isEmpty()) {
-                    log.warn("Settlement {} has bankTranId but status is FAILED. Manual intervention required.",
-                            settlement.getSettlementId());
-                    continue;
-                }
+				log.info("Successfully retried settlement {}", settlement.getSettlementId());
 
-                // 2. 생성 후 최소 재시도 간격 확인 (지수 백오프)
-                LocalDateTime createdTime = settlement.getRegDate();
-                LocalDateTime now = LocalDateTime.now();
-                long hoursSinceCreation = java.time.Duration.between(createdTime, now).toHours();
+			} catch (Exception e) {
+				log.error("Failed to retry settlement {}: {}", settlement.getSettlementId(), e.getMessage());
 
-                if (hoursSinceCreation < RETRY_DELAY_HOURS) {
-                    log.debug("Settlement {} too recent to retry ({}h < {}h)",
-                            settlement.getSettlementId(), hoursSinceCreation, RETRY_DELAY_HOURS);
-                    continue;
-                }
+			}
+		}
 
-                // 24시간 지난 건은 더 이상 재시도하지 않음 (무한 루프 방지)
-                if (hoursSinceCreation > 24) {
-                    log.warn("Settlement {} retry timed out ({}h > 24h). Stopping retries.",
-                            settlement.getSettlementId(), hoursSinceCreation);
-                    continue;
-                }
-
-                // 3. 재시도 실행
-                log.info("Retrying settlement {}", settlement.getSettlementId());
-
-                // 상태를 PENDING으로 변경하여 재시도 가능하게 함
-                settlementDao.updateSettlementStatus(settlement.getSettlementId(),
-                        SettlementStatus.PENDING.name(), null);
-
-                // 정산 완료 시도
-                settlementService.completeSettlement(settlement.getSettlementId());
-
-                // 파티 정보 조회하여 이벤트 발행
-                Party party = partyDao.findById(settlement.getPartyId()).orElse(null);
-                if (party != null) {
-                    eventPublisher.publishEvent(new SettlementCompletedEvent(
-                            settlement.getPartyId(),
-                            settlement.getNetAmount(),
-                            settlement.getPartyLeaderId()));
-                }
-
-                log.info("Successfully retried settlement {}", settlement.getSettlementId());
-
-            } catch (Exception e) {
-                log.error("Failed to retry settlement {}: {}", settlement.getSettlementId(), e.getMessage());
-                // 실패 시 상태는 이미 FAILED로 저장되어 있음
-            }
-        }
-
-        log.info("Failed settlement retry scheduler finished.");
-    }
+		log.info("Failed settlement retry scheduler finished.");
+	}
 }

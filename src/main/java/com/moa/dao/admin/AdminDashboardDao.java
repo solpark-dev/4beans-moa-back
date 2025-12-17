@@ -8,29 +8,31 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface AdminDashboardDao {
 
-    // 기본 통계
-    long getTotalRevenue();
-    long getActivePartyCount();
-    long getTotalPartyCount();
-    long getTotalUserCount();
+	long getTotalRevenue();
 
-    // 추가 통계
-    long getTodayNewUsers();
-    long getThisMonthRevenue();
-    long getRecruitingPartyCount();
-    long getPendingPaymentCount();
-    long getCompletedPaymentCount();
-    long getThisMonthPaymentCount();
+	long getActivePartyCount();
 
-    // OTT별 파티 통계
-    List<Map<String, Object>> getOttPartyStats();
+	long getTotalPartyCount();
 
-    // 최근 7일 매출
-    List<Map<String, Object>> getDailyRevenues();
+	long getTotalUserCount();
 
-    // 최근 가입 회원 (5명)
-    List<Map<String, Object>> getRecentUsers();
+	long getTodayNewUsers();
 
-    // 최근 결제 내역 (5건)
-    List<Map<String, Object>> getRecentPayments();
+	long getThisMonthRevenue();
+
+	long getRecruitingPartyCount();
+
+	long getPendingPaymentCount();
+
+	long getCompletedPaymentCount();
+
+	long getThisMonthPaymentCount();
+
+	List<Map<String, Object>> getOttPartyStats();
+
+	List<Map<String, Object>> getDailyRevenues();
+
+	List<Map<String, Object>> getRecentUsers();
+
+	List<Map<String, Object>> getRecentPayments();
 }

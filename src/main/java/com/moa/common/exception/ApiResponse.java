@@ -16,8 +16,6 @@ public class ApiResponse<T> {
 		return new ApiResponse<>(true, data, null);
 	}
 
-	// 🔥 기존: ApiResponse<Void>
-	// 🔥 수정: <T> 제네릭 적용
 	public static <T> ApiResponse<T> error(ErrorCode errorCode, String message) {
 		return new ApiResponse<>(false, null, new ApiError(errorCode.getCode(), message));
 	}

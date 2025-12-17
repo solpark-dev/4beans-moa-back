@@ -4,73 +4,71 @@
 
 <mapper namespace="com.moa.dao.account.AccountDao">
 
-    <resultMap id="AccountResultMap" type="com.moa.domain.Account">
-        <id property="accountId" column="ACCOUNT_ID"/>
-        <result property="userId" column="USER_ID"/>
-        <result property="bankCode" column="BANK_CODE"/>
-        <result property="bankName" column="BANK_NAME"/>
-        <result property="accountNumber" column="ACCOUNT_NUMBER"/>
-        <result property="accountHolder" column="ACCOUNT_HOLDER"/>
-        <result property="fintechUseNum" column="FINTECH_USE_NUM"/>
-        <result property="status" column="STATUS"/>
-        <result property="isVerified" column="IS_VERIFIED"/>
-        <result property="regDate" column="REG_DATE"/>
-        <result property="verifyDate" column="VERIFY_DATE"/>
-    </resultMap>
+	<resultMap id="AccountResultMap"
+		type="com.moa.domain.Account">
+		<id property="accountId" column="ACCOUNT_ID" />
+		<result property="userId" column="USER_ID" />
+		<result property="bankCode" column="BANK_CODE" />
+		<result property="bankName" column="BANK_NAME" />
+		<result property="accountNumber" column="ACCOUNT_NUMBER" />
+		<result property="accountHolder" column="ACCOUNT_HOLDER" />
+		<result property="fintechUseNum" column="FINTECH_USE_NUM" />
+		<result property="status" column="STATUS" />
+		<result property="isVerified" column="IS_VERIFIED" />
+		<result property="regDate" column="REG_DATE" />
+		<result property="verifyDate" column="VERIFY_DATE" />
+	</resultMap>
 
-    <insert id="insertAccount" parameterType="com.moa.domain.Account" useGeneratedKeys="true" keyProperty="accountId" keyColumn="ACCOUNT_ID">
-        INSERT INTO ACCOUNT (
-            USER_ID, BANK_CODE, BANK_NAME, ACCOUNT_NUMBER, ACCOUNT_HOLDER, IS_VERIFIED, REG_DATE
-        ) VALUES (
-            #{userId}, #{bankCode}, #{bankName}, #{accountNumber}, #{accountHolder}, #{isVerified}, NOW()
-        )
-    </insert>
+	<insert id="insertAccount"
+		parameterType="com.moa.domain.Account" useGeneratedKeys="true"
+		keyProperty="accountId" keyColumn="ACCOUNT_ID">
+		INSERT INTO ACCOUNT (
+		USER_ID, BANK_CODE, BANK_NAME, ACCOUNT_NUMBER, ACCOUNT_HOLDER, IS_VERIFIED,
+		REG_DATE
+		) VALUES (
+		#{userId}, #{bankCode}, #{bankName}, #{accountNumber}, #{accountHolder},
+		#{isVerified}, NOW()
+		)
+	</insert>
 
-    <select id="findByUserId" resultMap="AccountResultMap">
-        SELECT * FROM ACCOUNT WHERE USER_ID = #{userId}
-    </select>
+	<select id="findByUserId" resultMap="AccountResultMap">
+		SELECT * FROM ACCOUNT WHERE USER_ID = #{userId}
+	</select>
 
-    <update id="updateVerifyStatus">
-        UPDATE ACCOUNT
-        SET IS_VERIFIED = #{isVerified},
-            VERIFY_DATE = NOW()
-        WHERE ACCOUNT_ID = #{accountId}
-    </update>
+	<update id="updateVerifyStatus">
+		UPDATE ACCOUNT
+		SET IS_VERIFIED = #{isVerified},
+		VERIFY_DATE = NOW()
+		WHERE ACCOUNT_ID = #{accountId}
+	</update>
 
-    <select id="findById" resultMap="AccountResultMap">
-        SELECT * FROM ACCOUNT WHERE ACCOUNT_ID = #{accountId}
-    </select>
+	<select id="findById" resultMap="AccountResultMap">
+		SELECT * FROM ACCOUNT WHERE ACCOUNT_ID = #{accountId}
+	</select>
 
-    <!-- 오픈뱅킹 관련 쿼리 -->
-    
-    <!-- 핀테크이용번호 업데이트 -->
-    <update id="updateFintechUseNum">
-        UPDATE ACCOUNT
-        SET FINTECH_USE_NUM = #{fintechUseNum}
-        WHERE ACCOUNT_ID = #{accountId}
-    </update>
-    
-    <!-- 계좌 상태 업데이트 -->
-    <update id="updateStatus">
-        UPDATE ACCOUNT
-        SET STATUS = #{status}
-        WHERE ACCOUNT_ID = #{accountId}
-    </update>
-    
-    <!-- 핀테크이용번호로 계좌 조회 -->
-    <select id="findByFintechUseNum" resultMap="AccountResultMap">
-        SELECT * FROM ACCOUNT WHERE FINTECH_USE_NUM = #{fintechUseNum}
-    </select>
-    
-    <!-- 활성 계좌만 조회 -->
-    <select id="findActiveByUserId" resultMap="AccountResultMap">
-        SELECT * FROM ACCOUNT 
-        WHERE USER_ID = #{userId} AND (STATUS = 'ACTIVE' OR STATUS IS NULL)
-    </select>
+	<update id="updateFintechUseNum">
+		UPDATE ACCOUNT
+		SET FINTECH_USE_NUM = #{fintechUseNum}
+		WHERE ACCOUNT_ID = #{accountId}
+	</update>
+	<update id="updateStatus">
+		UPDATE ACCOUNT
+		SET STATUS = #{status}
+		WHERE ACCOUNT_ID = #{accountId}
+	</update>
 
-    <!-- 사용자 계좌 삭제 -->
-    <delete id="deleteByUserId">
-        DELETE FROM ACCOUNT WHERE USER_ID = #{userId}
-    </delete>
+	<select id="findByFintechUseNum" resultMap="AccountResultMap">
+		SELECT * FROM ACCOUNT WHERE FINTECH_USE_NUM = #{fintechUseNum}
+	</select>
+
+	<select id="findActiveByUserId" resultMap="AccountResultMap">
+		SELECT * FROM ACCOUNT
+		WHERE USER_ID = #{userId} AND (STATUS = 'ACTIVE' OR STATUS IS NULL)
+	</select>
+
+	<!-- 사용자 계좌 삭제 -->
+	<delete id="deleteByUserId">
+		DELETE FROM ACCOUNT WHERE USER_ID = #{userId}
+	</delete>
 
 </mapper>

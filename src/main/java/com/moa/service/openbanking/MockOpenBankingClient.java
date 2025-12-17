@@ -8,13 +8,9 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
-/**
- * Mock 오픈뱅킹 클라이언트
- * 개발 환경에서 Mock 서버를 호출하는 클라이언트
- */
 @Slf4j
 @Service
-@Profile("!prod") // prod 프로파일이 아닐 때 활성화
+@Profile("!prod")
 @RequiredArgsConstructor
 public class MockOpenBankingClient implements OpenBankingClient {
 

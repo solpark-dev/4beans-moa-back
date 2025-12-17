@@ -26,13 +26,11 @@ public class AdminDashboardServiceImpl implements AdminDashboardService {
     @Override
     @Transactional(readOnly = true)
     public DashboardStatsResponse getDashboardStats() {
-        // 기본 통계
         long totalRevenue = adminDashboardDao.getTotalRevenue();
         long activePartyCount = adminDashboardDao.getActivePartyCount();
         long totalPartyCount = adminDashboardDao.getTotalPartyCount();
         long totalUserCount = adminDashboardDao.getTotalUserCount();
 
-        // 추가 통계
         long todayNewUsers = adminDashboardDao.getTodayNewUsers();
         long thisMonthRevenue = adminDashboardDao.getThisMonthRevenue();
         long recruitingPartyCount = adminDashboardDao.getRecruitingPartyCount();
@@ -40,7 +38,6 @@ public class AdminDashboardServiceImpl implements AdminDashboardService {
         long completedPaymentCount = adminDashboardDao.getCompletedPaymentCount();
         long thisMonthPaymentCount = adminDashboardDao.getThisMonthPaymentCount();
 
-        // OTT별 파티 통계
         List<OttPartyStats> ottPartyStats = adminDashboardDao.getOttPartyStats().stream()
                 .map(m -> OttPartyStats.builder()
                         .ottName((String) m.get("ottName"))
@@ -49,7 +46,6 @@ public class AdminDashboardServiceImpl implements AdminDashboardService {
                         .build())
                 .collect(Collectors.toList());
 
-        // 최근 7일 매출
         List<DailyRevenue> dailyRevenues = adminDashboardDao.getDailyRevenues().stream()
                 .map(m -> DailyRevenue.builder()
                         .date((String) m.get("date"))
@@ -57,7 +53,6 @@ public class AdminDashboardServiceImpl implements AdminDashboardService {
                         .build())
                 .collect(Collectors.toList());
 
-        // 최근 가입 회원
         List<RecentUser> recentUsers = adminDashboardDao.getRecentUsers().stream()
                 .map(m -> RecentUser.builder()
                         .odUserId((String) m.get("odUserId"))
@@ -67,7 +62,6 @@ public class AdminDashboardServiceImpl implements AdminDashboardService {
                         .build())
                 .collect(Collectors.toList());
 
-        // 최근 결제 내역
         List<RecentPayment> recentPayments = adminDashboardDao.getRecentPayments().stream()
                 .map(m -> RecentPayment.builder()
                         .paymentId(toLong(m.get("paymentId")))

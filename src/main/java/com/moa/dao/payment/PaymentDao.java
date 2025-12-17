@@ -13,37 +13,32 @@ import com.moa.dto.payment.response.PaymentResponse;
 @Mapper
 public interface PaymentDao {
 
-        int insertPayment(Payment payment);
+	int insertPayment(Payment payment);
 
-        Optional<Payment> findById(@Param("paymentId") Integer paymentId);
+	Optional<Payment> findById(@Param("paymentId") Integer paymentId);
 
-        Optional<PaymentDetailResponse> findDetailById(@Param("paymentId") Integer paymentId);
+	Optional<PaymentDetailResponse> findDetailById(@Param("paymentId") Integer paymentId);
 
-        List<PaymentResponse> findByUserId(@Param("userId") String userId);
+	List<PaymentResponse> findByUserId(@Param("userId") String userId);
 
-        List<PaymentResponse> findByPartyId(@Param("partyId") Integer partyId);
+	List<PaymentResponse> findByPartyId(@Param("partyId") Integer partyId);
 
-        Optional<Payment> findByPartyMemberIdAndTargetMonth(
-                        @Param("partyMemberId") Integer partyMemberId,
-                        @Param("targetMonth") String targetMonth);
+	Optional<Payment> findByPartyMemberIdAndTargetMonth(@Param("partyMemberId") Integer partyMemberId,
+			@Param("targetMonth") String targetMonth);
 
-        Optional<Payment> findByOrderId(@Param("orderId") String orderId);
+	Optional<Payment> findByOrderId(@Param("orderId") String orderId);
 
-        int updatePaymentStatus(
-                        @Param("paymentId") Integer paymentId,
-                        @Param("status") String status);
+	int updatePaymentStatus(@Param("paymentId") Integer paymentId, @Param("status") String status);
 
-        Optional<Payment> findByPartyMemberIdAndType(
-                        @Param("partyMemberId") Integer partyMemberId,
-                        @Param("paymentType") String paymentType);
+	Optional<Payment> findByPartyMemberIdAndType(@Param("partyMemberId") Integer partyMemberId,
+			@Param("paymentType") String paymentType);
 
-        long calculateTotalRevenue();
+	long calculateTotalRevenue();
 
-        int updateSettlementId(@Param("paymentId") Integer paymentId, @Param("settlementId") Integer settlementId);
+	int updateSettlementId(@Param("paymentId") Integer paymentId, @Param("settlementId") Integer settlementId);
 
-        List<PaymentResponse> findBySettlementId(@Param("settlementId") Integer settlementId);
+	List<PaymentResponse> findBySettlementId(@Param("settlementId") Integer settlementId);
 
-        Optional<Payment> findLastMonthlyPayment(
-                        @Param("partyId") Integer partyId,
-                        @Param("partyMemberId") Integer partyMemberId);
+	Optional<Payment> findLastMonthlyPayment(@Param("partyId") Integer partyId,
+			@Param("partyMemberId") Integer partyMemberId);
 }

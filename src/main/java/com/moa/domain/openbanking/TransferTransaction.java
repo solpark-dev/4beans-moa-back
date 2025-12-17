@@ -1,15 +1,12 @@
 package com.moa.domain.openbanking;
 
+import java.time.LocalDateTime;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
-/**
- * 입금이체 거래 기록 도메인
- */
 @Data
 @Builder
 @NoArgsConstructor
@@ -25,7 +22,7 @@ public class TransferTransaction {
     private String reqClientName;
     private String rspCode;
     private String rspMessage;
-    private TransactionStatus status; // PENDING, SUCCESS, FAILED
+    private TransactionStatus status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
