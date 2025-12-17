@@ -109,6 +109,79 @@ public class ProductRestController {
         }
     }
 
+    @PostMapping("/upload-images")
+    public String uploadImages(
+            @RequestParam(value = "logoFile", required = false) MultipartFile logoFile,
+            @RequestParam(value = "iconFile", required = false) MultipartFile iconFile) throws Exception {
+        try {
+            // 적어도 하나의 파일은 필요
+            boolean hasLogo = logoFile != null && !logoFile.isEmpty();
+            boolean hasIcon = iconFile != null && !iconFile.isEmpty();
+
+            if (!hasLogo && !hasIcon) {
+                throw new RuntimeException("At least one file (logo or icon) is required");
+            }
+
+            // 기본 이름 생성 (UUID 기반)
+            String baseName = UUID.randomUUID().toString().substring(0, 8);
+            String savedLogoFilename = null;
+
+            // 로고 파일 저장
+            if (hasLogo) {
+                String logoExtension = getFileExtension(logoFile.getOriginalFilename());
+                savedLogoFilename = baseName + "_logo" + logoExtension;
+                String logoFullPath = combinePath(uploadDir, savedLogoFilename);
+
+                logger.debug("Saving logo to: {}", logoFullPath);
+
+                File logoDest = new File(logoFullPath);
+                ensureDirectoryExists(logoDest);
+                logoFile.transferTo(logoDest.getAbsoluteFile());
+                logger.debug("Logo file saved successfully");
+            }
+
+            // 아이콘 파일 저장
+            if (hasIcon) {
+                String iconExtension = getFileExtension(iconFile.getOriginalFilename());
+                String iconFilename = baseName + "_icon" + iconExtension;
+                String iconFullPath = combinePath(uploadDir, iconFilename);
+
+                logger.debug("Saving icon to: {}", iconFullPath);
+
+                File iconDest = new File(iconFullPath);
+                ensureDirectoryExists(iconDest);
+                iconFile.transferTo(iconDest.getAbsoluteFile());
+                logger.debug("Icon file saved successfully");
+            }
+
+            // 로고가 있으면 로고 URL 반환, 없으면 아이콘 기반으로 로고 URL 생성
+            if (savedLogoFilename != null) {
+                return combinePath(urlPrefix, savedLogoFilename);
+            } else {
+                // 아이콘만 업로드한 경우 - 아이콘 URL 반환 (또는 빈 문자열)
+                String iconFilename = baseName + "_icon" + getFileExtension(iconFile.getOriginalFilename());
+                return combinePath(urlPrefix, iconFilename);
+            }
+        } catch (Exception e) {
+            logger.error("Image upload failed", e);
+            throw e;
+        }
+    }
+
+    private String getFileExtension(String filename) {
+        if (filename != null && filename.contains(".")) {
+            return filename.substring(filename.lastIndexOf("."));
+        }
+        return "";
+    }
+
+    private void ensureDirectoryExists(File file) {
+        if (!file.getParentFile().exists()) {
+            boolean created = file.getParentFile().mkdirs();
+            logger.debug("Created directory: {}, success: {}", file.getParentFile().getAbsolutePath(), created);
+        }
+    }
+
     @GetMapping("/categorie")
     public ApiResponse<List<ProductDTO>> getCategoryList() throws Exception {
         logger.debug("Request [getCategoryList] Time: {}", java.time.LocalDateTime.now());
