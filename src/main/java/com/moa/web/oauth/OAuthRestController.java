@@ -59,118 +59,94 @@ public class OAuthRestController {
 	public ApiResponse<?> kakaoAuth(@RequestParam(defaultValue = "login") String mode) {
 
 		String redirectUri = kakao.getRedirectUri();
+		String state = buildState(mode);
 
 		String url = "https://kauth.kakao.com/oauth/authorize" + "?client_id=" + kakao.getClientId() + "&redirect_uri="
-				+ URLEncoder.encode(redirectUri, StandardCharsets.UTF_8) + "&response_type=code" + "&state=" + mode;
+				+ URLEncoder.encode(redirectUri, StandardCharsets.UTF_8) + "&response_type=code" + "&state="
+				+ URLEncoder.encode(state, StandardCharsets.UTF_8);
 
 		return ApiResponse.success(Map.of("url", url));
 	}
 
 	@GetMapping("/kakao/callback")
-	public ResponseEntity<Void> kakaoCallback(
-	        @RequestParam("code") String code,
-	        @RequestParam(defaultValue = "login") String mode) {
+	public ResponseEntity<Void> kakaoCallback(@RequestParam("code") String code,
+			@RequestParam(value = "state", defaultValue = "login") String state) {
 
-	    RestTemplate rest = new RestTemplate();
+		RestTemplate rest = new RestTemplate();
 
-	    MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-	    params.add("grant_type", "authorization_code");
-	    params.add("client_id", kakao.getClientId());
-	    params.add("client_secret", kakao.getClientSecret());
-	    params.add("redirect_uri", kakao.getRedirectUri());
-	    params.add("code", code);
+		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+		params.add("grant_type", "authorization_code");
+		params.add("client_id", kakao.getClientId());
+		params.add("client_secret", kakao.getClientSecret());
+		params.add("redirect_uri", kakao.getRedirectUri());
+		params.add("code", code);
 
-	    HttpHeaders headers = new HttpHeaders();
-	    headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
-	    Map<String, Object> tokenResponse = rest.postForObject(
-	            "https://kauth.kakao.com/oauth/token",
-	            new HttpEntity<>(params, headers),
-	            Map.class
-	    );
+		Map<String, Object> tokenResponse = rest.postForObject("https://kauth.kakao.com/oauth/token",
+				new HttpEntity<>(params, headers), Map.class);
 
-	    String kakaoAccessToken = (String) tokenResponse.get("access_token");
+		String kakaoAccessToken = (String) tokenResponse.get("access_token");
 
-	    HttpHeaders profileHeader = new HttpHeaders();
-	    profileHeader.setBearerAuth(kakaoAccessToken);
+		HttpHeaders profileHeader = new HttpHeaders();
+		profileHeader.setBearerAuth(kakaoAccessToken);
 
-	    Map<String, Object> profile = rest.exchange(
-	            "https://kapi.kakao.com/v2/user/me",
-	            HttpMethod.GET,
-	            new HttpEntity<>(profileHeader),
-	            Map.class
-	    ).getBody();
+		Map<String, Object> profile = rest.exchange("https://kapi.kakao.com/v2/user/me", HttpMethod.GET,
+				new HttpEntity<>(profileHeader), Map.class).getBody();
 
-	    String provider = "kakao";
-	    String providerUserId = String.valueOf(profile.get("id"));
+		String provider = "kakao";
+		String providerUserId = String.valueOf(profile.get("id"));
 
-	    Map<String, Object> kakaoAccount =
-	            (Map<String, Object>) profile.get("kakao_account");
+		Map<String, Object> kakaoAccount = (Map<String, Object>) profile.get("kakao_account");
+		String email = kakaoAccount != null ? (String) kakaoAccount.get("email") : null;
 
-	    String email = kakaoAccount != null ? (String) kakaoAccount.get("email") : null;
+		if (email == null || email.isBlank()) {
+			throw new BusinessException(ErrorCode.BAD_REQUEST, "카카오 이메일 제공에 동의해야 합니다.");
+		}
 
-	    if (email == null || email.isBlank()) {
-	        throw new BusinessException(
-	                ErrorCode.BAD_REQUEST,
-	                "카카오 이메일 제공에 동의해야 가입할 수 있습니다."
-	        );
-	    }
+		String redirectBase = frontendUrl + "/oauth/callback";
 
-	    OAuthAccount oauth = oauthService.getOAuthByProvider(provider, providerUserId);
-	    String currentUserId = getCurrentUserId();
-	    String redirectBase = frontendUrl + "/oauth/callback";
+		String connectUserId = parseConnectUserId(state);
+		if (connectUserId != null) {
 
-	    if (currentUserId != null) {
-	        oauthService.connectOAuthAccount(currentUserId, provider, providerUserId);
-	        return redirect(redirectBase + "?status=CONNECT&provider=kakao");
-	    }
+			OAuthAccount exists = oauthService.getOAuthByProvider(provider, providerUserId);
 
-	    if (oauth != null && oauth.getReleaseDate() == null) {
+			if (exists != null && exists.getReleaseDate() == null && !connectUserId.equals(exists.getUserId())) {
+				return redirect(redirectBase + "?status=NEED_TRANSFER" + "&provider=kakao" + "&providerUserId="
+						+ providerUserId);
+			}
 
-	        UsernamePasswordAuthenticationToken auth =
-	                new UsernamePasswordAuthenticationToken(
-	                        oauth.getUserId(),
-	                        null,
-	                        List.of(() -> "ROLE_USER")
-	                );
+			oauthService.connectOAuthAccount(connectUserId, provider, providerUserId);
 
-	        var token = jwtProvider.generateToken(auth);
+			return redirect(redirectBase + "?status=CONNECT&provider=kakao");
+		}
 
-	        loginHistoryService.recordSuccess(oauth.getUserId(), "KAKAO", null, null);
+		OAuthAccount oauth = oauthService.getOAuthByProvider(provider, providerUserId);
 
-	        ResponseCookie accessCookie = ResponseCookie.from("accessToken", token.getAccessToken())
-	                .httpOnly(true)
-	                .secure(true)
-	                .sameSite("None")
-	                .path("/")
-	                .maxAge(token.getAccessTokenExpiresIn())
-	                .build();
+		if (oauth != null && oauth.getReleaseDate() == null) {
 
-	        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", token.getRefreshToken())
-	                .httpOnly(true)
-	                .secure(true)
-	                .sameSite("None")
-	                .path("/")
-	                .maxAge(60 * 60 * 24 * 14)
-	                .build();
+			UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(oauth.getUserId(), null,
+					List.of(() -> "ROLE_USER"));
 
-	        return ResponseEntity.status(HttpStatus.FOUND)
-	                .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
-	                .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
-	                .header(HttpHeaders.LOCATION, redirectBase + "?status=LOGIN")
-	                .build();
-	    }
+			var token = jwtProvider.generateToken(auth);
 
-	    // 3️⃣ 신규 회원 → 회원가입 유도
-	    return redirect(
-	            redirectBase
-	                    + "?status=NEED_REGISTER"
-	                    + "&provider=kakao"
-	                    + "&providerUserId=" + providerUserId
-	                    + "&email=" + URLEncoder.encode(email, StandardCharsets.UTF_8)
-	    );
+			loginHistoryService.recordSuccess(oauth.getUserId(), "KAKAO", null, null);
+
+			ResponseCookie accessCookie = ResponseCookie.from("accessToken", token.getAccessToken()).httpOnly(true)
+					.secure(true).sameSite("None").path("/").maxAge(token.getAccessTokenExpiresIn()).build();
+
+			ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", token.getRefreshToken()).httpOnly(true)
+					.secure(true).sameSite("None").path("/").maxAge(60 * 60 * 24 * 14).build();
+
+			return ResponseEntity.status(HttpStatus.FOUND).header(HttpHeaders.SET_COOKIE, accessCookie.toString())
+					.header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
+					.header(HttpHeaders.LOCATION, redirectBase + "?status=LOGIN").build();
+		}
+
+		return redirect(redirectBase + "?status=NEED_REGISTER" + "&provider=kakao" + "&providerUserId=" + providerUserId
+				+ "&email=" + URLEncoder.encode(email, StandardCharsets.UTF_8));
 	}
-
 
 	private ResponseEntity<Void> redirect(String url) {
 		return ResponseEntity.status(302).header(HttpHeaders.LOCATION, url).build();
@@ -181,17 +157,19 @@ public class OAuthRestController {
 
 		String scope = URLEncoder.encode("openid email profile", StandardCharsets.UTF_8);
 		String redirectUri = google.getRedirectUri();
+		String state = buildState(mode);
 
 		String url = "https://accounts.google.com/o/oauth2/v2/auth" + "?client_id=" + google.getClientId()
 				+ "&redirect_uri=" + URLEncoder.encode(redirectUri, StandardCharsets.UTF_8) + "&response_type=code"
-				+ "&scope=" + scope + "&access_type=offline" + "&prompt=consent" + "&state=" + mode;
+				+ "&scope=" + scope + "&access_type=offline" + "&prompt=consent" + "&state="
+				+ URLEncoder.encode(state, StandardCharsets.UTF_8);
 
 		return ApiResponse.success(Map.of("url", url));
 	}
 
 	@GetMapping("/google/callback")
 	public ResponseEntity<Void> googleCallback(@RequestParam("code") String code,
-			@RequestParam(defaultValue = "login") String mode) throws Exception {
+			@RequestParam(value = "state", defaultValue = "login") String state) throws Exception {
 
 		RestTemplate rest = new RestTemplate();
 
@@ -205,68 +183,60 @@ public class OAuthRestController {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
-		HttpEntity<MultiValueMap<String, String>> tokenRequest = new HttpEntity<>(params, headers);
-
-		Map<String, Object> tokenResponse = rest.postForObject("https://oauth2.googleapis.com/token", tokenRequest,
-				Map.class);
+		Map<String, Object> tokenResponse = rest.postForObject("https://oauth2.googleapis.com/token",
+				new HttpEntity<>(params, headers), Map.class);
 
 		String accessToken = (String) tokenResponse.get("access_token");
 
 		HttpHeaders profileHeader = new HttpHeaders();
 		profileHeader.setBearerAuth(accessToken);
 
-		HttpEntity<Void> profileRequest = new HttpEntity<>(profileHeader);
+		Map<String, Object> profile = rest.exchange("https://openidconnect.googleapis.com/v1/userinfo", HttpMethod.GET,
+				new HttpEntity<>(profileHeader), Map.class).getBody();
 
-		Map<String, Object> profile = rest
-				.exchange("https://openidconnect.googleapis.com/v1/userinfo", HttpMethod.GET, profileRequest, Map.class)
-				.getBody();
-
+		String provider = "google";
 		String providerUserId = (String) profile.get("sub");
-
-		OAuthAccount exists = oauthService.getOAuthByProvider("google", providerUserId);
-		String currentUser = getCurrentUserId();
+		String email = (String) profile.get("email");
 
 		String redirectBase = frontendUrl + "/oauth/callback";
 
-		if (currentUser != null) {
+		String connectUserId = parseConnectUserId(state);
+		if (connectUserId != null) {
 
-			if (exists != null && exists.getReleaseDate() == null && !exists.getUserId().equals(currentUser)) {
+			OAuthAccount exists = oauthService.getOAuthByProvider(provider, providerUserId);
 
-				String redirectUrl = redirectBase + "?status=NEED_TRANSFER" + "&provider=google" + "&providerUserId="
-						+ providerUserId;
-
-				return ResponseEntity.status(HttpStatus.FOUND).header(HttpHeaders.LOCATION, redirectUrl).build();
+			if (exists != null && exists.getReleaseDate() == null && !connectUserId.equals(exists.getUserId())) {
+				return redirect(redirectBase + "?status=NEED_TRANSFER" + "&provider=google" + "&providerUserId="
+						+ providerUserId);
 			}
 
-			oauthService.connectOAuthAccount(currentUser, "google", providerUserId);
-			loginHistoryService.recordSuccess(currentUser, "GOOGLE", null, null);
+			oauthService.connectOAuthAccount(connectUserId, provider, providerUserId);
 
-			return ResponseEntity.status(HttpStatus.FOUND)
-					.header(HttpHeaders.LOCATION, redirectBase + "?status=CONNECT").build();
+			return redirect(redirectBase + "?status=CONNECT&provider=google");
 		}
 
-		if (exists == null || exists.getReleaseDate() != null) {
-			String email = (String) profile.get("email");
-			String redirectUrl = 
-					redirectBase 
-					+ "?status=NEED_REGISTER" 
-					+ "&provider=google" 
-					+ "&providerUserId="
-					+ providerUserId
-					+ "&email=" + URLEncoder.encode(email, StandardCharsets.UTF_8);
+		OAuthAccount exists = oauthService.getOAuthByProvider(provider, providerUserId);
 
-			return ResponseEntity.status(HttpStatus.FOUND).header(HttpHeaders.LOCATION, redirectUrl).build();
+		if (exists != null && exists.getReleaseDate() == null) {
+
+			UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(exists.getUserId(), null,
+					List.of(() -> "ROLE_USER"));
+
+			var jwt = jwtProvider.generateToken(auth);
+
+			return ResponseEntity.status(HttpStatus.FOUND).header(HttpHeaders.LOCATION, redirectBase + "?status=LOGIN")
+					.header(HttpHeaders.SET_COOKIE,
+							ResponseCookie.from("accessToken", jwt.getAccessToken()).httpOnly(true).secure(true)
+									.sameSite("None").path("/").maxAge(jwt.getAccessTokenExpiresIn()).build()
+									.toString())
+					.header(HttpHeaders.SET_COOKIE,
+							ResponseCookie.from("refreshToken", jwt.getRefreshToken()).httpOnly(true).secure(true)
+									.sameSite("None").path("/").maxAge(60 * 60 * 24 * 14).build().toString())
+					.build();
 		}
 
-		UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(exists.getUserId(),
-				null, List.of(() -> "ROLE_USER"));
-
-		var jwt = jwtProvider.generateToken(authentication);
-
-		String redirectUrl = redirectBase + "?status=LOGIN" + "&accessToken=" + jwt.getAccessToken() + "&refreshToken="
-				+ jwt.getRefreshToken() + "&expiresIn=" + jwt.getAccessTokenExpiresIn();
-
-		return ResponseEntity.status(HttpStatus.FOUND).header(HttpHeaders.LOCATION, redirectUrl).build();
+		return redirect(redirectBase + "?status=NEED_REGISTER" + "&provider=google" + "&providerUserId="
+				+ providerUserId + "&email=" + URLEncoder.encode(email, StandardCharsets.UTF_8));
 	}
 
 	@PostMapping("/connect")
@@ -393,5 +363,40 @@ public class OAuthRestController {
 		}
 
 		return name;
+	}
+
+	private static final String CONNECT_PREFIX = "connect:";
+
+	private String buildState(String mode) {
+		if (!"connect".equals(mode))
+			return mode;
+
+		String userId = getCurrentUserId();
+		if (userId == null) {
+			throw new BusinessException(ErrorCode.UNAUTHORIZED, "로그인이 필요합니다.");
+		}
+
+		String encoded = java.util.Base64.getUrlEncoder().withoutPadding()
+				.encodeToString(userId.getBytes(StandardCharsets.UTF_8));
+
+		return CONNECT_PREFIX + encoded;
+	}
+
+	private String parseConnectUserId(String state) {
+		if (state == null)
+			return null;
+		if (!state.startsWith(CONNECT_PREFIX))
+			return null;
+
+		String encoded = state.substring(CONNECT_PREFIX.length());
+		if (encoded.isBlank())
+			return null;
+
+		try {
+			byte[] decoded = java.util.Base64.getUrlDecoder().decode(encoded);
+			return new String(decoded, StandardCharsets.UTF_8);
+		} catch (Exception e) {
+			return null;
+		}
 	}
 }
