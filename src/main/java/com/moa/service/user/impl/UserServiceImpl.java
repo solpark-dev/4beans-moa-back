@@ -9,6 +9,8 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -59,6 +61,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
+	private static final Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
 	private final UserDao userDao;
 	private final OAuthAccountDao oauthAccountDao;
 	private final EmailVerificationDao emailVerificationDao;
@@ -389,22 +392,30 @@ public class UserServiceImpl implements UserService {
 
 		try {
 			File dir = new File(profileUploadDir);
-			if (!dir.exists())
-				dir.mkdirs();
+			if (!dir.exists()) {
+				boolean created = dir.mkdirs();
+				if (!created) {
+					throw new BusinessException(ErrorCode.INTERNAL_ERROR, "업로드 디렉토리 생성 실패");
+				}
+			}
 
 			String ext = StringUtils.getFilenameExtension(file.getOriginalFilename());
-			String newFileName = UUID.randomUUID() + "." + ext;
+			if (ext == null || ext.isBlank()) {
+				ext = "png";
+			}
 
+			String newFileName = UUID.randomUUID() + "." + ext;
 			File dest = new File(dir, newFileName);
+
 			file.transferTo(dest);
 
-			// [Modified 2025-12-17] 내부 combinePath 메서드 사용하여 URL 결합
 			String imageUrl = combinePath(profileUrlPrefix, newFileName);
-
 			userDao.updateProfileImage(userId, imageUrl);
 
 			return imageUrl;
+
 		} catch (Exception e) {
+			log.error("프로필 이미지 업로드 실패 userId={}, path={}", userId, profileUploadDir, e);
 			throw new BusinessException(ErrorCode.INTERNAL_ERROR, "이미지 업로드 실패");
 		}
 	}
@@ -417,7 +428,6 @@ public class UserServiceImpl implements UserService {
 		String deleteType = request.getDeleteType() != null ? request.getDeleteType() : "USER_REQUEST";
 		String deleteDetail = request.getDeleteDetail();
 
-		// 사용자 삭제 이벤트 발행 (파티장/파티원 처리)
 		eventPublisher.publishEvent(UserDeletedEvent.of(userId, deleteType, deleteDetail));
 
 		userDao.softDeleteUser(user.getUserId(), UserStatus.WITHDRAW, deleteType, deleteDetail);
@@ -462,31 +472,6 @@ public class UserServiceImpl implements UserService {
 
 		userDao.updateUserStatus(userId, UserStatus.ACTIVE);
 		userDao.resetLoginFailCount(userId);
-	}
-
-	private String saveProfileImageFromBase64(String base64) {
-		try {
-			String[] parts = base64.split(",");
-			String dataPart = parts.length > 1 ? parts[1] : parts[0];
-
-			byte[] bytes = java.util.Base64.getDecoder().decode(dataPart);
-
-			java.io.File dir = new java.io.File(profileUploadDir);
-			if (!dir.exists()) {
-				dir.mkdirs();
-			}
-
-			String newFileName = UUID.randomUUID() + ".png";
-			java.io.File dest = new java.io.File(dir, newFileName);
-
-			try (java.io.FileOutputStream fos = new java.io.FileOutputStream(dest)) {
-				fos.write(bytes);
-			}
-
-			return profileUrlPrefix + newFileName;
-		} catch (Exception e) {
-			throw new BusinessException(ErrorCode.INTERNAL_ERROR, "프로필 이미지 처리 중 오류가 발생했습니다.");
-		}
 	}
 
 	private void ensureNotBlocked(User user) {
