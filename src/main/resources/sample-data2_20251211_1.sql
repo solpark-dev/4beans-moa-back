@@ -120,27 +120,27 @@ INSERT INTO CATEGORY (CATEGORY_ID, CATEGORY_NAME) VALUES
 
 -- PRODUCT: 상품 정보 (쿠팡플레이 삭제, 이미지 경로 업데이트)
 INSERT INTO `product` (`PRODUCT_ID`, `CATEGORY_ID`, `PRODUCT_NAME`, `PRODUCT_STATUS`, `PRICE`, `IMAGE`, `MAX_SHARE`) VALUES
-   (1, 1, 'Google AI Pro', 'ACTIVE', 17000, '/uploads/product-image/Google_AI_Logo.png', NULL),
-   (2, 2, 'Disney+ Standard', 'ACTIVE', 9900, '/uploads/product-image/Disney_plus_logo.png', NULL),
-   (3, 2, '왓챠 베이직', 'ACTIVE', 7900, '/uploads/product-image/WATCHA_Logo.png', NULL),
-   (4, 2, '유튜브 프리미엄', 'ACTIVE', 13900, '/uploads/product-image/YouTube_logo.png', NULL),
-   (5, 1, 'Chat GPT Plus', 'ACTIVE', 29000, '/uploads/product-image/ChatGPT_logo.png', NULL),
+   (1, 1, 'Google AI Pro', 'ACTIVE', 17000, '/uploads/product-image/googleai_logo.png', NULL),
+   (2, 2, 'Disney+ Standard', 'ACTIVE', 9900, '/uploads/product-image/disneyplus_logo.png', NULL),
+   (3, 2, '왓챠 베이직', 'ACTIVE', 7900, '/uploads/product-image/watcha_logo.png', NULL),
+   (4, 2, '유튜브 프리미엄', 'ACTIVE', 13900, '/uploads/product-image/youtube_logo.png', NULL),
+   (5, 1, 'Chat GPT Plus', 'ACTIVE', 29000, '/uploads/product-image/chatgpt_logo.png', NULL),
    -- (6번 쿠팡플레이 삭제)
-   (7, 2, '티빙 스탠다드', 'ACTIVE', 10900, '/uploads/product-image/Tving_logo.jpg', NULL),
-   (8, 2, '웨이브 프리미엄', 'ACTIVE', 13900, '/uploads/product-image/Wavve_logo.png', NULL),
-   (9, 4, 'Naver 멤버십 1개월권', 'ACTIVE', 3000, '/uploads/product-image/NaverPlus_logo.png', NULL),
-   (10, 4, 'Naver 멤버십 12개월권', 'ACTIVE', 30000, '/uploads/product-image/NaverPlus_logo.png', NULL),
-   (11, 1, 'Chat GPT Pro', 'ACTIVE', 50000, '/uploads/product-image/ChatGPT_logo.png', NULL),
-   (12, 1, 'Google AI Ultra', 'ACTIVE', 330000, '/uploads/product-image/Google_AI_Logo.png', NULL),
-   (13, 2, 'Disney+ Premium', 'ACTIVE', 13900, '/uploads/product-image/Disney_plus_logo.png', NULL),
+   (7, 2, '티빙 스탠다드', 'ACTIVE', 10900, '/uploads/product-image/tving_logo.png', NULL),
+   (8, 2, '웨이브 프리미엄', 'ACTIVE', 13900, '/uploads/product-image/wavve_logo.png', NULL),
+   (9, 4, 'Naver 멤버십 1개월권', 'ACTIVE', 3000, '/uploads/product-image/naverplus_logo.png', NULL),
+   (10, 4, 'Naver 멤버십 12개월권', 'ACTIVE', 30000, '/uploads/product-image/naverplus_logo.png', NULL),
+   (11, 1, 'Chat GPT Pro', 'ACTIVE', 50000, '/uploads/product-image/chatgpt_logo.png', NULL),
+   (12, 1, 'Google AI Ultra', 'ACTIVE', 330000, '/uploads/product-image/googleai_Logo.png', NULL),
+   (13, 2, 'Disney+ Premium', 'ACTIVE', 13900, '/uploads/product-image/disneyplus_logo.png', NULL),
    -- (14번 쿠팡플레이 삭제)
-   (15, 3, 'Skillshare Monthly', 'ACTIVE', 20600, '/uploads/product-image/Skillshare_logo.png', NULL),
-   (16, 3, 'LinkedIn Learning Monthly', 'ACTIVE', 58900, '/uploads/product-image/LinkedIn_Learning_Logo.png', NULL),
-   (17, 2, 'Disney+ + TVING Bundle', 'ACTIVE', 18000, '/uploads/product-image/Disney_plus_logo.png', NULL),
-   (18, 2, 'Netflix Basic', 'ACTIVE', 9500, '/uploads/product-image/Netflix_logo.png', NULL),
-   (19, 2, 'Netflix Standard', 'ACTIVE', 14500, '/uploads/product-image/Netflix_logo.png', NULL),
-   (20, 2, 'Netflix Premium', 'ACTIVE', 19000, '/uploads/product-image/Netflix_logo.png', NULL),
-   (21, 2, 'Netflix', 'ACTIVE', 19000, '/uploads/product-image/Netflix_logo.png', NULL);
+   (15, 3, 'Skillshare Monthly', 'ACTIVE', 20600, '/uploads/product-image/skillshare_logo.png', NULL),
+   (16, 3, 'LinkedIn Learning Monthly', 'ACTIVE', 58900, '/uploads/product-image/linkedinlearning_logo.png', NULL),
+   (17, 2, 'Disney+ + TVING Bundle', 'ACTIVE', 18000, '/uploads/product-image/disneyplus_logo.png', NULL),
+   (18, 2, 'Netflix Basic', 'ACTIVE', 9500, '/uploads/product-image/netflix_logo.png', NULL),
+   (19, 2, 'Netflix Standard', 'ACTIVE', 14500, '/uploads/product-image/netflix_logo.png', NULL),
+   (20, 2, 'Netflix Premium', 'ACTIVE', 19000, '/uploads/product-image/netflix_logo.png', NULL),
+   (21, 2, 'Netflix', 'ACTIVE', 19000, '/uploads/product-image/netflix_logo.png', NULL);
 
 -- CHATBOT_KNOWLEDGE: 챗봇 지식 베이스 데이터
 INSERT INTO CHATBOT_KNOWLEDGE (CATEGORY, TITLE, QUESTION, ANSWER, KEYWORDS) VALUES 
