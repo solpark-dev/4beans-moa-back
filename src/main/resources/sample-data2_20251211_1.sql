@@ -1466,30 +1466,36 @@ INSERT INTO USERS (
 );
 
 
--- PRODUCT: 상품 정보
-INSERT INTO `PRODUCT` (`PRODUCT_ID`, `CATEGORY_ID`, `PRODUCT_NAME`, `PRODUCT_STATUS`, `PRICE`, `IMAGE`, `MAX_SHARE`) VALUES
-   (1, 1, 'Google AI Pro', 'ACTIVE', 17000, '/uploads/product-image/googleaipro_icon.png', NULL),
-   (2, 2, 'Disney+ Standard', 'ACTIVE', 9900, '/uploads/product-image/disney_plus_icon.png', NULL),
-   (3, 2, '왓챠 베이직', 'ACTIVE', 7900, '/uploads/product-image/watcha_icon.png', NULL),
-   (4, 2, '유튜브 프리미엄', 'ACTIVE', 13900, '/uploads/product-image/YouTube_icon.png', NULL),
-   (5, 1, 'Chat GPT Plus', 'ACTIVE', 29000, '/uploads/product-image/chatgpt_icon.png', NULL),
-   (6, 2, '쿠팡플레이WOW', 'ACTIVE', 7890, '/uploads/product-image/coupangplay_icon.png', NULL),
-   (7, 2, '티빙 스탠다드', 'ACTIVE', 10900, '/uploads/product-image/tving_icon.png', NULL),
-   (8, 2, '웨이브 프리미엄', 'ACTIVE', 13900, '/uploads/product-image/wavve_icon.png', NULL),
-   (9, 4, 'Naver 멤버십 1개월권', 'ACTIVE', 3000, '/uploads/product-image/naver_member_icon.png', NULL),
-   (10, 4, 'Naver 멤버십 12개월권', 'ACTIVE', 30000, '/uploads/product-image/naver_member_icon.png', NULL),
-   (11, 1, 'Chat GPT Pro', 'ACTIVE', 50000, '/uploads/product-image/chatgpt_icon.png', NULL),
-   (12, 1, 'Google AI Ultra', 'ACTIVE', 330000, '/uploads/product-image/googleaipro_icon.png', NULL),
-   (13, 2, 'Disney+ Premium', 'ACTIVE', 13900, '/uploads/product-image/disney_plus_icon.png', NULL),
-   (14, 2, '쿠팡플레이 Sports Pass', 'ACTIVE', 16600, '/uploads/product-image/coupangplay_icon.png', NULL),
-   (15, 3, 'Skillshare Monthly', 'ACTIVE', 20600, '/uploads/product-image/skillshare_icon.png', NULL),
-   (16, 3, 'LinkedIn Learning Monthly', 'ACTIVE', 58900, '/uploads/product-image/LinkedInlearning_icon.png', NULL),
-   (17, 2, 'Disney+ + TVING Bundle', 'ACTIVE', 18000, '/uploads/product-image/disney_plus_tving_icon.png', NULL),
-   (18, 2, 'Netflix Basic', 'ACTIVE', 9500, '/uploads/product-image/netflix_icon.png', NULL),
-   (19, 2, 'Netflix Standard', 'ACTIVE', 14500, '/uploads/product-image/netflix_icon.png', NULL),
-   (20, 2, 'Netflix Premium', 'ACTIVE', 19000, '/uploads/product-image/netflix_icon.png', NULL),
-   (21, 2, 'Netflix ', 'ACTIVE', 19000, '/uploads/product-image/netflix_icon.png', NULL);
+-- CATEGORY: 상품 카테고리
+INSERT INTO CATEGORY (CATEGORY_ID, CATEGORY_NAME) VALUES
+(1, 'AI'),
+(2, 'MEDIA'),
+(3, 'EDU'),
+(4, 'MEMBER');
 
+-- PRODUCT: 상품 정보 (쿠팡플레이 삭제, 이미지 경로 업데이트)
+INSERT INTO `PRODUCT` (`PRODUCT_ID`, `CATEGORY_ID`, `PRODUCT_NAME`, `PRODUCT_STATUS`, `PRICE`, `IMAGE`, `MAX_SHARE`) VALUES
+   (1, 1, 'Google AI Pro', 'ACTIVE', 17000, '/uploads/product-image/Google_AI_Logo.png', NULL),
+   (2, 2, 'Disney+ Standard', 'ACTIVE', 9900, '/uploads/product-image/Disney_plus_logo.png', NULL),
+   (3, 2, '왓챠 베이직', 'ACTIVE', 7900, '/uploads/product-image/WATCHA_Logo.png', NULL),
+   (4, 2, '유튜브 프리미엄', 'ACTIVE', 13900, '/uploads/product-image/YouTube_logo.png', NULL),
+   (5, 1, 'Chat GPT Plus', 'ACTIVE', 29000, '/uploads/product-image/ChatGPT_logo.png', NULL),
+   -- (6번 쿠팡플레이 삭제)
+   (7, 2, '티빙 스탠다드', 'ACTIVE', 10900, '/uploads/product-image/Tving_logo.jpg', NULL),
+   (8, 2, '웨이브 프리미엄', 'ACTIVE', 13900, '/uploads/product-image/Wavve_logo.png', NULL),
+   (9, 4, 'Naver 멤버십 1개월권', 'ACTIVE', 3000, '/uploads/product-image/NaverPlus_logo.png', NULL),
+   (10, 4, 'Naver 멤버십 12개월권', 'ACTIVE', 30000, '/uploads/product-image/NaverPlus_logo.png', NULL),
+   (11, 1, 'Chat GPT Pro', 'ACTIVE', 50000, '/uploads/product-image/ChatGPT_logo.png', NULL),
+   (12, 1, 'Google AI Ultra', 'ACTIVE', 330000, '/uploads/product-image/Google_AI_Logo.png', NULL),
+   (13, 2, 'Disney+ Premium', 'ACTIVE', 13900, '/uploads/product-image/Disney_plus_logo.png', NULL),
+   -- (14번 쿠팡플레이 삭제)
+   (15, 3, 'Skillshare Monthly', 'ACTIVE', 20600, '/uploads/product-image/Skillshare_logo.png', NULL),
+   (16, 3, 'LinkedIn Learning Monthly', 'ACTIVE', 58900, '/uploads/product-image/LinkedIn_Learning_Logo.png', NULL),
+   (17, 2, 'Disney+ + TVING Bundle', 'ACTIVE', 18000, '/uploads/product-image/Disney_plus_logo.png', NULL),
+   (18, 2, 'Netflix Basic', 'ACTIVE', 9500, '/uploads/product-image/Netflix_logo.png', NULL),
+   (19, 2, 'Netflix Standard', 'ACTIVE', 14500, '/uploads/product-image/Netflix_logo.png', NULL),
+   (20, 2, 'Netflix Premium', 'ACTIVE', 19000, '/uploads/product-image/Netflix_logo.png', NULL),
+   (21, 2, 'Netflix', 'ACTIVE', 19000, '/uploads/product-image/Netflix_logo.png', NULL);
    
 -- OAUTH_ACCOUNT: 소셜 로그인 연동 (10명)
 INSERT INTO OAUTH_ACCOUNT (
@@ -1689,16 +1695,12 @@ INSERT INTO SUBSCRIPTION (
 )
 SELECT
     u.USER_ID,
-
-    (u.rn % 10) + 1 AS PRODUCT_ID,
-
-    'ACTIVE' AS SUBSCRIPTION_STATUS,
-
-    DATE_ADD('2024-04-01', INTERVAL u.rn * 3 DAY) AS START_DATE,
-
-    NULL AS END_DATE,
-    NULL AS CANCEL_REASON,
-    NULL AS CANCEL_DATE
+    p.PRODUCT_ID,
+    'ACTIVE',
+    DATE_ADD('2024-04-01', INTERVAL u.rn * 3 DAY),
+    NULL,
+    NULL,
+    NULL
 FROM (
     SELECT
         USER_ID,
@@ -1708,6 +1710,17 @@ FROM (
     ORDER BY USER_ID
     LIMIT 20
 ) u
+JOIN (
+    SELECT PRODUCT_ID
+    FROM PRODUCT
+    ORDER BY PRODUCT_ID
+) p
+  ON p.PRODUCT_ID = (
+      SELECT PRODUCT_ID
+      FROM PRODUCT
+      ORDER BY PRODUCT_ID
+      LIMIT 1 OFFSET (u.rn % (SELECT COUNT(*) FROM PRODUCT))
+  )
 WHERE NOT EXISTS (
     SELECT 1
     FROM SUBSCRIPTION s
@@ -1733,27 +1746,26 @@ SELECT
     p.PAYMENT_ID,
     p.PARTY_ID,
     p.PARTY_MEMBER_ID,
-    1 AS ATTEMPT_NUMBER,
-    DATE_SUB(NOW(), INTERVAL (24 + p.PAYMENT_ID % 24) HOUR) AS ATTEMPT_DATE,
-    NULL AS RETRY_REASON,
-    CASE
-        WHEN p.PAYMENT_ID % 3 = 0 THEN 'FAILED'
-        ELSE 'SUCCESS'
-    END AS RETRY_STATUS,
+    1,
+    DATE_SUB(NOW(), INTERVAL (24 + p.PAYMENT_ID % 24) HOUR),
+    NULL,
+    CASE WHEN p.PAYMENT_ID % 3 = 0 THEN 'FAILED' ELSE 'SUCCESS' END,
     CASE
         WHEN p.PAYMENT_ID % 3 = 0
         THEN DATE_SUB(NOW(), INTERVAL (12 + p.PAYMENT_ID % 12) HOUR)
         ELSE NULL
-    END AS NEXT_RETRY_DATE,
-    CASE
-        WHEN p.PAYMENT_ID % 3 = 0 THEN 'INSUFFICIENT_FUNDS'
-        ELSE NULL
-    END AS ERROR_CODE,
-    CASE
-        WHEN p.PAYMENT_ID % 3 = 0 THEN '잔액이 부족합니다.'
-        ELSE NULL
-    END AS ERROR_MESSAGE
-FROM PAYMENT p;
+    END,
+    CASE WHEN p.PAYMENT_ID % 3 = 0 THEN 'INSUFFICIENT_FUNDS' ELSE NULL END,
+    CASE WHEN p.PAYMENT_ID % 3 = 0 THEN '잔액이 부족합니다.' ELSE NULL END
+FROM PAYMENT p
+WHERE p.PARTY_ID IS NOT NULL
+  AND p.PARTY_MEMBER_ID IS NOT NULL
+  AND NOT EXISTS (
+      SELECT 1
+      FROM PAYMENT_RETRY_HISTORY h
+      WHERE h.PAYMENT_ID = p.PAYMENT_ID
+        AND h.ATTEMPT_NUMBER = 1
+  );
 
 
 
@@ -1775,29 +1787,23 @@ SELECT
     h.PAYMENT_ID,
     h.PARTY_ID,
     h.PARTY_MEMBER_ID,
-    2 AS ATTEMPT_NUMBER,
-    h.NEXT_RETRY_DATE AS ATTEMPT_DATE,
-    h.ERROR_MESSAGE AS RETRY_REASON,
-    CASE
-        WHEN h.PAYMENT_ID % 2 = 0 THEN 'SUCCESS'
-        ELSE 'FAILED'
-    END AS RETRY_STATUS,
-    CASE
-        WHEN h.PAYMENT_ID % 2 = 1
-        THEN DATE_SUB(NOW(), INTERVAL 1 HOUR)
-        ELSE NULL
-    END AS NEXT_RETRY_DATE,
-    CASE
-        WHEN h.PAYMENT_ID % 2 = 1 THEN 'EXCEED_MAX_CARD_LIMIT'
-        ELSE NULL
-    END AS ERROR_CODE,
-    CASE
-        WHEN h.PAYMENT_ID % 2 = 1 THEN '카드 한도를 초과했습니다.'
-        ELSE NULL
-    END AS ERROR_MESSAGE
+    2,
+    h.NEXT_RETRY_DATE,
+    h.ERROR_MESSAGE,
+    CASE WHEN h.PAYMENT_ID % 2 = 0 THEN 'SUCCESS' ELSE 'FAILED' END,
+    CASE WHEN h.PAYMENT_ID % 2 = 1 THEN DATE_SUB(NOW(), INTERVAL 1 HOUR) ELSE NULL END,
+    CASE WHEN h.PAYMENT_ID % 2 = 1 THEN 'EXCEED_MAX_CARD_LIMIT' ELSE NULL END,
+    CASE WHEN h.PAYMENT_ID % 2 = 1 THEN '카드 한도를 초과했습니다.' ELSE NULL END
 FROM PAYMENT_RETRY_HISTORY h
 WHERE h.ATTEMPT_NUMBER = 1
-  AND h.RETRY_STATUS = 'FAILED';
+  AND h.RETRY_STATUS = 'FAILED'
+  AND h.NEXT_RETRY_DATE IS NOT NULL
+  AND NOT EXISTS (
+      SELECT 1
+      FROM PAYMENT_RETRY_HISTORY x
+      WHERE x.PAYMENT_ID = h.PAYMENT_ID
+        AND x.ATTEMPT_NUMBER = 2
+  );
   
   
   INSERT INTO PAYMENT_RETRY_HISTORY (
@@ -1816,25 +1822,24 @@ SELECT
     h.PAYMENT_ID,
     h.PARTY_ID,
     h.PARTY_MEMBER_ID,
-    3 AS ATTEMPT_NUMBER,
-    h.NEXT_RETRY_DATE AS ATTEMPT_DATE,
-    h.ERROR_MESSAGE AS RETRY_REASON,
-    CASE
-        WHEN h.PAYMENT_ID % 4 = 0 THEN 'SUCCESS'
-        ELSE 'FAILED'
-    END AS RETRY_STATUS,
-    NULL AS NEXT_RETRY_DATE,
-    CASE
-        WHEN h.PAYMENT_ID % 4 <> 0 THEN 'CARD_SUSPENDED'
-        ELSE NULL
-    END AS ERROR_CODE,
-    CASE
-        WHEN h.PAYMENT_ID % 4 <> 0 THEN '카드가 정지되었습니다.'
-        ELSE NULL
-    END AS ERROR_MESSAGE
+    3,
+    h.NEXT_RETRY_DATE,
+    h.ERROR_MESSAGE,
+    CASE WHEN h.PAYMENT_ID % 4 = 0 THEN 'SUCCESS' ELSE 'FAILED' END,
+    NULL,
+    CASE WHEN h.PAYMENT_ID % 4 <> 0 THEN 'CARD_SUSPENDED' ELSE NULL END,
+    CASE WHEN h.PAYMENT_ID % 4 <> 0 THEN '카드가 정지되었습니다.' ELSE NULL END
 FROM PAYMENT_RETRY_HISTORY h
 WHERE h.ATTEMPT_NUMBER = 2
-  AND h.RETRY_STATUS = 'FAILED';
+  AND h.RETRY_STATUS = 'FAILED'
+  AND h.NEXT_RETRY_DATE IS NOT NULL
+  AND NOT EXISTS (
+      SELECT 1
+      FROM PAYMENT_RETRY_HISTORY x
+      WHERE x.PAYMENT_ID = h.PAYMENT_ID
+        AND x.ATTEMPT_NUMBER = 3
+  );
+
 
 
 -- ============================================
@@ -1904,37 +1909,28 @@ INSERT INTO REFUND_RETRY_HISTORY (
 SELECT
     d.DEPOSIT_ID,
     d.TOSS_PAYMENT_KEY,
-    1 AS ATTEMPT_NUMBER,
-    DATE_SUB(NOW(), INTERVAL (12 + d.DEPOSIT_ID % 24) HOUR) AS ATTEMPT_DATE,
-    CASE
-        WHEN d.DEPOSIT_ID % 3 = 0 THEN 'FAILED'
-        ELSE 'SUCCESS'
-    END AS RETRY_STATUS,
-    CASE
-        WHEN d.DEPOSIT_TYPE = 'LEADER' THEN 'COMPENSATION'
-        ELSE 'REFUND'
-    END AS RETRY_TYPE,
+    1,
+    DATE_SUB(NOW(), INTERVAL (12 + d.DEPOSIT_ID % 24) HOUR),
+    CASE WHEN d.DEPOSIT_ID % 3 = 0 THEN 'FAILED' ELSE 'SUCCESS' END,
+    CASE WHEN d.DEPOSIT_TYPE = 'LEADER' THEN 'COMPENSATION' ELSE 'REFUND' END,
     CASE
         WHEN d.DEPOSIT_ID % 3 = 0
         THEN DATE_SUB(NOW(), INTERVAL (2 + d.DEPOSIT_ID % 6) HOUR)
         ELSE NULL
-    END AS NEXT_RETRY_DATE,
-    COALESCE(d.REFUND_AMOUNT, d.DEPOSIT_AMOUNT) AS REFUND_AMOUNT,
-    CASE
-        WHEN d.DEPOSIT_STATUS IN ('REFUNDED', 'PARTIAL_REFUNDED')
-        THEN '파티 정상 종료'
-        ELSE '중도 탈퇴'
-    END AS REFUND_REASON,
-    CASE
-        WHEN d.DEPOSIT_ID % 3 = 0 THEN 'TEMPORARY_ERROR'
-        ELSE NULL
-    END AS ERROR_CODE,
-    CASE
-        WHEN d.DEPOSIT_ID % 3 = 0 THEN '일시적인 오류가 발생했습니다.'
-        ELSE NULL
-    END AS ERROR_MESSAGE
+    END,
+    COALESCE(d.REFUND_AMOUNT, d.DEPOSIT_AMOUNT),
+    '환불 처리',
+    CASE WHEN d.DEPOSIT_ID % 3 = 0 THEN 'TEMPORARY_ERROR' ELSE NULL END,
+    CASE WHEN d.DEPOSIT_ID % 3 = 0 THEN '일시적인 오류가 발생했습니다.' ELSE NULL END
 FROM DEPOSIT d
-WHERE d.DEPOSIT_STATUS IN ('REFUNDED', 'PARTIAL_REFUNDED');
+WHERE d.DEPOSIT_STATUS IN ('REFUNDED', 'PARTIAL_REFUNDED')
+AND NOT EXISTS (
+    SELECT 1
+    FROM REFUND_RETRY_HISTORY h
+    WHERE h.DEPOSIT_ID = d.DEPOSIT_ID
+      AND h.ATTEMPT_NUMBER = 1
+);
+
 
 
 INSERT INTO REFUND_RETRY_HISTORY (
@@ -1953,31 +1949,25 @@ INSERT INTO REFUND_RETRY_HISTORY (
 SELECT
     h.DEPOSIT_ID,
     h.TOSS_PAYMENT_KEY,
-    2 AS ATTEMPT_NUMBER,
-    h.NEXT_RETRY_DATE AS ATTEMPT_DATE,
-    CASE
-        WHEN h.DEPOSIT_ID % 2 = 0 THEN 'SUCCESS'
-        ELSE 'FAILED'
-    END AS RETRY_STATUS,
+    2,
+    h.NEXT_RETRY_DATE,
+    CASE WHEN h.DEPOSIT_ID % 2 = 0 THEN 'SUCCESS' ELSE 'FAILED' END,
     h.RETRY_TYPE,
-    CASE
-        WHEN h.DEPOSIT_ID % 2 = 1
-        THEN DATE_SUB(NOW(), INTERVAL 2 HOUR)
-        ELSE NULL
-    END AS NEXT_RETRY_DATE,
+    CASE WHEN h.DEPOSIT_ID % 2 = 1 THEN DATE_SUB(NOW(), INTERVAL 2 HOUR) ELSE NULL END,
     h.REFUND_AMOUNT,
     h.REFUND_REASON,
-    CASE
-        WHEN h.DEPOSIT_ID % 2 = 1 THEN 'INVALID_PAYMENT_KEY'
-        ELSE NULL
-    END AS ERROR_CODE,
-    CASE
-        WHEN h.DEPOSIT_ID % 2 = 1 THEN '유효하지 않은 결제 키입니다.'
-        ELSE NULL
-    END AS ERROR_MESSAGE
+    CASE WHEN h.DEPOSIT_ID % 2 = 1 THEN 'INVALID_PAYMENT_KEY' ELSE NULL END,
+    CASE WHEN h.DEPOSIT_ID % 2 = 1 THEN '유효하지 않은 결제 키입니다.' ELSE NULL END
 FROM REFUND_RETRY_HISTORY h
 WHERE h.ATTEMPT_NUMBER = 1
-  AND h.RETRY_STATUS = 'FAILED';
+  AND h.RETRY_STATUS = 'FAILED'
+  AND h.NEXT_RETRY_DATE IS NOT NULL
+  AND NOT EXISTS (
+      SELECT 1
+      FROM REFUND_RETRY_HISTORY x
+      WHERE x.DEPOSIT_ID = h.DEPOSIT_ID
+        AND x.ATTEMPT_NUMBER = 2
+  );
 
 
 
@@ -1997,27 +1987,26 @@ INSERT INTO REFUND_RETRY_HISTORY (
 SELECT
     h.DEPOSIT_ID,
     h.TOSS_PAYMENT_KEY,
-    3 AS ATTEMPT_NUMBER,
-    h.NEXT_RETRY_DATE AS ATTEMPT_DATE,
-    CASE
-        WHEN h.DEPOSIT_ID % 4 = 0 THEN 'SUCCESS'
-        ELSE 'FAILED'
-    END AS RETRY_STATUS,
+    3,
+    h.NEXT_RETRY_DATE,
+    CASE WHEN h.DEPOSIT_ID % 4 = 0 THEN 'SUCCESS' ELSE 'FAILED' END,
     h.RETRY_TYPE,
-    NULL AS NEXT_RETRY_DATE,
+    NULL,
     h.REFUND_AMOUNT,
     h.REFUND_REASON,
-    CASE
-        WHEN h.DEPOSIT_ID % 4 <> 0 THEN 'PAYMENT_NOT_FOUND'
-        ELSE NULL
-    END AS ERROR_CODE,
-    CASE
-        WHEN h.DEPOSIT_ID % 4 <> 0 THEN '결제 정보를 찾을 수 없습니다.'
-        ELSE NULL
-    END AS ERROR_MESSAGE
+    CASE WHEN h.DEPOSIT_ID % 4 <> 0 THEN 'PAYMENT_NOT_FOUND' ELSE NULL END,
+    CASE WHEN h.DEPOSIT_ID % 4 <> 0 THEN '결제 정보를 찾을 수 없습니다.' ELSE NULL END
 FROM REFUND_RETRY_HISTORY h
 WHERE h.ATTEMPT_NUMBER = 2
-  AND h.RETRY_STATUS = 'FAILED';
+  AND h.RETRY_STATUS = 'FAILED'
+  AND h.NEXT_RETRY_DATE IS NOT NULL
+  AND NOT EXISTS (
+      SELECT 1
+      FROM REFUND_RETRY_HISTORY x
+      WHERE x.DEPOSIT_ID = h.DEPOSIT_ID
+        AND x.ATTEMPT_NUMBER = 3
+  );
+
 
 -- SETTLEMENT_RETRY_HISTORY: 정산 이체 재시도 이력
 INSERT INTO SETTLEMENT_RETRY_HISTORY (
@@ -2036,44 +2025,25 @@ INSERT INTO SETTLEMENT_RETRY_HISTORY (
 )
 SELECT
     s.SETTLEMENT_ID,
-    1 AS ATTEMPT_NUMBER,
-    DATE_SUB(s.SETTLEMENT_DATE, INTERVAL 5 MINUTE) AS ATTEMPT_DATE,
-    NULL AS RETRY_REASON,
-    CASE
-        WHEN s.SETTLEMENT_ID % 3 = 0 THEN 'FAILED'
-        ELSE 'SUCCESS'
-    END AS RETRY_STATUS,
+    1,
+    DATE_SUB(s.SETTLEMENT_DATE, INTERVAL 5 MINUTE),
+    NULL,
+    CASE WHEN s.SETTLEMENT_ID % 3 = 0 THEN 'FAILED' ELSE 'SUCCESS' END,
     CASE
         WHEN s.SETTLEMENT_ID % 3 = 0
         THEN DATE_ADD(s.SETTLEMENT_DATE, INTERVAL 2 HOUR)
         ELSE NULL
-    END AS NEXT_RETRY_DATE,
-    s.NET_AMOUNT AS TRANSFER_AMOUNT,
-    CASE
-        WHEN s.SETTLEMENT_ID % 3 = 0 THEN 'A0003'
-        ELSE NULL
-    END AS ERROR_CODE,
-    CASE
-        WHEN s.SETTLEMENT_ID % 3 = 0 THEN '수취인 계좌 오류'
-        ELSE NULL
-    END AS ERROR_MESSAGE,
-    CASE
-        WHEN s.SETTLEMENT_ID % 3 = 0 THEN '301'
-        ELSE '000'
-    END AS BANK_RSP_CODE,
-    CASE
-        WHEN s.SETTLEMENT_ID % 3 = 0 THEN '수취계좌오류'
-        ELSE '정상처리'
-    END AS BANK_RSP_MESSAGE,
+    END,
+    s.NET_AMOUNT,
+    CASE WHEN s.SETTLEMENT_ID % 3 = 0 THEN 'A0003' ELSE NULL END,
+    CASE WHEN s.SETTLEMENT_ID % 3 = 0 THEN '수취인 계좌 오류' ELSE NULL END,
+    CASE WHEN s.SETTLEMENT_ID % 3 = 0 THEN '301' ELSE '000' END,
+    CASE WHEN s.SETTLEMENT_ID % 3 = 0 THEN '수취계좌오류' ELSE '정상처리' END,
     CASE
         WHEN s.SETTLEMENT_ID % 3 <> 0
-        THEN CONCAT(
-            'T',
-            DATE_FORMAT(s.SETTLEMENT_DATE, '%Y%m%d'),
-            LPAD(s.SETTLEMENT_ID, 4, '0')
-        )
+        THEN CONCAT('T', DATE_FORMAT(s.SETTLEMENT_DATE, '%Y%m%d'), LPAD(s.SETTLEMENT_ID, 4, '0'))
         ELSE NULL
-    END AS BANK_TRAN_ID
+    END
 FROM SETTLEMENT s
 WHERE NOT EXISTS (
     SELECT 1
@@ -2081,11 +2051,6 @@ WHERE NOT EXISTS (
     WHERE h.SETTLEMENT_ID = s.SETTLEMENT_ID
       AND h.ATTEMPT_NUMBER = 1
 );
-
-
-
-
-
 
 INSERT INTO SETTLEMENT_RETRY_HISTORY (
     SETTLEMENT_ID,
@@ -2144,10 +2109,7 @@ SELECT
 FROM SETTLEMENT_RETRY_HISTORY h
 WHERE h.ATTEMPT_NUMBER = 1
   AND h.RETRY_STATUS = 'FAILED';
-
-
-
-
+  
 
 INSERT INTO SETTLEMENT_RETRY_HISTORY (
     SETTLEMENT_ID,
