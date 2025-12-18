@@ -134,8 +134,1340 @@ INSERT INTO CATEGORY (CATEGORY_ID, CATEGORY_NAME) VALUES
 (3, 'EDU'),
 (4, 'MEMBER');
 
+
+INSERT INTO USERS (
+    USER_ID, PASSWORD, NICKNAME, PHONE,
+    PROFILE_IMAGE, ROLE, USER_STATUS, REG_DATE,
+    CI, PASS_CERTIFIED_AT, LAST_LOGIN_DATE,
+    LOGIN_FAIL_COUNT, UNLOCK_SCHEDULED_AT,
+    DELETE_DATE, DELETE_TYPE, DELETE_DETAIL,
+    AGREE_MARKETING, PROVIDER, OTP_SECRET, OTP_ENABLED
+) VALUES(    
+	'admin@moa.com',
+    '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+    '관리자',
+    '01099999999',
+    '/img/profile/admin.png',
+    'ADMIN',
+    'ACTIVE',
+    '2024-01-01 09:00:00',
+    'CI_ADMIN_MOA_001',
+    '2024-01-01 09:00:00',
+    '2024-12-01 09:00:00',
+    0,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    0,
+    'LOCAL',
+    NULL,
+    0
+),
+(
+ 'shakkoum@naver.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_ww8nqg',
+ '01055962724',
+ NULL, 'USER', 'ACTIVE',
+ '2024-03-02 13:39:00',
+ 'CI_6lf070xgiwf5',
+ '2024-03-02 13:39:00',
+ '2024-03-04 13:39:00',
+ 0, NULL, NULL, NULL, NULL,
+ 0, 'GOOGLE', NULL, 0
+),
+(
+ 'jo3hz8jz@naver.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_bdbris',
+ '01065660765',
+ NULL, 'USER', 'ACTIVE',
+ '2024-03-03 14:46:00',
+ 'CI_jyk0o29hn27k',
+ '2024-03-03 14:46:00',
+ '2024-03-23 14:46:00',
+ 0, NULL, NULL, NULL, NULL,
+ 0, 'LOCAL', NULL, 0
+),
+(
+ 'vw51kceh@nate.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_o3t4tq',
+ '01070808021',
+ NULL, 'USER', 'ACTIVE',
+ '2024-03-04 15:22:00',
+ 'CI_cuoq690eupbe',
+ '2024-03-04 15:22:00',
+ '2024-06-12 15:22:00',
+ 0, NULL, NULL, NULL, NULL,
+ 1, 'LOCAL', NULL, 0
+),
+(
+ '6etecsvu@daum.net',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_wu3yro',
+ '01035926815',
+ NULL, 'USER', 'ACTIVE',
+ '2024-03-05 13:46:00',
+ 'CI_9ygaty7wynvq',
+ '2024-03-05 13:46:00',
+ '2024-06-06 13:46:00',
+ 0, NULL, NULL, NULL, NULL,
+ 0, 'LOCAL', NULL, 0
+),
+(
+ 'f92ii39x@gmail.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_hpdkxu',
+ '01092345496',
+ NULL, 'USER', 'ACTIVE',
+ '2024-03-06 11:58:00',
+ 'CI_97bwdq6ercpe',
+ '2024-03-06 11:58:00',
+ '2024-07-27 11:58:00',
+ 0, NULL, NULL, NULL, NULL,
+ 0, 'KAKAO', NULL, 0
+),
+(
+ '681vf6nk@gmail.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_oiwjsk',
+ '01041811144',
+ NULL, 'USER', 'ACTIVE',
+ '2024-03-07 14:13:00',
+ 'CI_0a6wqhfse06i',
+ '2024-03-07 14:13:00',
+ '2024-04-04 14:13:00',
+ 0, NULL, NULL, NULL, NULL,
+ 0, 'GOOGLE', NULL, 0
+),
+(
+ '7slvebq6@daum.net',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_9ft98t',
+ '01040716362',
+ NULL, 'USER', 'ACTIVE',
+ '2024-03-08 11:06:00',
+ 'CI_2zvsdvhv266c',
+ '2024-03-08 11:06:00',
+ '2024-05-14 11:06:00',
+ 0, NULL, NULL, NULL, NULL,
+ 0, 'GOOGLE', NULL, 0
+),
+(
+ 'jlkc678n@gmail.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_qfjeaa',
+ '01096775907',
+ NULL, 'USER', 'ACTIVE',
+ '2024-03-09 15:35:00',
+ 'CI_ss9dm5sjnfh4',
+ '2024-03-09 15:35:00',
+ '2024-06-12 15:35:00',
+ 0, NULL, NULL, NULL, NULL,
+ 0, 'LOCAL', NULL, 0
+),
+(
+ 'j7ixhpnb@gmail.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_zbdx73',
+ '01049396054',
+ NULL, 'USER', 'ACTIVE',
+ '2024-03-10 12:01:00',
+ 'CI_ch9a9vesohbt',
+ '2024-03-10 12:01:00',
+ '2024-06-12 12:01:00',
+ 0, NULL, NULL, NULL, NULL,
+ 1, 'KAKAO', NULL, 0
+),
+(
+ '169o4kxq@nate.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_q248os',
+ '01090200039',
+ NULL, 'USER', 'ACTIVE',
+ '2024-03-11 17:57:00',
+ 'CI_twbg1hsmxjnz',
+ '2024-03-11 17:57:00',
+ '2024-08-05 17:57:00',
+ 0, NULL, NULL, NULL, NULL,
+ 1, 'KAKAO', NULL, 0
+),
+(
+ 'dj6mbd5o@naver.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_lhs17m',
+ '01016873691',
+ NULL, 'USER', 'ACTIVE',
+ '2024-03-12 09:58:00',
+ 'CI_8naus27gf5ez',
+ '2024-03-12 09:58:00',
+ '2024-04-23 09:58:00',
+ 0, NULL, NULL, NULL, NULL,
+ 0, 'GOOGLE', NULL, 0
+),
+(
+ 'ytway0kx@naver.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_0f1du7',
+ '01071425909',
+ NULL, 'USER', 'ACTIVE',
+ '2024-03-13 10:24:00',
+ 'CI_kx7xk3m49rnd',
+ '2024-03-13 10:24:00',
+ '2024-07-09 10:24:00',
+ 0, NULL, NULL, NULL, NULL,
+ 0, 'GOOGLE', NULL, 0
+),
+(
+ '0spo51ch@naver.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_g9n8o0',
+ '01031965561',
+ NULL, 'USER', 'ACTIVE',
+ '2024-03-14 16:55:00',
+ 'CI_eyusbs9tjafc',
+ '2024-03-14 16:55:00',
+ '2024-04-28 16:55:00',
+ 0, NULL, NULL, NULL, NULL,
+ 0, 'KAKAO', NULL, 0
+),
+(
+ 's06x8nic@daum.net',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_76taa4',
+ '01069399599',
+ NULL, 'USER', 'ACTIVE',
+ '2024-03-15 16:22:00',
+ 'CI_byorlsjupm51',
+ '2024-03-15 16:22:00',
+ '2024-05-17 16:22:00',
+ 0, NULL, NULL, NULL, NULL,
+ 0, 'LOCAL', NULL, 0
+),
+(
+ '6v1vjnub@naver.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_nelqnd',
+ '01046092605',
+ NULL, 'USER', 'ACTIVE',
+ '2024-03-16 14:37:00',
+ 'CI_jkp5mjq9pjrr',
+ '2024-03-16 14:37:00',
+ '2024-03-18 14:37:00',
+ 0, NULL, NULL, NULL, NULL,
+ 0, 'LOCAL', NULL, 0
+),
+(
+ 'hb7thi3q@daum.net',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_on89lq',
+ '01049541271',
+ NULL, 'USER', 'ACTIVE',
+ '2024-03-17 17:38:00',
+ 'CI_anutimfh8fjo',
+ '2024-03-17 17:38:00',
+ '2024-09-30 17:38:00',
+ 0, NULL, NULL, NULL, NULL,
+ 1, 'LOCAL', NULL, 0
+),
+(
+ 'mj40lbjs@nate.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_0sak6m',
+ '01081503282',
+ NULL, 'USER', 'ACTIVE',
+ '2024-03-18 16:01:00',
+ 'CI_14z7i2g5ca43',
+ '2024-03-18 16:01:00',
+ '2024-10-03 16:01:00',
+ 0, NULL, NULL, NULL, NULL,
+ 0, 'GOOGLE', NULL, 0
+),
+(
+ '7u3uf22s@naver.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_c3zuwe',
+ '01047310082',
+ NULL, 'USER', 'ACTIVE',
+ '2024-03-19 16:38:00',
+ 'CI_qb9vuuimcovu',
+ '2024-03-19 16:38:00',
+ '2024-08-28 16:38:00',
+ 0, NULL, NULL, NULL, NULL,
+ 0, 'KAKAO', NULL, 0
+),
+(
+ 'ymh0evgm@daum.net',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_jeublh',
+ '01013148282',
+ NULL, 'USER', 'ACTIVE',
+ '2024-03-20 11:09:00',
+ 'CI_jwgpm2drtgj7',
+ '2024-03-20 11:09:00',
+ '2024-07-12 11:09:00',
+ 0, NULL, NULL, NULL, NULL,
+ 0, 'GOOGLE', NULL, 0
+),
+(
+ 'y417brpe@daum.net',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_9f5zbz',
+ '01043100815',
+ NULL, 'USER', 'ACTIVE',
+ '2024-03-21 18:42:00',
+ 'CI_4af1ayl02y1r',
+ '2024-03-21 18:42:00',
+ '2024-10-02 18:42:00',
+ 0, NULL, NULL, NULL, NULL,
+ 1, 'LOCAL', NULL, 0
+),
+(
+ '8bc12k51@gmail.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_rcd60p',
+ '01064460724',
+ NULL, 'USER', 'ACTIVE',
+ '2024-03-22 12:33:00',
+ 'CI_j2qexa2ens8z',
+ '2024-03-22 12:33:00',
+ '2024-06-20 12:33:00',
+ 0, NULL, NULL, NULL, NULL,
+ 0, 'KAKAO', NULL, 0
+),
+(
+ '7tm3b8x3@gmail.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_di9lee',
+ '01022673887',
+ NULL, 'USER', 'ACTIVE',
+ '2024-03-23 14:38:00',
+ 'CI_ifviom90kgdx',
+ '2024-03-23 14:38:00',
+ '2024-04-19 14:38:00',
+ 0, NULL, NULL, NULL, NULL,
+ 0, 'LOCAL', NULL, 0
+),
+(
+ 'rnythef3@nate.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_614awn',
+ '01012103425',
+ NULL, 'USER', 'ACTIVE',
+ '2024-03-24 14:30:00',
+ 'CI_c2r3bvgq66o6',
+ '2024-03-24 14:30:00',
+ '2024-05-11 14:30:00',
+ 0, NULL, NULL, NULL, NULL,
+ 1, 'KAKAO', NULL, 0
+),
+(
+ '00o3ymsd@gmail.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_b9pz97',
+ '01091455761',
+ NULL, 'USER', 'ACTIVE',
+ '2024-03-25 11:55:00',
+ 'CI_i3xmuz8d8cwe',
+ '2024-03-25 11:55:00',
+ '2024-06-29 11:55:00',
+ 0, NULL, NULL, NULL, NULL,
+ 0, 'LOCAL', NULL, 0
+),
+(
+ '3xhos8lm@gmail.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_neh7bm',
+ '01064897537',
+ NULL, 'USER', 'ACTIVE',
+ '2024-03-26 10:10:00',
+ 'CI_beyco0yxe05g',
+ '2024-03-26 10:10:00',
+ '2024-06-10 10:10:00',
+ 0, NULL, NULL, NULL, NULL,
+ 0, 'LOCAL', NULL, 0
+),
+(
+ 'um5uz5oh@gmail.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_bkg2th',
+ '01010546758',
+ NULL, 'USER', 'ACTIVE',
+ '2024-03-27 11:59:00',
+ 'CI_725j2hcgsecq',
+ '2024-03-27 11:59:00',
+ '2024-07-03 11:59:00',
+ 0, NULL, NULL, NULL, NULL,
+ 0, 'KAKAO', NULL, 0
+),
+(
+ 'g7jodbei@naver.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_iaawmn',
+ '01032007635',
+ NULL, 'USER', 'ACTIVE',
+ '2024-03-28 13:59:00',
+ 'CI_ebb8gubl3chv',
+ '2024-03-28 13:59:00',
+ '2024-09-01 13:59:00',
+ 0, NULL, NULL, NULL, NULL,
+ 0, 'KAKAO', NULL, 0
+),
+(
+ '6b3lkw4i@daum.net',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_h6ipw0',
+ '01024763294',
+ NULL, 'USER', 'ACTIVE',
+ '2024-03-29 17:56:00',
+ 'CI_kj3rebw9uczm',
+ '2024-03-29 17:56:00',
+ '2024-06-11 17:56:00',
+ 0, NULL, NULL, NULL, NULL,
+ 0, 'LOCAL', NULL, 0
+),
+(
+ '6ia3mj8s@nate.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_bqpaed',
+ '01078193944',
+ NULL, 'USER', 'ACTIVE',
+ '2024-03-30 09:15:00',
+ 'CI_ekzrop9u52np',
+ '2024-03-30 09:15:00',
+ '2024-10-13 09:15:00',
+ 0, NULL, NULL, NULL, NULL,
+ 0, 'GOOGLE', NULL, 0
+),
+(
+ 'rus0oscl@daum.net',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_5wv682',
+ '01057420216',
+ NULL, 'USER', 'ACTIVE',
+ '2024-03-31 15:21:00',
+ 'CI_3fzm1rkcpb02',
+ '2024-03-31 15:21:00',
+ '2024-08-14 15:21:00',
+ 0, NULL, NULL, NULL, NULL,
+ 1, 'KAKAO', NULL, 0
+),
+(
+ 'd9w15ju4@gmail.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_viwsyi',
+ '01090771952',
+ NULL, 'USER', 'ACTIVE',
+ '2024-04-01 12:48:00',
+ 'CI_oz0v2gjt9zzq',
+ '2024-04-01 12:48:00',
+ '2024-04-26 12:48:00',
+ 0, NULL, NULL, NULL, NULL,
+ 1, 'GOOGLE', NULL, 0
+),
+(
+ 'xkfegc4q@daum.net',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_09wyo1',
+ '01057082165',
+ NULL, 'USER', 'ACTIVE',
+ '2024-04-02 14:38:00',
+ 'CI_g9e5r64gh2fm',
+ '2024-04-02 14:38:00',
+ '2024-09-29 14:38:00',
+ 0, NULL, NULL, NULL, NULL,
+ 0, 'GOOGLE', NULL, 0
+),
+(
+ '12ozwk0a@daum.net',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_4p2ouc',
+ '01056090106',
+ NULL, 'USER', 'ACTIVE',
+ '2024-04-03 16:13:00',
+ 'CI_fpw6o02itjlc',
+ '2024-04-03 16:13:00',
+ '2024-08-28 16:13:00',
+ 0, NULL, NULL, NULL, NULL,
+ 0, 'KAKAO', NULL, 0
+),
+(
+ 'sgwgqa8o@nate.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_wbbcga',
+ '01033636788',
+ NULL, 'USER', 'ACTIVE',
+ '2024-04-04 18:59:00',
+ 'CI_xqicg68ding9',
+ '2024-04-04 18:59:00',
+ '2024-08-15 18:59:00',
+ 0, NULL, NULL, NULL, NULL,
+ 1, 'KAKAO', NULL, 0
+),
+(
+ 'rquh2xbl@gmail.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_8b3azy',
+ '01026101670',
+ NULL, 'USER', 'ACTIVE',
+ '2024-04-05 11:43:00',
+ 'CI_lp5wpwxbq54i',
+ '2024-04-05 11:43:00',
+ '2024-10-20 11:43:00',
+ 0, NULL, NULL, NULL, NULL,
+ 1, 'LOCAL', NULL, 0
+),
+(
+ 'jvm838og@nate.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_j6aoo3',
+ '01018856477',
+ NULL, 'USER', 'ACTIVE',
+ '2024-04-06 11:35:00',
+ 'CI_uh7wf9w4vnjc',
+ '2024-04-06 11:35:00',
+ '2024-05-24 11:35:00',
+ 0, NULL, NULL, NULL, NULL,
+ 0, 'KAKAO', NULL, 0
+),
+(
+ '82unf1ln@nate.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_z30203',
+ '01082282716',
+ NULL, 'USER', 'ACTIVE',
+ '2024-04-07 09:01:00',
+ 'CI_g9fgqqdqzzh6',
+ '2024-04-07 09:01:00',
+ '2024-08-20 09:01:00',
+ 0, NULL, NULL, NULL, NULL,
+ 1, 'LOCAL', NULL, 0
+),
+(
+ 'psjc2xtc@naver.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_88tg8v',
+ '01043780806',
+ NULL, 'USER', 'ACTIVE',
+ '2024-04-08 18:52:00',
+ 'CI_cqlslppsd0uh',
+ '2024-04-08 18:52:00',
+ '2024-06-26 18:52:00',
+ 0, NULL, NULL, NULL, NULL,
+ 1, 'LOCAL', NULL, 0
+),
+(
+ 'dpnbe0js@nate.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_x7lanl',
+ '01054412479',
+ NULL, 'USER', 'ACTIVE',
+ '2024-04-09 15:52:00',
+ 'CI_irtrwxuyefpd',
+ '2024-04-09 15:52:00',
+ '2024-10-23 15:52:00',
+ 0, NULL, NULL, NULL, NULL,
+ 0, 'LOCAL', NULL, 0
+),
+(
+ 'xowgxp8a@gmail.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_8hght3',
+ '01025145901',
+ NULL, 'USER', 'ACTIVE',
+ '2024-04-10 14:14:00',
+ 'CI_tgbmb68w283i',
+ '2024-04-10 14:14:00',
+ '2024-07-27 14:14:00',
+ 0, NULL, NULL, NULL, NULL,
+ 1, 'GOOGLE', NULL, 0
+),
+(
+ 'xdg2da3e@nate.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_9ubvd2',
+ '01069977497',
+ NULL, 'USER', 'ACTIVE',
+ '2024-04-11 11:17:00',
+ 'CI_3mheg2fletr9',
+ '2024-04-11 11:17:00',
+ '2024-04-21 11:17:00',
+ 0, NULL, NULL, NULL, NULL,
+ 1, 'LOCAL', NULL, 0
+),
+(
+ 'x8r4q9wa@daum.net',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_h4dxpp',
+ '01095463081',
+ NULL, 'USER', 'ACTIVE',
+ '2024-04-12 16:18:00',
+ 'CI_2o8eqkyqplqq',
+ '2024-04-12 16:18:00',
+ '2024-08-27 16:18:00',
+ 0, NULL, NULL, NULL, NULL,
+ 1, 'KAKAO', NULL, 0
+),
+(
+ 'wsx5h9lm@nate.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_rtbd9d',
+ '01018267606',
+ NULL, 'USER', 'ACTIVE',
+ '2024-04-13 11:17:00',
+ 'CI_5butajhayo5f',
+ '2024-04-13 11:17:00',
+ '2024-08-02 11:17:00',
+ 0, NULL, NULL, NULL, NULL,
+ 1, 'KAKAO', NULL, 0
+),
+(
+ 'psldbncn@nate.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_cdqtor',
+ '01036011701',
+ NULL, 'USER', 'ACTIVE',
+ '2024-04-14 12:58:00',
+ 'CI_thhlze101qcu',
+ '2024-04-14 12:58:00',
+ '2024-10-25 12:58:00',
+ 0, NULL, NULL, NULL, NULL,
+ 1, 'KAKAO', NULL, 0
+),
+(
+ '9ca6gwtg@nate.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_b48py2',
+ '01057114328',
+ NULL, 'USER', 'ACTIVE',
+ '2024-04-15 17:39:00',
+ 'CI_lgrdph411zhv',
+ '2024-04-15 17:39:00',
+ '2024-06-22 17:39:00',
+ 0, NULL, NULL, NULL, NULL,
+ 1, 'KAKAO', NULL, 0
+),
+(
+ '78yxorki@naver.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_m2yk08',
+ '01094303059',
+ NULL, 'USER', 'ACTIVE',
+ '2024-04-16 09:34:00',
+ 'CI_adsd81x9rn20',
+ '2024-04-16 09:34:00',
+ '2024-07-22 09:34:00',
+ 0, NULL, NULL, NULL, NULL,
+ 1, 'KAKAO', NULL, 0
+),
+(
+ 'rfzrrhyx@daum.net',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_rzt2xe',
+ '01097574716',
+ NULL, 'USER', 'ACTIVE',
+ '2024-04-17 18:14:00',
+ 'CI_fl2y0x17aqdu',
+ '2024-04-17 18:14:00',
+ '2024-08-05 18:14:00',
+ 0, NULL, NULL, NULL, NULL,
+ 1, 'GOOGLE', NULL, 0
+),
+(
+ 'rbant52g@gmail.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_rcv4df',
+ '01089955750',
+ NULL, 'USER', 'ACTIVE',
+ '2024-04-18 13:59:00',
+ 'CI_tqzmdi6ljj86',
+ '2024-04-18 13:59:00',
+ '2024-10-26 13:59:00',
+ 0, NULL, NULL, NULL, NULL,
+ 0, 'KAKAO', NULL, 0
+),
+(
+ 'ofbdmzgk@naver.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_q769l1',
+ '01082451365',
+ NULL, 'USER', 'ACTIVE',
+ '2024-04-19 17:10:00',
+ 'CI_099mw3egl0ve',
+ '2024-04-19 17:10:00',
+ '2024-07-24 17:10:00',
+ 0, NULL, NULL, NULL, NULL,
+ 1, 'LOCAL', NULL, 0
+),
+(
+ '5mphysdg@nate.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_wi0i7d',
+ '01079605068',
+ NULL, 'USER', 'ACTIVE',
+ '2024-04-20 15:58:00',
+ 'CI_vluz3xozpv8c',
+ '2024-04-20 15:58:00',
+ '2024-11-02 15:58:00',
+ 0, NULL, NULL, NULL, NULL,
+ 1, 'LOCAL', NULL, 0
+),
+(
+ 'v9qj5nca@nate.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_s83tlb',
+ '01071665201',
+ NULL, 'USER', 'ACTIVE',
+ '2024-04-21 16:19:00',
+ 'CI_v8i4j7p8q2hr',
+ '2024-04-21 16:19:00',
+ '2024-04-29 16:19:00',
+ 0, NULL, NULL, NULL, NULL,
+ 0, 'GOOGLE', NULL, 0
+),
+(
+ '59gw81xb@naver.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_7xl5zq',
+ '01044649318',
+ NULL, 'USER', 'ACTIVE',
+ '2024-04-22 12:09:00',
+ 'CI_jxfp49rb1vbo',
+ '2024-04-22 12:09:00',
+ '2024-06-16 12:09:00',
+ 0, NULL, NULL, NULL, NULL,
+ 0, 'KAKAO', NULL, 0
+),
+(
+ 'twsu1t42@naver.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_dxw4vj',
+ '01022309888',
+ NULL, 'USER', 'ACTIVE',
+ '2024-04-23 09:25:00',
+ 'CI_nori6sp6ifat',
+ '2024-04-23 09:25:00',
+ '2024-05-31 09:25:00',
+ 0, NULL, NULL, NULL, NULL,
+ 0, 'KAKAO', NULL, 0
+),
+(
+ 'n39n1bih@gmail.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_md3a3t',
+ '01065801619',
+ NULL, 'USER', 'ACTIVE',
+ '2024-04-24 18:42:00',
+ 'CI_wor8inz7z6q3',
+ '2024-04-24 18:42:00',
+ '2024-05-27 18:42:00',
+ 0, NULL, NULL, NULL, NULL,
+ 1, 'LOCAL', NULL, 0
+),
+(
+ 'ke52g0y9@naver.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_mbxzax',
+ '01097831859',
+ NULL, 'USER', 'ACTIVE',
+ '2024-04-25 18:12:00',
+ 'CI_iab5meeuzwqr',
+ '2024-04-25 18:12:00',
+ '2024-05-07 18:12:00',
+ 0, NULL, NULL, NULL, NULL,
+ 1, 'GOOGLE', NULL, 0
+),
+(
+ 'r9ubfwga@daum.net',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_4tc013',
+ '01069545332',
+ NULL, 'USER', 'ACTIVE',
+ '2024-04-26 18:08:00',
+ 'CI_gz3b3id9c934',
+ '2024-04-26 18:08:00',
+ '2024-11-06 18:08:00',
+ 0, NULL, NULL, NULL, NULL,
+ 0, 'LOCAL', NULL, 0
+),
+(
+ 'ljhy8ppb@naver.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_5erlry',
+ '01096728426',
+ NULL, 'USER', 'ACTIVE',
+ '2024-04-27 16:01:00',
+ 'CI_vpqlubkye15a',
+ '2024-04-27 16:01:00',
+ '2024-11-05 16:01:00',
+ 0, NULL, NULL, NULL, NULL,
+ 1, 'GOOGLE', NULL, 0
+),
+(
+ 'auug0tfd@nate.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_56100s',
+ '01046493097',
+ NULL, 'USER', 'ACTIVE',
+ '2024-04-28 15:55:00',
+ 'CI_e95j9nfdi8gt',
+ '2024-04-28 15:55:00',
+ '2024-10-14 15:55:00',
+ 0, NULL, NULL, NULL, NULL,
+ 0, 'LOCAL', NULL, 0
+),
+(
+ 't51r8w9n@naver.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_ktcwga',
+ '01088051397',
+ NULL, 'USER', 'ACTIVE',
+ '2024-04-29 10:19:00',
+ 'CI_uvsx5h7owpcp',
+ '2024-04-29 10:19:00',
+ '2024-07-28 10:19:00',
+ 0, NULL, NULL, NULL, NULL,
+ 1, 'LOCAL', NULL, 0
+),
+(
+ 'zv1t25s2@gmail.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_l43if3',
+ '01074100433',
+ NULL, 'USER', 'ACTIVE',
+ '2024-04-30 16:51:00',
+ 'CI_b7nvraz1jawz',
+ '2024-04-30 16:51:00',
+ '2024-08-11 16:51:00',
+ 0, NULL, NULL, NULL, NULL,
+ 0, 'GOOGLE', NULL, 0
+),
+(
+ 'n53hwoyy@gmail.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_hxisad',
+ '01053781603',
+ NULL, 'USER', 'ACTIVE',
+ '2024-05-01 17:29:00',
+ 'CI_3lmx1gokcxhh',
+ '2024-05-01 17:29:00',
+ '2024-09-17 17:29:00',
+ 0, NULL, NULL, NULL, NULL,
+ 1, 'KAKAO', NULL, 0
+),
+(
+ 'xw7b4au6@gmail.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_cm5ygt',
+ '01053733901',
+ NULL, 'USER', 'ACTIVE',
+ '2024-05-02 11:05:00',
+ 'CI_hdsslr0b6cnh',
+ '2024-05-02 11:05:00',
+ '2024-06-30 11:05:00',
+ 0, NULL, NULL, NULL, NULL,
+ 1, 'KAKAO', NULL, 0
+),
+(
+ 'za9bgykn@gmail.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_2gbiej',
+ '01073461036',
+ NULL, 'USER', 'ACTIVE',
+ '2024-05-03 15:11:00',
+ 'CI_u67llhjql2eg',
+ '2024-05-03 15:11:00',
+ '2024-05-31 15:11:00',
+ 0, NULL, NULL, NULL, NULL,
+ 0, 'LOCAL', NULL, 0
+),
+(
+ '8cti84h7@daum.net',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_5r7z11',
+ '01034556833',
+ NULL, 'USER', 'ACTIVE',
+ '2024-05-04 12:02:00',
+ 'CI_mse3tqr7p90v',
+ '2024-05-04 12:02:00',
+ '2024-05-31 12:02:00',
+ 0, NULL, NULL, NULL, NULL,
+ 1, 'GOOGLE', NULL, 0
+),
+(
+ 'eyu0l3ct@naver.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_3mq3qs',
+ '01034001196',
+ NULL, 'USER', 'ACTIVE',
+ '2024-05-05 18:37:00',
+ 'CI_zad6cklm4abf',
+ '2024-05-05 18:37:00',
+ '2024-09-21 18:37:00',
+ 0, NULL, NULL, NULL, NULL,
+ 1, 'KAKAO', NULL, 0
+),
+(
+ '815so0j6@nate.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_wxta0s',
+ '01068772562',
+ NULL, 'USER', 'ACTIVE',
+ '2024-05-06 12:04:00',
+ 'CI_jrw10pqi2n8e',
+ '2024-05-06 12:04:00',
+ '2024-06-18 12:04:00',
+ 0, NULL, NULL, NULL, NULL,
+ 0, 'LOCAL', NULL, 0
+),
+(
+ 'i65s6r6y@daum.net',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_9g84gg',
+ '01079987735',
+ NULL, 'USER', 'ACTIVE',
+ '2024-05-07 10:02:00',
+ 'CI_c0vi1bqcvgxu',
+ '2024-05-07 10:02:00',
+ '2024-07-14 10:02:00',
+ 0, NULL, NULL, NULL, NULL,
+ 1, 'GOOGLE', NULL, 0
+),
+(
+ 'socjuxvr@daum.net',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_g7aiuh',
+ '01059306367',
+ NULL, 'USER', 'ACTIVE',
+ '2024-05-08 11:08:00',
+ 'CI_n1bo5mwrr7sh',
+ '2024-05-08 11:08:00',
+ '2024-08-01 11:08:00',
+ 0, NULL, NULL, NULL, NULL,
+ 1, 'GOOGLE', NULL, 0
+),
+(
+ 'pph91x82@gmail.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_bavf1i',
+ '01059066125',
+ NULL, 'USER', 'ACTIVE',
+ '2024-05-09 11:42:00',
+ 'CI_gajezwd4am0u',
+ '2024-05-09 11:42:00',
+ '2024-10-08 11:42:00',
+ 0, NULL, NULL, NULL, NULL,
+ 1, 'LOCAL', NULL, 0
+),
+(
+ 'b71hardp@daum.net',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_tlcoqz',
+ '01072472135',
+ NULL, 'USER', 'ACTIVE',
+ '2024-05-10 17:07:00',
+ 'CI_rr6q8rgmj7tk',
+ '2024-05-10 17:07:00',
+ '2024-08-15 17:07:00',
+ 0, NULL, NULL, NULL, NULL,
+ 1, 'GOOGLE', NULL, 0
+),
+(
+ '4vqh1cg4@nate.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_m4wr9e',
+ '01085131567',
+ NULL, 'USER', 'ACTIVE',
+ '2024-05-11 15:28:00',
+ 'CI_cje32any4rr5',
+ '2024-05-11 15:28:00',
+ '2024-10-07 15:28:00',
+ 0, NULL, NULL, NULL, NULL,
+ 1, 'KAKAO', NULL, 0
+),
+(
+ '69m0n67q@gmail.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_izvatk',
+ '01013929929',
+ NULL, 'USER', 'ACTIVE',
+ '2024-05-12 10:49:00',
+ 'CI_77f1pxj07pic',
+ '2024-05-12 10:49:00',
+ '2024-06-21 10:49:00',
+ 0, NULL, NULL, NULL, NULL,
+ 0, 'GOOGLE', NULL, 0
+),
+(
+ 'zwven8fc@nate.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_aqy13g',
+ '01057448731',
+ NULL, 'USER', 'ACTIVE',
+ '2024-05-13 17:45:00',
+ 'CI_ovzw05fnpw7c',
+ '2024-05-13 17:45:00',
+ '2024-08-06 17:45:00',
+ 0, NULL, NULL, NULL, NULL,
+ 0, 'KAKAO', NULL, 0
+),
+(
+ '85fftjz5@daum.net',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_0asayn',
+ '01073659431',
+ NULL, 'USER', 'ACTIVE',
+ '2024-05-14 09:49:00',
+ 'CI_6rjz755bfvkj',
+ '2024-05-14 09:49:00',
+ '2024-09-11 09:49:00',
+ 0, NULL, NULL, NULL, NULL,
+ 0, 'LOCAL', NULL, 0
+),
+(
+ '5ohqac4a@nate.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_2x67s8',
+ '01051609715',
+ NULL, 'USER', 'ACTIVE',
+ '2024-05-15 09:29:00',
+ 'CI_riokbheeb73s',
+ '2024-05-15 09:29:00',
+ '2024-09-02 09:29:00',
+ 0, NULL, NULL, NULL, NULL,
+ 0, 'GOOGLE', NULL, 0
+),
+(
+ '2hqlmo92@naver.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_fwfjbl',
+ '01032967809',
+ NULL, 'USER', 'ACTIVE',
+ '2024-05-16 11:36:00',
+ 'CI_hu9qrexhu0r7',
+ '2024-05-16 11:36:00',
+ '2024-07-30 11:36:00',
+ 0, NULL, NULL, NULL, NULL,
+ 1, 'LOCAL', NULL, 0
+),
+(
+ 'vwsfkas6@naver.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_vsw2jq',
+ '01024911957',
+ NULL, 'USER', 'ACTIVE',
+ '2024-05-17 12:39:00',
+ 'CI_6p6tnnv20pwc',
+ '2024-05-17 12:39:00',
+ '2024-06-12 12:39:00',
+ 0, NULL, NULL, NULL, NULL,
+ 0, 'GOOGLE', NULL, 0
+),
+(
+ 'gcs8c77u@nate.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_ib8xxw',
+ '01013139573',
+ NULL, 'USER', 'ACTIVE',
+ '2024-05-18 12:01:00',
+ 'CI_k87pw4whlwaj',
+ '2024-05-18 12:01:00',
+ '2024-10-01 12:01:00',
+ 0, NULL, NULL, NULL, NULL,
+ 1, 'KAKAO', NULL, 0
+),
+(
+ 'kjfc6uyd@naver.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_grbbx6',
+ '01048476259',
+ NULL, 'USER', 'ACTIVE',
+ '2024-05-19 13:56:00',
+ 'CI_ci0u558t4j6j',
+ '2024-05-19 13:56:00',
+ '2024-07-14 13:56:00',
+ 0, NULL, NULL, NULL, NULL,
+ 1, 'GOOGLE', NULL, 0
+),
+(
+ 'xn47vz6f@daum.net',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_mauojh',
+ '01058702628',
+ NULL, 'USER', 'ACTIVE',
+ '2024-05-20 15:30:00',
+ 'CI_uplczfi7bbu6',
+ '2024-05-20 15:30:00',
+ '2024-11-11 15:30:00',
+ 0, NULL, NULL, NULL, NULL,
+ 0, 'KAKAO', NULL, 0
+),
+(
+ 'ewr2n6n1@naver.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_yhklq5',
+ '01068948284',
+ NULL, 'USER', 'ACTIVE',
+ '2024-05-21 14:47:00',
+ 'CI_67r811221osr',
+ '2024-05-21 14:47:00',
+ '2024-05-29 14:47:00',
+ 0, NULL, NULL, NULL, NULL,
+ 1, 'KAKAO', NULL, 0
+),
+(
+ 'awcvpw9b@nate.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_ppgft4',
+ '01076969312',
+ NULL, 'USER', 'ACTIVE',
+ '2024-05-22 13:16:00',
+ 'CI_plwwzyflprqg',
+ '2024-05-22 13:16:00',
+ '2024-10-17 13:16:00',
+ 0, NULL, NULL, NULL, NULL,
+ 1, 'LOCAL', NULL, 0
+),
+(
+ 'lvnln7s7@naver.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_oqflhw',
+ '01010404091',
+ NULL, 'USER', 'ACTIVE',
+ '2024-05-23 14:22:00',
+ 'CI_ijpn9shw4z3i',
+ '2024-05-23 14:22:00',
+ '2024-08-04 14:22:00',
+ 0, NULL, NULL, NULL, NULL,
+ 0, 'KAKAO', NULL, 0
+),
+(
+ '89uvqio5@daum.net',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_0fiyel',
+ '01020222421',
+ NULL, 'USER', 'ACTIVE',
+ '2024-05-24 16:31:00',
+ 'CI_odfm8xdrjgne',
+ '2024-05-24 16:31:00',
+ '2024-07-16 16:31:00',
+ 0, NULL, NULL, NULL, NULL,
+ 1, 'LOCAL', NULL, 0
+),
+(
+ 'lww5ueww@nate.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_cyjnkx',
+ '01067569699',
+ NULL, 'USER', 'ACTIVE',
+ '2024-05-25 10:34:00',
+ 'CI_1j26n0vw3boz',
+ '2024-05-25 10:34:00',
+ '2024-08-02 10:34:00',
+ 0, NULL, NULL, NULL, NULL,
+ 1, 'GOOGLE', NULL, 0
+),
+(
+ 'si2wtqkg@daum.net',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_7qs7ee',
+ '01052468503',
+ NULL, 'USER', 'ACTIVE',
+ '2024-05-26 12:36:00',
+ 'CI_6d7une5cfi79',
+ '2024-05-26 12:36:00',
+ '2024-12-09 12:36:00',
+ 0, NULL, NULL, NULL, NULL,
+ 0, 'KAKAO', NULL, 0
+),
+(
+ 'xueuabr1@nate.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_3ccwtq',
+ '01067133287',
+ NULL, 'USER', 'ACTIVE',
+ '2024-05-27 14:09:00',
+ 'CI_zo06qnun1v4x',
+ '2024-05-27 14:09:00',
+ '2024-08-07 14:09:00',
+ 0, NULL, NULL, NULL, NULL,
+ 0, 'KAKAO', NULL, 0
+),
+(
+ 'b8tuhomf@naver.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_rycns7',
+ '01042453573',
+ NULL, 'USER', 'ACTIVE',
+ '2024-05-28 17:00:00',
+ 'CI_ouiryi05ntr6',
+ '2024-05-28 17:00:00',
+ '2024-06-09 17:00:00',
+ 0, NULL, NULL, NULL, NULL,
+ 1, 'GOOGLE', NULL, 0
+),
+(
+ 'jszlyy0u@naver.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_e7zr8y',
+ '01078936551',
+ NULL, 'USER', 'ACTIVE',
+ '2024-05-29 11:21:00',
+ 'CI_gtppysjm6s8l',
+ '2024-05-29 11:21:00',
+ '2024-12-11 11:21:00',
+ 0, NULL, NULL, NULL, NULL,
+ 1, 'LOCAL', NULL, 0
+),
+(
+ '9zdiu56i@nate.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_es1dk7',
+ '01093334528',
+ NULL, 'USER', 'ACTIVE',
+ '2024-05-30 14:45:00',
+ 'CI_9waq7tpy28gl',
+ '2024-05-30 14:45:00',
+ '2024-06-27 14:45:00',
+ 0, NULL, NULL, NULL, NULL,
+ 1, 'GOOGLE', NULL, 0
+),
+(
+ '0rdds9n3@naver.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_6cyddn',
+ '01034699077',
+ NULL, 'USER', 'ACTIVE',
+ '2024-05-31 13:16:00',
+ 'CI_gv7dfcjoalpm',
+ '2024-05-31 13:16:00',
+ '2024-08-10 13:16:00',
+ 0, NULL, NULL, NULL, NULL,
+ 1, 'KAKAO', NULL, 0
+),
+(
+ 'yqhj1d8s@naver.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_ysyjy7',
+ '01018701800',
+ NULL, 'USER', 'ACTIVE',
+ '2024-06-01 10:01:00',
+ 'CI_8iirkmfa484h',
+ '2024-06-01 10:01:00',
+ '2024-10-25 10:01:00',
+ 0, NULL, NULL, NULL, NULL,
+ 1, 'GOOGLE', NULL, 0
+),
+(
+ '97rvva5v@nate.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_e3ymwe',
+ '01056283678',
+ NULL, 'USER', 'ACTIVE',
+ '2024-06-02 12:57:00',
+ 'CI_gmdaqql2qra1',
+ '2024-06-02 12:57:00',
+ '2024-12-13 12:57:00',
+ 0, NULL, NULL, NULL, NULL,
+ 1, 'GOOGLE', NULL, 0
+),
+(
+ '6ipqknoq@gmail.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_dh1i77',
+ '01073087388',
+ NULL, 'USER', 'ACTIVE',
+ '2024-06-03 10:31:00',
+ 'CI_j1eeju0d50xj',
+ '2024-06-03 10:31:00',
+ '2024-11-19 10:31:00',
+ 0, NULL, NULL, NULL, NULL,
+ 0, 'LOCAL', NULL, 0
+),
+(
+ '0f9fk10m@nate.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_t34pym',
+ '01023283605',
+ NULL, 'USER', 'ACTIVE',
+ '2024-06-04 14:16:00',
+ 'CI_mxnp50p48u3q',
+ '2024-06-04 14:16:00',
+ '2024-07-26 14:16:00',
+ 0, NULL, NULL, NULL, NULL,
+ 1, 'GOOGLE', NULL, 0
+),
+(
+ 'x6hf1gbo@daum.net',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_t1ad9u',
+ '01089147581',
+ NULL, 'USER', 'ACTIVE',
+ '2024-06-05 15:51:00',
+ 'CI_9layfob9lleu',
+ '2024-06-05 15:51:00',
+ '2024-06-20 15:51:00',
+ 0, NULL, NULL, NULL, NULL,
+ 1, 'GOOGLE', NULL, 0
+),
+(
+ '7k71pbda@nate.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_1pf7h9',
+ '01049997000',
+ NULL, 'USER', 'ACTIVE',
+ '2024-06-06 18:33:00',
+ 'CI_glpa2zv5m1sk',
+ '2024-06-06 18:33:00',
+ '2024-07-14 18:33:00',
+ 0, NULL, NULL, NULL, NULL,
+ 0, 'GOOGLE', NULL, 0
+),
+(
+ 'js1hbjbx@naver.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_h5nyy5',
+ '01034429162',
+ NULL, 'USER', 'ACTIVE',
+ '2024-06-07 13:13:00',
+ 'CI_a1ezh5kowavz',
+ '2024-06-07 13:13:00',
+ '2024-11-11 13:13:00',
+ 0, NULL, NULL, NULL, NULL,
+ 0, 'LOCAL', NULL, 0
+),
+(
+ 'dxecvwtt@gmail.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_59y37r',
+ '01031854040',
+ NULL, 'USER', 'ACTIVE',
+ '2024-06-08 10:28:00',
+ 'CI_le85o2bufhpk',
+ '2024-06-08 10:28:00',
+ '2024-06-23 10:28:00',
+ 0, NULL, NULL, NULL, NULL,
+ 1, 'LOCAL', NULL, 0
+),
+(
+ 't1x1ihem@gmail.com',
+ '$2a$10$Wln.vzRj7UQ0/ynhnfYv..BwQP2IOl.R9mNYsaPZLenBylXdBNmWq',
+ '유저_3tiw8j',
+ '01031725311',
+ NULL, 'USER', 'ACTIVE',
+ '2024-06-09 10:54:00',
+ 'CI_m6efhbvi58mt',
+ '2024-06-09 10:54:00',
+ '2024-09-13 10:54:00',
+ 0, NULL, NULL, NULL, NULL,
+ 1, 'LOCAL', NULL, 0
+);
+
+
 -- PRODUCT: 상품 정보
-INSERT INTO `product` (`PRODUCT_ID`, `CATEGORY_ID`, `PRODUCT_NAME`, `PRODUCT_STATUS`, `PRICE`, `IMAGE`, `MAX_SHARE`) VALUES
+INSERT INTO `PRODUCT` (`PRODUCT_ID`, `CATEGORY_ID`, `PRODUCT_NAME`, `PRODUCT_STATUS`, `PRICE`, `IMAGE`, `MAX_SHARE`) VALUES
    (1, 1, 'Google AI Pro', 'ACTIVE', 17000, '/uploads/product-image/googleaipro_icon.png', NULL),
    (2, 2, 'Disney+ Standard', 'ACTIVE', 9900, '/uploads/product-image/disney_plus_icon.png', NULL),
    (3, 2, '왓챠 베이직', 'ACTIVE', 7900, '/uploads/product-image/watcha_icon.png', NULL),
@@ -158,107 +1490,107 @@ INSERT INTO `product` (`PRODUCT_ID`, `CATEGORY_ID`, `PRODUCT_NAME`, `PRODUCT_STA
    (20, 2, 'Netflix Premium', 'ACTIVE', 19000, '/uploads/product-image/netflix_icon.png', NULL),
    (21, 2, 'Netflix ', 'ACTIVE', 19000, '/uploads/product-image/netflix_icon.png', NULL);
 
--- CHATBOT_KNOWLEDGE: 챗봇 지식 베이스 데이터
-INSERT INTO CHATBOT_KNOWLEDGE (CATEGORY, TITLE, QUESTION, ANSWER, KEYWORDS) VALUES 
-('구독', '구독상품 안내', '구독상품이 뭐가 있나요?', 'MoA에서는 OTT, 음악, 게임 등 다양한 구독상품을 제공해요.', '구독,상품,OTT,음악,게임'),
-('결제', '결제 수단 변경', '결제 카드를 바꾸고 싶어요', '마이페이지 > 결제 관리에서 카드 추가/변경이 가능해요.', '결제,카드,변경,마이페이지'),
-('파티', '파티 가입 방법', '파티는 어떻게 가입하나요?', '원하는 OTT 서비스를 선택한 후 모집 중인 파티에 가입 신청을 하시면 됩니다.', '파티,가입,방법'),
-('보증금', '보증금 환불 시기', '보증금은 언제 돌려받나요?', '파티 정상 종료 시 7일 이내에 보증금이 환불됩니다.', '보증금,환불,시기'),
-('정산', '정산 일정', '정산은 언제 되나요?', '매월 5일에 전월 정산금이 등록하신 계좌로 입금됩니다.', '정산,일정,입금');
-
--- 1536차원 더미 임베딩 생성
-SET SQL_SAFE_UPDATES = 0;
-
-DROP PROCEDURE IF EXISTS make_dummy_embedding;
-DELIMITER //
-CREATE PROCEDURE make_dummy_embedding()
-BEGIN
-    DECLARE i INT DEFAULT 0;
-    SET @vec = JSON_ARRAY();
-    WHILE i < 1536 DO
-        SET @vec = JSON_ARRAY_APPEND(@vec, '$', 0.0);
-        SET i = i + 1;
-    END WHILE;
-END //
-DELIMITER ;
-
-CALL make_dummy_embedding();
-
-UPDATE CHATBOT_KNOWLEDGE
-SET EMBEDDING = @vec
-WHERE EMBEDDING IS NULL AND ID > 0;
-
--- ============================================
--- 3. 회원 데이터 (다양한 가입 시나리오)
--- ============================================
-
--- USERS: 관리자 3명 + 일반회원 22명
---  전체 26명 OTP 비활성화 (OTP_SECRET = NULL, OTP_ENABLED = 0)
-INSERT INTO USERS (
-    USER_ID, PASSWORD, NICKNAME, PHONE,
-    PROFILE_IMAGE, ROLE, USER_STATUS, REG_DATE,
-    CI, PASS_CERTIFIED_AT, LAST_LOGIN_DATE,
-    LOGIN_FAIL_COUNT, UNLOCK_SCHEDULED_AT,
-    DELETE_DATE, DELETE_TYPE, DELETE_DETAIL, 
-    AGREE_MARKETING, PROVIDER, OTP_SECRET, OTP_ENABLED
-) VALUES
--- 관리자 계정 (모두 LOCAL 가입)
-('admin@admin.com', '$2a$10$r4WvD.fkTss4amaWwy7/dOV1SmwrMM.GocYPXsfgTL4td2mqrHZP6', '슈퍼관리자', '01099999999', '/img/profile/super_admin.png', 'ADMIN', 'ACTIVE', '2024-01-01 00:00:00', 'CI_SUPER_ADMIN', '2024-01-01 00:00:00', '2024-12-03 09:00:00', 0, NULL, NULL, NULL, NULL, 1, 'LOCAL', NULL, 0),
-('admin@moa.com', '$2a$10$r4WvD.fkTss4amaWwy7/dOV1SmwrMM.GocYPXsfgTL4td2mqrHZP6', '관리자', '01000000000', '/img/profile/admin.png', 'ADMIN', 'ACTIVE', '2024-01-01 00:00:00', 'CI_ADMIN_001', '2024-01-01 00:00:00', '2024-12-03 08:00:00', 0, NULL, NULL, NULL, NULL, 1, 'LOCAL', NULL, 0),
-('admintest', '$2a$10$r4WvD.fkTss4amaWwy7/dOV1SmwrMM.GocYPXsfgTL4td2mqrHZP6', '테스트관리자1', '01000000000', NULL, 'ADMIN', 'ACTIVE', '2024-01-01 00:00:00', 'CI_ADMIN_011', '2024-01-01 00:00:00', '2024-12-03 08:00:00', 0, NULL, NULL, NULL, NULL, 1, 'LOCAL', NULL, 0),
-
--- 소셜 전용 가입 (PASSWORD 있음)
-('user001@gmail.com', '$2a$10$r4WvD.fkTss4amaWwy7/dOV1SmwrMM.GocYPXsfgTL4td2mqrHZP6', '사용자001', '01010010001', NULL, 'USER', 'ACTIVE', '2024-03-01 10:30:00', 'CI_USER_001', '2024-03-01 10:30:00', '2024-11-28 14:20:00', 0, NULL, NULL, NULL, NULL, 1, 'KAKAO', NULL, 0),
-('user002@naver.com', '$2a$10$r4WvD.fkTss4amaWwy7/dOV1SmwrMM.GocYPXsfgTL4td2mqrHZP6', '사용자002', '01010010002', NULL, 'USER', 'ACTIVE', '2024-03-05 11:00:00', 'CI_USER_002', '2024-03-05 11:00:00', '2024-11-29 09:15:00', 0, NULL, NULL, NULL, NULL, 0, 'GOOGLE', NULL, 0),
-
--- 일반 가입 후 소셜 연동 (PASSWORD 있음)
-('user003@daum.net', '$2a$10$r4WvD.fkTss4amaWwy7/dOV1SmwrMM.GocYPXsfgTL4td2mqrHZP6', '사용자003', '01010010003', NULL, 'USER', 'ACTIVE', '2024-03-10 14:20:00', 'CI_USER_003', '2024-03-10 14:20:00', '2024-11-30 16:45:00', 0, NULL, NULL, NULL, NULL, 1, 'LOCAL', NULL, 0),
-('user004@gmail.com', '$2a$10$r4WvD.fkTss4amaWwy7/dOV1SmwrMM.GocYPXsfgTL4td2mqrHZP6', '사용자004', '01010010004', NULL, 'USER', 'ACTIVE', '2024-03-15 09:45:00', 'CI_USER_004', '2024-03-15 09:45:00', '2024-11-27 11:30:00', 0, NULL, NULL, NULL, NULL, 1, 'LOCAL', NULL, 0),
-('user005@naver.com', '$2a$10$r4WvD.fkTss4amaWwy7/dOV1SmwrMM.GocYPXsfgTL4td2mqrHZP6', '사용자005', '01010010005', NULL, 'USER', 'ACTIVE', '2024-03-20 16:10:00', 'CI_USER_005', '2024-03-20 16:10:00', '2024-11-28 18:20:00', 0, NULL, NULL, NULL, NULL, 0, 'LOCAL', NULL, 0),
-('user006@daum.net', '$2a$10$r4WvD.fkTss4amaWwy7/dOV1SmwrMM.GocYPXsfgTL4td2mqrHZP6', '사용자006', '01010010006', NULL, 'USER', 'ACTIVE', '2024-03-25 13:30:00', 'CI_USER_006', '2024-03-25 13:30:00', '2024-11-29 10:50:00', 0, NULL, NULL, NULL, NULL, 1, 'LOCAL', NULL, 0),
-('user007@gmail.com', '$2a$10$r4WvD.fkTss4amaWwy7/dOV1SmwrMM.GocYPXsfgTL4td2mqrHZP6', '사용자007', '01010010007', NULL, 'USER', 'ACTIVE', '2024-04-01 10:00:00', 'CI_USER_007', '2024-04-01 10:00:00', '2024-11-30 15:40:00', 0, NULL, NULL, NULL, NULL, 1, 'LOCAL', NULL, 0),
-('user008@naver.com', '$2a$10$r4WvD.fkTss4amaWwy7/dOV1SmwrMM.GocYPXsfgTL4td2mqrHZP6', '사용자008', '01010010008', NULL, 'USER', 'ACTIVE', '2024-04-05 11:20:00', 'CI_USER_008', '2024-04-05 11:20:00', '2024-11-28 13:10:00', 0, NULL, NULL, NULL, NULL, 0, 'LOCAL', NULL, 0),
-('user009@daum.net', '$2a$10$r4WvD.fkTss4amaWwy7/dOV1SmwrMM.GocYPXsfgTL4td2mqrHZP6', '사용자009', '01010010009', NULL, 'USER', 'ACTIVE', '2024-04-10 15:45:00', 'CI_USER_009', '2024-04-10 15:45:00', '2024-11-29 17:25:00', 0, NULL, NULL, NULL, NULL, 1, 'LOCAL', NULL, 0),
-('user010@gmail.com', '$2a$10$r4WvD.fkTss4amaWwy7/dOV1SmwrMM.GocYPXsfgTL4td2mqrHZP6', '사용자010', '01010010010', NULL, 'USER', 'ACTIVE', '2024-04-15 09:30:00', 'CI_USER_010', '2024-04-15 09:30:00', '2024-11-30 12:15:00', 0, NULL, NULL, NULL, NULL, 1, 'LOCAL', NULL, 0),
-
--- 순수 일반 가입 (PASSWORD 있음, 소셜 연동 없음)
-('user011@naver.com', '$2a$10$r4WvD.fkTss4amaWwy7/dOV1SmwrMM.GocYPXsfgTL4td2mqrHZP6', '사용자011', '01010010011', NULL, 'USER', 'ACTIVE', '2024-04-20 14:15:00', 'CI_USER_011', '2024-04-20 14:15:00', '2024-11-28 16:35:00', 0, NULL, NULL, NULL, NULL, 0, 'LOCAL', NULL, 0),
-('user012@daum.net', '$2a$10$r4WvD.fkTss4amaWwy7/dOV1SmwrMM.GocYPXsfgTL4td2mqrHZP6', '사용자012', '01010010012', NULL, 'USER', 'ACTIVE', '2024-04-25 10:50:00', 'CI_USER_012', '2024-04-25 10:50:00', '2024-11-29 14:20:00', 0, NULL, NULL, NULL, NULL, 1, 'LOCAL', NULL, 0),
-('user013@gmail.com', '$2a$10$r4WvD.fkTss4amaWwy7/dOV1SmwrMM.GocYPXsfgTL4td2mqrHZP6', '사용자013', '01010010013', NULL, 'USER', 'ACTIVE', '2024-05-01 13:40:00', 'CI_USER_013', '2024-05-01 13:40:00', '2024-11-30 11:55:00', 0, NULL, NULL, NULL, NULL, 1, 'LOCAL', NULL, 0),
-('user014@naver.com', '$2a$10$r4WvD.fkTss4amaWwy7/dOV1SmwrMM.GocYPXsfgTL4td2mqrHZP6', '사용자014', '01010010014', NULL, 'USER', 'ACTIVE', '2024-05-05 16:25:00', 'CI_USER_014', '2024-05-05 16:25:00', '2024-11-28 09:40:00', 0, NULL, NULL, NULL, NULL, 0, 'LOCAL', NULL, 0),
-('user015@daum.net', '$2a$10$r4WvD.fkTss4amaWwy7/dOV1SmwrMM.GocYPXsfgTL4td2mqrHZP6', '사용자015', '01010010015', NULL, 'USER', 'ACTIVE', '2024-05-10 11:10:00', 'CI_USER_015', '2024-05-10 11:10:00', '2024-11-29 15:30:00', 0, NULL, NULL, NULL, NULL, 1, 'LOCAL', NULL, 0),
-('user016@gmail.com', '$2a$10$r4WvD.fkTss4amaWwy7/dOV1SmwrMM.GocYPXsfgTL4td2mqrHZP6', '사용자016', '01010010016', NULL, 'USER', 'ACTIVE', '2024-05-15 14:55:00', 'CI_USER_016', '2024-05-15 14:55:00', '2024-11-30 10:20:00', 0, NULL, NULL, NULL, NULL, 1, 'LOCAL', NULL, 0),
-('user017@naver.com', '$2a$10$r4WvD.fkTss4amaWwy7/dOV1SmwrMM.GocYPXsfgTL4td2mqrHZP6', '사용자017', '01010010017', NULL, 'USER', 'ACTIVE', '2024-05-20 09:20:00', 'CI_USER_017', '2024-05-20 09:20:00', '2024-11-28 12:45:00', 0, NULL, NULL, NULL, NULL, 0, 'LOCAL', NULL, 0),
-('user018@daum.net', '$2a$10$r4WvD.fkTss4amaWwy7/dOV1SmwrMM.GocYPXsfgTL4td2mqrHZP6', '사용자018', '01010010018', NULL, 'USER', 'ACTIVE', '2024-05-25 12:35:00', 'CI_USER_018', '2024-05-25 12:35:00', '2024-11-29 16:10:00', 0, NULL, NULL, NULL, NULL, 1, 'LOCAL', NULL, 0),
-('user019@gmail.com', '$2a$10$r4WvD.fkTss4amaWwy7/dOV1SmwrMM.GocYPXsfgTL4td2mqrHZP6', '사용자019', '01010010019', NULL, 'USER', 'ACTIVE', '2024-06-01 15:15:00', 'CI_USER_019', '2024-06-01 15:15:00', '2024-11-30 14:30:00', 0, NULL, NULL, NULL, NULL, 1, 'LOCAL', NULL, 0),
-('user020@naver.com', '$2a$10$r4WvD.fkTss4amaWwy7/dOV1SmwrMM.GocYPXsfgTL4td2mqrHZP6', '사용자020', '01010010020', NULL, 'USER', 'ACTIVE', '2024-06-05 10:40:00', 'CI_USER_020', '2024-06-05 10:40:00', '2024-11-28 11:25:00', 0, NULL, NULL, NULL, NULL, 0, 'LOCAL', NULL, 0),
-
--- 테스트 계정
-('usertest1', '$2a$10$r4WvD.fkTss4amaWwy7/dOV1SmwrMM.GocYPXsfgTL4td2mqrHZP6', '테스트사용자1', '01010010001', NULL, 'USER', 'ACTIVE', '2024-03-01 10:30:00', 'CI_USER_TEST1', '2024-03-01 10:30:00', '2024-11-28 14:20:00', 0, NULL, NULL, NULL, NULL, 1, 'LOCAL', NULL, 0),
-('usertest2', '$2a$10$r4WvD.fkTss4amaWwy7/dOV1SmwrMM.GocYPXsfgTL4td2mqrHZP6', '테스트사용자2', '01010010002', NULL, 'USER', 'ACTIVE', '2024-03-01 10:30:00', 'CI_USER_TEST2', '2024-03-01 10:30:00', '2024-11-28 14:20:00', 0, NULL, NULL, NULL, NULL, 1, 'LOCAL', NULL, 0),
-('kjw', '$2a$10$r4WvD.fkTss4amaWwy7/dOV1SmwrMM.GocYPXsfgTL4td2mqrHZP6', '사용자aaa', '01010010099', NULL, 'USER', 'ACTIVE', '2024-06-05 10:40:00', 'CI_USER_kjw', '2024-06-05 10:40:00', '2025-12-05 14:45:59', 0, NULL, NULL, NULL, NULL, 0, 'LOCAL', NULL, 0);
-
+   
 -- OAUTH_ACCOUNT: 소셜 로그인 연동 (10명)
 INSERT INTO OAUTH_ACCOUNT (
-    OAUTH_ID, PROVIDER, PROVIDER_USER_ID, USER_ID, CONNECTED_DATE, RELEASE_DATE
-) VALUES
-('kakao_001_user001@gmail.com', 'KAKAO', 'kakao_uid_001', 'user001@gmail.com', '2024-03-01 10:30:00', NULL),
-('google_002_user002@naver.com', 'GOOGLE', 'google_uid_002', 'user002@naver.com', '2024-03-05 11:00:00', NULL),
-('kakao_003_user003@daum.net', 'KAKAO', 'kakao_uid_003', 'user003@daum.net', '2024-03-10 14:25:00', NULL),
-('google_004_user004@gmail.com', 'GOOGLE', 'google_uid_004', 'user004@gmail.com', '2024-03-15 09:50:00', NULL),
-('kakao_005_user005@naver.com', 'KAKAO', 'kakao_uid_005', 'user005@naver.com', '2024-03-20 16:15:00', NULL),
-('google_006_user006@daum.net', 'GOOGLE', 'google_uid_006', 'user006@daum.net', '2024-03-25 13:35:00', NULL),
-('kakao_007_user007@gmail.com', 'KAKAO', 'kakao_uid_007', 'user007@gmail.com', '2024-04-01 10:05:00', NULL),
-('google_008_user008@naver.com', 'GOOGLE', 'google_uid_008', 'user008@naver.com', '2024-04-05 11:25:00', NULL),
-('kakao_009_user009@daum.net', 'KAKAO', 'kakao_uid_009', 'user009@daum.net', '2024-04-10 15:50:00', NULL),
-('google_010_user010@gmail.com', 'GOOGLE', 'google_uid_010', 'user010@gmail.com', '2024-04-15 09:35:00', NULL);
+    OAUTH_ID,
+    PROVIDER,
+    PROVIDER_USER_ID,
+    USER_ID,
+    CONNECTED_DATE,
+    RELEASE_DATE
+)
+SELECT
+    CONCAT(
+        LOWER(p.PROVIDER), '_',
+        LPAD(@rn := @rn + 1, 3, '0'),
+        '_',
+        u.USER_ID
+    ) AS OAUTH_ID,
+
+    p.PROVIDER,
+
+    CONCAT(
+        LOWER(p.PROVIDER),
+        '_uid_',
+        LPAD(@rn2 := @rn2 + 1, 6, '0')
+    ) AS PROVIDER_USER_ID,
+
+    u.USER_ID,
+
+    DATE_ADD(u.REG_DATE, INTERVAL 1 DAY) AS CONNECTED_DATE,
+
+    NULL AS RELEASE_DATE
+FROM USERS u
+JOIN (
+    SELECT 'KAKAO' AS PROVIDER
+    UNION ALL
+    SELECT 'GOOGLE'
+) p
+CROSS JOIN (SELECT @rn := 0, @rn2 := 0) vars
+WHERE u.ROLE = 'USER'
+LIMIT 10;
+
 
 -- BLACKLIST: 블랙리스트 이력 (2명, 해제됨)
 INSERT INTO BLACKLIST (
     USER_ID, REASON, STATUS, REG_DATE, RELEASE_DATE
-) VALUES
-('user001@gmail.com', '결제 실패 후 서비스 무단 이용 시도', 'RELEASE', '2024-04-01', '2024-04-15'),
-('user005@naver.com', '파티 규칙 미준수 1회 경고', 'RELEASE', '2024-05-01', '2024-05-15');
+)
+SELECT
+    u.USER_ID,
+
+    CASE (u.rn % 5)
+        WHEN 0 THEN '결제 실패 후 서비스 무단 이용 시도'
+        WHEN 1 THEN '환불 악용 의심(반복 결제 후 취소)'
+        WHEN 2 THEN '비정상 로그인 시도 다수(보안 위험)'
+        WHEN 3 THEN '파티 규칙 미준수(지각/노쇼) 누적'
+        ELSE '욕설/비방 등 커뮤니티 이용 규정 위반'
+    END AS REASON,
+
+    'ACTIVE' AS STATUS,
+
+    DATE_ADD('2024-04-01', INTERVAL u.rn DAY) AS REG_DATE,
+
+    NULL AS RELEASE_DATE
+FROM (
+    SELECT USER_ID, @rn1 := @rn1 + 1 AS rn
+    FROM USERS, (SELECT @rn1 := 0) v
+    WHERE ROLE = 'USER'
+    ORDER BY USER_ID
+    LIMIT 10
+) u
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM BLACKLIST b
+    WHERE b.USER_ID = u.USER_ID
+      AND b.STATUS = 'ACTIVE'
+);
+
+
+INSERT INTO BLACKLIST (
+    USER_ID, REASON, STATUS, REG_DATE, RELEASE_DATE
+)
+SELECT
+    u.USER_ID,
+
+    CASE (u.rn % 3)
+        WHEN 0 THEN '파티 규칙 미준수 1차 경고'
+        WHEN 1 THEN '계정 공유 의심 행위'
+        ELSE '약관 위반 경고 누적'
+    END AS REASON,
+
+    'RELEASE' AS STATUS,
+
+    DATE_ADD('2024-02-01', INTERVAL u.rn DAY) AS REG_DATE,
+
+    DATE_ADD('2024-02-15', INTERVAL u.rn DAY) AS RELEASE_DATE
+FROM (
+    SELECT USER_ID, @rn2 := @rn2 + 1 AS rn
+    FROM USERS, (SELECT @rn2 := 0) v
+    WHERE ROLE = 'USER'
+    ORDER BY USER_ID
+    LIMIT 20
+) u;
 
 -- ============================================
 -- 4. 계좌/카드/구독 데이터
@@ -269,208 +1601,241 @@ INSERT INTO ACCOUNT (
     USER_ID, BANK_CODE, BANK_NAME, ACCOUNT_NUMBER,
     ACCOUNT_HOLDER, IS_VERIFIED, REG_DATE, VERIFY_DATE
 ) VALUES
-('user001@gmail.com', '004', 'KB국민은행', 'ENC_100100010001', '사용자001', 'Y', '2024-03-02 10:00:00', '2024-03-02 10:30:00'),
-('user002@naver.com', '088', '신한은행', 'ENC_100100010002', '사용자002', 'Y', '2024-03-06 11:00:00', '2024-03-06 11:30:00'),
-('user003@daum.net', '020', '우리은행', 'ENC_100100010003', '사용자003', 'Y', '2024-03-11 14:00:00', '2024-03-11 14:30:00'),
-('user004@gmail.com', '081', '하나은행', 'ENC_100100010004', '사용자004', 'Y', '2024-03-16 09:00:00', '2024-03-16 09:30:00'),
-('user005@naver.com', '003', 'IBK기업은행', 'ENC_100100010005', '사용자005', 'Y', '2024-03-21 16:00:00', '2024-03-21 16:30:00'),
-('user006@daum.net', '011', 'NH농협은행', 'ENC_100100010006', '사용자006', 'Y', '2024-03-26 13:00:00', '2024-03-26 13:30:00'),
-('user007@gmail.com', '004', 'KB국민은행', 'ENC_100100010007', '사용자007', 'Y', '2024-04-02 10:00:00', '2024-04-02 10:30:00'),
-('user008@naver.com', '088', '신한은행', 'ENC_100100010008', '사용자008', 'Y', '2024-04-06 11:00:00', '2024-04-06 11:30:00'),
-('user009@daum.net', '020', '우리은행', 'ENC_100100010009', '사용자009', 'Y', '2024-04-11 15:00:00', '2024-04-11 15:30:00'),
-('user010@gmail.com', '081', '하나은행', 'ENC_100100010010', '사용자010', 'Y', '2024-04-16 09:00:00', '2024-04-16 09:30:00'),
-('user011@naver.com', '003', 'IBK기업은행', 'ENC_100100010011', '사용자011', 'Y', '2024-04-21 14:00:00', '2024-04-21 14:30:00'),
-('user012@daum.net', '011', 'NH농협은행', 'ENC_100100010012', '사용자012', 'Y', '2024-04-26 10:00:00', '2024-04-26 10:30:00'),
-('user013@gmail.com', '004', 'KB국민은행', 'ENC_100100010013', '사용자013', 'Y', '2024-05-02 13:00:00', '2024-05-02 13:30:00'),
-('user014@naver.com', '088', '신한은행', 'ENC_100100010014', '사용자014', 'Y', '2024-05-06 16:00:00', '2024-05-06 16:30:00'),
-('user015@daum.net', '020', '우리은행', 'ENC_100100010015', '사용자015', 'Y', '2024-05-11 11:00:00', '2024-05-11 11:30:00'),
-('user016@gmail.com', '081', '하나은행', 'ENC_100100010016', '사용자016', 'Y', '2024-05-16 14:00:00', '2024-05-16 14:30:00'),
-('user017@naver.com', '003', 'IBK기업은행', 'ENC_100100010017', '사용자017', 'Y', '2024-05-21 09:00:00', '2024-05-21 09:30:00'),
-('user018@daum.net', '011', 'NH농협은행', 'ENC_100100010018', '사용자018', 'Y', '2024-05-26 12:00:00', '2024-05-26 12:30:00'),
-('user019@gmail.com', '004', 'KB국민은행', 'ENC_100100010019', '사용자019', 'Y', '2024-06-02 15:00:00', '2024-06-02 15:30:00'),
-('user020@naver.com', '088', '신한은행', 'ENC_100100010020', '사용자020', 'Y', '2024-06-06 10:00:00', '2024-06-06 10:30:00');
+('shakkoum@naver.com', '088', '신한은행', 'ENC_ACC_0001', '유저_ww8nqg', 'Y', '2024-03-03 10:00:00', '2024-03-03 10:30:00'),
+('jo3hz8jz@naver.com', '004', 'KB국민은행', 'ENC_ACC_0002', '유저_bdbris', 'Y', '2024-03-04 11:00:00', '2024-03-04 11:30:00'),
+('vw51kceh@nate.com', '020', '우리은행', 'ENC_ACC_0003', '유저_o3t4tq', 'Y', '2024-03-05 12:00:00', '2024-03-05 12:30:00'),
+('6etecsvu@daum.net', '081', '하나은행', 'ENC_ACC_0004', '유저_wu3yro', 'Y', '2024-03-06 13:00:00', '2024-03-06 13:30:00'),
+('f92ii39x@gmail.com', '011', 'NH농협은행', 'ENC_ACC_0005', '유저_hpdkxu', 'Y', '2024-03-07 14:00:00', '2024-03-07 14:30:00'),
+
+('681vf6nk@gmail.com', '088', '신한은행', 'ENC_ACC_0006', '유저_oiwjsk', 'Y', '2024-03-08 10:00:00', '2024-03-08 10:30:00'),
+('7slvebq6@daum.net', '004', 'KB국민은행', 'ENC_ACC_0007', '유저_9ft98t', 'Y', '2024-03-09 11:00:00', '2024-03-09 11:30:00'),
+('jlkc678n@gmail.com', '020', '우리은행', 'ENC_ACC_0008', '유저_qfjeaa', 'Y', '2024-03-10 12:00:00', '2024-03-10 12:30:00'),
+('j7ixhpnb@gmail.com', '081', '하나은행', 'ENC_ACC_0009', '유저_zbdx73', 'Y', '2024-03-11 13:00:00', '2024-03-11 13:30:00'),
+('169o4kxq@nate.com', '003', 'IBK기업은행', 'ENC_ACC_0010', '유저_q248os', 'Y', '2024-03-12 14:00:00', '2024-03-12 14:30:00'),
+
+('dj6mbd5o@naver.com', '011', 'NH농협은행', 'ENC_ACC_0011', '유저_lhs17m', 'Y', '2024-03-13 10:00:00', '2024-03-13 10:30:00'),
+('ytway0kx@naver.com', '088', '신한은행', 'ENC_ACC_0012', '유저_0f1du7', 'Y', '2024-03-14 11:00:00', '2024-03-14 11:30:00'),
+('0spo51ch@naver.com', '004', 'KB국민은행', 'ENC_ACC_0013', '유저_g9n8o0', 'Y', '2024-03-15 12:00:00', '2024-03-15 12:30:00'),
+('s06x8nic@daum.net', '020', '우리은행', 'ENC_ACC_0014', '유저_76taa4', 'Y', '2024-03-16 13:00:00', '2024-03-16 13:30:00'),
+('6v1vjnub@naver.com', '081', '하나은행', 'ENC_ACC_0015', '유저_nelqnd', 'Y', '2024-03-17 14:00:00', '2024-03-17 14:30:00'),
+
+('hb7thi3q@daum.net', '003', 'IBK기업은행', 'ENC_ACC_0016', '유저_on89lq', 'Y', '2024-03-18 10:00:00', '2024-03-18 10:30:00'),
+('mj40lbjs@nate.com', '011', 'NH농협은행', 'ENC_ACC_0017', '유저_0sak6m', 'Y', '2024-03-19 11:00:00', '2024-03-19 11:30:00'),
+('7u3uf22s@naver.com', '088', '신한은행', 'ENC_ACC_0018', '유저_c3zuwe', 'Y', '2024-03-20 12:00:00', '2024-03-20 12:30:00'),
+('ymh0evgm@daum.net', '004', 'KB국민은행', 'ENC_ACC_0019', '유저_jeublh', 'Y', '2024-03-21 13:00:00', '2024-03-21 13:30:00'),
+('y417brpe@daum.net', '020', '우리은행', 'ENC_ACC_0020', '유저_9f5zbz', 'Y', '2024-03-22 14:00:00', '2024-03-22 14:30:00');
+
 
 -- USER_CARD: 사용자 카드 정보 (20명)
 INSERT INTO USER_CARD (
-    USER_ID, BILLING_KEY, CARD_COMPANY, CARD_NUMBER, REG_DATE
-) VALUES
-('user001@gmail.com', 'BILLKEY_001', 'KB국민카드', '4012-****-****-0001', '2024-03-02 10:00:00'),
-('user002@naver.com', 'BILLKEY_002', '신한카드', '5213-****-****-0002', '2024-03-06 11:00:00'),
-('user003@daum.net', 'BILLKEY_003', '현대카드', '5412-****-****-0003', '2024-03-11 14:00:00'),
-('user004@gmail.com', 'BILLKEY_004', '롯데카드', '5312-****-****-0004', '2024-03-16 09:00:00'),
-('user005@naver.com', 'BILLKEY_005', '삼성카드', '5512-****-****-0005', '2024-03-21 16:00:00'),
-('user006@daum.net', 'BILLKEY_006', 'KB국민카드', '4012-****-****-0006', '2024-03-26 13:00:00'),
-('user007@gmail.com', 'BILLKEY_007', '신한카드', '5213-****-****-0007', '2024-04-02 10:00:00'),
-('user008@naver.com', 'BILLKEY_008', '현대카드', '5412-****-****-0008', '2024-04-06 11:00:00'),
-('user009@daum.net', 'BILLKEY_009', '롯데카드', '5312-****-****-0009', '2024-04-11 15:00:00'),
-('user010@gmail.com', 'BILLKEY_010', '삼성카드', '5512-****-****-0010', '2024-04-16 09:00:00'),
-('user011@naver.com', 'BILLKEY_011', 'KB국민카드', '4012-****-****-0011', '2024-04-21 14:00:00'),
-('user012@daum.net', 'BILLKEY_012', '신한카드', '5213-****-****-0012', '2024-04-26 10:00:00'),
-('user013@gmail.com', 'BILLKEY_013', '현대카드', '5412-****-****-0013', '2024-05-02 13:00:00'),
-('user014@naver.com', 'BILLKEY_014', '롯데카드', '5312-****-****-0014', '2024-05-06 16:00:00'),
-('user015@daum.net', 'BILLKEY_015', '삼성카드', '5512-****-****-0015', '2024-05-11 11:00:00'),
-('user016@gmail.com', 'BILLKEY_016', 'KB국민카드', '4012-****-****-0016', '2024-05-16 14:00:00'),
-('user017@naver.com', 'BILLKEY_017', '신한카드', '5213-****-****-0017', '2024-05-21 09:00:00'),
-('user018@daum.net', 'BILLKEY_018', '현대카드', '5412-****-****-0018', '2024-05-26 12:00:00'),
-('user019@gmail.com', 'BILLKEY_019', '롯데카드', '5312-****-****-0019', '2024-06-02 15:00:00'),
-('user020@naver.com', 'BILLKEY_020', '삼성카드', '5512-****-****-0020', '2024-06-06 10:00:00');
+    USER_ID,
+    BILLING_KEY,
+    CARD_COMPANY,
+    CARD_NUMBER,
+    REG_DATE
+)
+SELECT
+    u.USER_ID,
+
+    CONCAT(
+        'BILLKEY_',
+        LPAD(u.rn, 3, '0')
+    ) AS BILLING_KEY,
+
+    CASE (u.rn % 5)
+        WHEN 0 THEN 'KB국민카드'
+        WHEN 1 THEN '신한카드'
+        WHEN 2 THEN '현대카드'
+        WHEN 3 THEN '롯데카드'
+        ELSE '삼성카드'
+    END AS CARD_COMPANY,
+
+    CASE (u.rn % 5)
+        WHEN 0 THEN CONCAT('4012-****-****-', LPAD(u.rn, 4, '0'))
+        WHEN 1 THEN CONCAT('5213-****-****-', LPAD(u.rn, 4, '0'))
+        WHEN 2 THEN CONCAT('5412-****-****-', LPAD(u.rn, 4, '0'))
+        WHEN 3 THEN CONCAT('5312-****-****-', LPAD(u.rn, 4, '0'))
+        ELSE CONCAT('5512-****-****-', LPAD(u.rn, 4, '0'))
+    END AS CARD_NUMBER,
+
+    DATE_ADD(u.REG_DATE, INTERVAL 1 DAY) AS REG_DATE
+
+FROM (
+    SELECT
+        USER_ID,
+        REG_DATE,
+        @rn := @rn + 1 AS rn
+    FROM USERS, (SELECT @rn := 0) r
+    WHERE ROLE = 'USER'
+    ORDER BY USER_ID
+    LIMIT 20
+) u
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM USER_CARD c
+    WHERE c.USER_ID = u.USER_ID
+);
+
 
 -- SUBSCRIPTION: 구독 정보 (20명)
 INSERT INTO SUBSCRIPTION (
-    USER_ID, PRODUCT_ID, SUBSCRIPTION_STATUS,
-    START_DATE, END_DATE, CANCEL_REASON, CANCEL_DATE
-) VALUES
-('user001@gmail.com', 1, 'ACTIVE', '2024-04-01', NULL, NULL, NULL),
-('user002@naver.com', 1, 'ACTIVE', '2024-04-05', NULL, NULL, NULL),
-('user003@daum.net', 2, 'ACTIVE', '2024-04-10', NULL, NULL, NULL),
-('user004@gmail.com', 2, 'ACTIVE', '2024-04-15', NULL, NULL, NULL),
-('user005@naver.com', 3, 'ACTIVE', '2024-04-20', NULL, NULL, NULL),
-('user006@daum.net', 3, 'ACTIVE', '2024-04-25', NULL, NULL, NULL),
-('user007@gmail.com', 4, 'ACTIVE', '2024-05-01', NULL, NULL, NULL),
-('user008@naver.com', 4, 'ACTIVE', '2024-05-05', NULL, NULL, NULL),
-('user009@daum.net', 5, 'ACTIVE', '2024-05-10', NULL, NULL, NULL),
-('user010@gmail.com', 5, 'ACTIVE', '2024-05-15', NULL, NULL, NULL),
-('user011@naver.com', 6, 'ACTIVE', '2024-05-20', NULL, NULL, NULL),
-('user012@daum.net', 6, 'ACTIVE', '2024-05-25', NULL, NULL, NULL),
-('user013@gmail.com', 7, 'ACTIVE', '2024-06-01', NULL, NULL, NULL),
-('user014@naver.com', 7, 'ACTIVE', '2024-06-05', NULL, NULL, NULL),
-('user015@daum.net', 8, 'ACTIVE', '2024-06-10', NULL, NULL, NULL),
-('user016@gmail.com', 8, 'ACTIVE', '2024-06-15', NULL, NULL, NULL),
-('user017@naver.com', 9, 'ACTIVE', '2024-06-20', NULL, NULL, NULL),
-('user018@daum.net', 9, 'ACTIVE', '2024-06-25', NULL, NULL, NULL),
-('user019@gmail.com', 10, 'ACTIVE', '2024-07-01', NULL, NULL, NULL),
-('user020@naver.com', 10, 'ACTIVE', '2024-07-05', NULL, NULL, NULL);
+    USER_ID,
+    PRODUCT_ID,
+    SUBSCRIPTION_STATUS,
+    START_DATE,
+    END_DATE,
+    CANCEL_REASON,
+    CANCEL_DATE
+)
+SELECT
+    u.USER_ID,
 
--- ============================================
--- 5. 파티 데이터 (5개 파티, 각 4명)
--- ============================================
+    (u.rn % 10) + 1 AS PRODUCT_ID,
 
--- PARTY: 파티 5개
-INSERT INTO PARTY (
-    PARTY_ID, PRODUCT_ID, PARTY_LEADER_ID, PARTY_STATUS,
-    MAX_MEMBERS, CURRENT_MEMBERS, MONTHLY_FEE,
-    OTT_ID, OTT_PASSWORD, ACCOUNT_ID,
-    REG_DATE, START_DATE, END_DATE
-) VALUES
-(1, 1, 'user001@gmail.com', 'ACTIVE', 4, 4, 4250, 'googleai_pro_001', 'googleai!001', 1, '2024-04-01 10:00:00', '2024-04-05 00:00:00', NULL),
-(2, 2, 'user003@daum.net', 'ACTIVE', 4, 4, 2725, 'disney_plus_002', 'disney!002', 3, '2024-04-10 10:00:00', '2024-04-15 00:00:00', NULL),
-(3, 3, 'user005@naver.com', 'ACTIVE', 4, 4, 1975, 'watcha_basic_003', 'watcha!003', 5, '2024-04-20 10:00:00', '2024-04-25 00:00:00', NULL),
-(4, 4, 'user007@gmail.com', 'ACTIVE', 4, 4, 3475, 'youtube_premium_004', 'youtube!004', 7, '2024-05-01 10:00:00', '2024-05-05 00:00:00', NULL),
-(5, 5, 'user009@daum.net', 'ACTIVE', 4, 4, 7250, 'chatgpt_plus_005', 'chatgpt!005', 9, '2024-05-10 10:00:00', '2024-05-15 00:00:00', NULL);
+    'ACTIVE' AS SUBSCRIPTION_STATUS,
 
--- PARTY_MEMBER: 파티 멤버 20명 (5개 파티 × 4명)
-INSERT INTO PARTY_MEMBER (
-    PARTY_MEMBER_ID, PARTY_ID, USER_ID, MEMBER_ROLE, MEMBER_STATUS, JOIN_DATE, WITHDRAW_DATE
-) VALUES
--- 파티 1 (Google AI Pro)
-(1, 1, 'user001@gmail.com', 'LEADER', 'ACTIVE', '2024-04-01 10:00:00', NULL),
-(2, 1, 'user002@naver.com', 'MEMBER', 'ACTIVE', '2024-04-02 10:00:00', NULL),
-(3, 1, 'user011@naver.com', 'MEMBER', 'ACTIVE', '2024-04-03 10:00:00', NULL),
-(4, 1, 'user012@daum.net', 'MEMBER', 'ACTIVE', '2024-04-04 10:00:00', NULL),
+    DATE_ADD('2024-04-01', INTERVAL u.rn * 3 DAY) AS START_DATE,
 
--- 파티 2 (디즈니+ 스탠다드)
-(5, 2, 'user003@daum.net', 'LEADER', 'ACTIVE', '2024-04-10 10:00:00', NULL),
-(6, 2, 'user004@gmail.com', 'MEMBER', 'ACTIVE', '2024-04-11 10:00:00', NULL),
-(7, 2, 'user013@gmail.com', 'MEMBER', 'ACTIVE', '2024-04-12 10:00:00', NULL),
-(8, 2, 'user014@naver.com', 'MEMBER', 'ACTIVE', '2024-04-13 10:00:00', NULL),
+    NULL AS END_DATE,
+    NULL AS CANCEL_REASON,
+    NULL AS CANCEL_DATE
+FROM (
+    SELECT
+        USER_ID,
+        @rn := @rn + 1 AS rn
+    FROM USERS, (SELECT @rn := 0) r
+    WHERE ROLE = 'USER'
+    ORDER BY USER_ID
+    LIMIT 20
+) u
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM SUBSCRIPTION s
+    WHERE s.USER_ID = u.USER_ID
+      AND s.SUBSCRIPTION_STATUS = 'ACTIVE'
+);
 
--- 파티 3 (왓챠 베이직)
-(9, 3, 'user005@naver.com', 'LEADER', 'ACTIVE', '2024-04-20 10:00:00', NULL),
-(10, 3, 'user006@daum.net', 'MEMBER', 'ACTIVE', '2024-04-21 10:00:00', NULL),
-(11, 3, 'user015@daum.net', 'MEMBER', 'ACTIVE', '2024-04-22 10:00:00', NULL),
-(12, 3, 'user016@gmail.com', 'MEMBER', 'ACTIVE', '2024-04-23 10:00:00', NULL),
 
--- 파티 4 (유튜브 프리미엄)
-(13, 4, 'user007@gmail.com', 'LEADER', 'ACTIVE', '2024-05-01 10:00:00', NULL),
-(14, 4, 'user008@naver.com', 'MEMBER', 'ACTIVE', '2024-05-02 10:00:00', NULL),
-(15, 4, 'user017@naver.com', 'MEMBER', 'ACTIVE', '2024-05-03 10:00:00', NULL),
-(16, 4, 'user018@daum.net', 'MEMBER', 'ACTIVE', '2024-05-04 10:00:00', NULL),
 
--- 파티 5 (챗GPT 플러스)
-(17, 5, 'user009@daum.net', 'LEADER', 'ACTIVE', '2024-05-10 10:00:00', NULL),
-(18, 5, 'user010@gmail.com', 'MEMBER', 'ACTIVE', '2024-05-11 10:00:00', NULL),
-(19, 5, 'user019@gmail.com', 'MEMBER', 'ACTIVE', '2024-05-12 10:00:00', NULL),
-(20, 5, 'user020@naver.com', 'MEMBER', 'ACTIVE', '2024-05-13 10:00:00', NULL);
-
--- ============================================
--- 6. 결제 데이터 (보증금 + 월회비)
--- ============================================
-
--- DEPOSIT: 보증금 20건
-INSERT INTO DEPOSIT (
-    DEPOSIT_ID, PARTY_ID, PARTY_MEMBER_ID, USER_ID, DEPOSIT_TYPE,
-    DEPOSIT_AMOUNT, DEPOSIT_STATUS, PAYMENT_DATE, REFUND_DATE, REFUND_AMOUNT,
-    TOSS_PAYMENT_KEY, ORDER_ID
-) VALUES
-(1, 1, 1, 'user001@gmail.com', 'LEADER', 17000, 'PAID', '2024-04-01 10:05:00', NULL, NULL, 'toss_dep_001', 'ORD_DEP_001'),
-(2, 1, 2, 'user002@naver.com', 'SECURITY', 4250, 'PAID', '2024-04-02 10:05:00', NULL, NULL, 'toss_dep_002', 'ORD_DEP_002'),
-(3, 1, 3, 'user011@naver.com', 'SECURITY', 4250, 'PAID', '2024-04-03 10:05:00', NULL, NULL, 'toss_dep_003', 'ORD_DEP_003'),
-(4, 1, 4, 'user012@daum.net', 'SECURITY', 4250, 'PAID', '2024-04-04 10:05:00', NULL, NULL, 'toss_dep_004', 'ORD_DEP_004'),
-(5, 2, 5, 'user003@daum.net', 'LEADER', 10900, 'PAID', '2024-04-10 10:05:00', NULL, NULL, 'toss_dep_005', 'ORD_DEP_005'),
-(6, 2, 6, 'user004@gmail.com', 'SECURITY', 2725, 'PAID', '2024-04-11 10:05:00', NULL, NULL, 'toss_dep_006', 'ORD_DEP_006'),
-(7, 2, 7, 'user013@gmail.com', 'SECURITY', 2725, 'PAID', '2024-04-12 10:05:00', NULL, NULL, 'toss_dep_007', 'ORD_DEP_007'),
-(8, 2, 8, 'user014@naver.com', 'SECURITY', 2725, 'PAID', '2024-04-13 10:05:00', NULL, NULL, 'toss_dep_008', 'ORD_DEP_008'),
-(9, 3, 9, 'user005@naver.com', 'LEADER', 7900, 'PAID', '2024-04-20 10:05:00', NULL, NULL, 'toss_dep_009', 'ORD_DEP_009'),
-(10, 3, 10, 'user006@daum.net', 'SECURITY', 1975, 'PAID', '2024-04-21 10:05:00', NULL, NULL, 'toss_dep_010', 'ORD_DEP_010'),
-(11, 3, 11, 'user015@daum.net', 'SECURITY', 1975, 'PAID', '2024-04-22 10:05:00', NULL, NULL, 'toss_dep_011', 'ORD_DEP_011'),
-(12, 3, 12, 'user016@gmail.com', 'SECURITY', 1975, 'PAID', '2024-04-23 10:05:00', NULL, NULL, 'toss_dep_012', 'ORD_DEP_012'),
-(13, 4, 13, 'user007@gmail.com', 'LEADER', 13900, 'PAID', '2024-05-01 10:05:00', NULL, NULL, 'toss_dep_013', 'ORD_DEP_013'),
-(14, 4, 14, 'user008@naver.com', 'SECURITY', 3475, 'PAID', '2024-05-02 10:05:00', NULL, NULL, 'toss_dep_014', 'ORD_DEP_014'),
-(15, 4, 15, 'user017@naver.com', 'SECURITY', 3475, 'PAID', '2024-05-03 10:05:00', NULL, NULL, 'toss_dep_015', 'ORD_DEP_015'),
-(16, 4, 16, 'user018@daum.net', 'SECURITY', 3475, 'PAID', '2024-05-04 10:05:00', NULL, NULL, 'toss_dep_016', 'ORD_DEP_016'),
-(17, 5, 17, 'user009@daum.net', 'LEADER', 29000, 'PAID', '2024-05-10 10:05:00', NULL, NULL, 'toss_dep_017', 'ORD_DEP_017'),
-(18, 5, 18, 'user010@gmail.com', 'SECURITY', 7250, 'PAID', '2024-05-11 10:05:00', NULL, NULL, 'toss_dep_018', 'ORD_DEP_018'),
-(19, 5, 19, 'user019@gmail.com', 'SECURITY', 7250, 'PAID', '2024-05-12 10:05:00', NULL, NULL, 'toss_dep_019', 'ORD_DEP_019'),
-(20, 5, 20, 'user020@naver.com', 'SECURITY', 7250, 'PAID', '2024-05-13 10:05:00', NULL, NULL, 'toss_dep_020', 'ORD_DEP_020');
-
--- PAYMENT: 월회비 결제 20건
-INSERT INTO PAYMENT (
-    PAYMENT_ID, PARTY_ID, PARTY_MEMBER_ID, USER_ID, PAYMENT_TYPE,
-    PAYMENT_AMOUNT, PAYMENT_STATUS, PAYMENT_METHOD,
-    PAYMENT_DATE, TOSS_PAYMENT_KEY, ORDER_ID,
-    CARD_NUMBER, CARD_COMPANY, TARGET_MONTH
-) VALUES
-(1, 1, 1, 'user001@gmail.com', 'MONTHLY', 4250, 'COMPLETED', 'CARD', '2024-05-01 00:05:00', 'toss_pk_001', 'ORD_202405_001', '4012-****-****-0001', 'KB국민카드', '2024-05'),
-(2, 1, 2, 'user002@naver.com', 'MONTHLY', 4250, 'COMPLETED', 'CARD', '2024-05-01 00:05:00', 'toss_pk_002', 'ORD_202405_002', '5213-****-****-0002', '신한카드', '2024-05'),
-(3, 1, 3, 'user011@naver.com', 'MONTHLY', 4250, 'COMPLETED', 'CARD', '2024-05-01 00:05:00', 'toss_pk_003', 'ORD_202405_003', '4012-****-****-0011', 'KB국민카드', '2024-05'),
-(4, 1, 4, 'user012@daum.net', 'MONTHLY', 4250, 'COMPLETED', 'CARD', '2024-05-01 00:05:00', 'toss_pk_004', 'ORD_202405_004', '5213-****-****-0012', '신한카드', '2024-05'),
-(5, 2, 5, 'user003@daum.net', 'MONTHLY', 2725, 'COMPLETED', 'CARD', '2024-05-15 00:05:00', 'toss_pk_005', 'ORD_202405_005', '5412-****-****-0003', '현대카드', '2024-05'),
-(6, 2, 6, 'user004@gmail.com', 'MONTHLY', 2725, 'COMPLETED', 'CARD', '2024-05-15 00:05:00', 'toss_pk_006', 'ORD_202405_006', '5312-****-****-0004', '롯데카드', '2024-05'),
-(7, 2, 7, 'user013@gmail.com', 'MONTHLY', 2725, 'COMPLETED', 'CARD', '2024-05-15 00:05:00', 'toss_pk_007', 'ORD_202405_007', '5412-****-****-0013', '현대카드', '2024-05'),
-(8, 2, 8, 'user014@naver.com', 'MONTHLY', 2725, 'COMPLETED', 'CARD', '2024-05-15 00:05:00', 'toss_pk_008', 'ORD_202405_008', '5312-****-****-0014', '롯데카드', '2024-05'),
-(9, 3, 9, 'user005@naver.com', 'MONTHLY', 1975, 'COMPLETED', 'CARD', '2024-05-25 00:05:00', 'toss_pk_009', 'ORD_202405_009', '5512-****-****-0005', '삼성카드', '2024-05'),
-(10, 3, 10, 'user006@daum.net', 'MONTHLY', 1975, 'COMPLETED', 'CARD', '2024-05-25 00:05:00', 'toss_pk_010', 'ORD_202405_010', '4012-****-****-0006', 'KB국민카드', '2024-05'),
-(11, 3, 11, 'user015@daum.net', 'MONTHLY', 1975, 'COMPLETED', 'CARD', '2024-05-25 00:05:00', 'toss_pk_011', 'ORD_202405_011', '5512-****-****-0015', '삼성카드', '2024-05'),
-(12, 3, 12, 'user016@gmail.com', 'MONTHLY', 1975, 'COMPLETED', 'CARD', '2024-05-25 00:05:00', 'toss_pk_012', 'ORD_202405_012', '4012-****-****-0016', 'KB국민카드', '2024-05'),
-(13, 4, 13, 'user007@gmail.com', 'MONTHLY', 3475, 'COMPLETED', 'CARD', '2024-06-05 00:05:00', 'toss_pk_013', 'ORD_202406_013', '5213-****-****-0007', '신한카드', '2024-06'),
-(14, 4, 14, 'user008@naver.com', 'MONTHLY', 3475, 'COMPLETED', 'CARD', '2024-06-05 00:05:00', 'toss_pk_014', 'ORD_202406_014', '5412-****-****-0008', '현대카드', '2024-06'),
-(15, 4, 15, 'user017@naver.com', 'MONTHLY', 3475, 'COMPLETED', 'CARD', '2024-06-05 00:05:00', 'toss_pk_015', 'ORD_202406_015', '5213-****-****-0017', '신한카드', '2024-06'),
-(16, 4, 16, 'user018@daum.net', 'MONTHLY', 3475, 'COMPLETED', 'CARD', '2024-06-05 00:05:00', 'toss_pk_016', 'ORD_202406_016', '5412-****-****-0018', '현대카드', '2024-06'),
-(17, 5, 17, 'user009@daum.net', 'MONTHLY', 7250, 'COMPLETED', 'CARD', '2024-06-15 00:05:00', 'toss_pk_017', 'ORD_202406_017', '5312-****-****-0009', '롯데카드', '2024-06'),
-(18, 5, 18, 'user010@gmail.com', 'MONTHLY', 7250, 'COMPLETED', 'CARD', '2024-06-15 00:05:00', 'toss_pk_018', 'ORD_202406_018', '5512-****-****-0010', '삼성카드', '2024-06'),
-(19, 5, 19, 'user019@gmail.com', 'MONTHLY', 7250, 'COMPLETED', 'CARD', '2024-06-15 00:05:00', 'toss_pk_019', 'ORD_202406_019', '5312-****-****-0019', '롯데카드', '2024-06'),
-(20, 5, 20, 'user020@naver.com', 'MONTHLY', 7250, 'COMPLETED', 'CARD', '2024-06-15 00:05:00', 'toss_pk_020', 'ORD_202406_020', '5512-****-****-0020', '삼성카드', '2024-06');
-
--- PAYMENT_RETRY_HISTORY: 결제 재시도 이력 (다양한 시나리오)
 INSERT INTO PAYMENT_RETRY_HISTORY (
-    PAYMENT_ID, PARTY_ID, PARTY_MEMBER_ID, 
-    ATTEMPT_NUMBER, ATTEMPT_DATE, RETRY_REASON, 
-    RETRY_STATUS, NEXT_RETRY_DATE, ERROR_CODE, ERROR_MESSAGE
-) VALUES
-(1, 1, 1, 1, DATE_SUB(NOW(), INTERVAL 1 HOUR), NULL, 'SUCCESS', NULL, NULL, NULL),
-(2, 1, 2, 1, DATE_SUB(NOW(), INTERVAL 25 HOUR), NULL, 'FAILED', DATE_SUB(NOW(), INTERVAL 1 HOUR), 'INSUFFICIENT_FUNDS', '잔액이 부족합니다.'),
-(2, 1, 2, 2, DATE_SUB(NOW(), INTERVAL 1 HOUR), '잔액이 부족합니다.', 'SUCCESS', NULL, NULL, NULL),
-(3, 1, 3, 1, DATE_SUB(NOW(), INTERVAL 73 HOUR), NULL, 'FAILED', DATE_SUB(NOW(), INTERVAL 49 HOUR), 'EXCEED_MAX_CARD_LIMIT', '카드 한도를 초과했습니다.'),
-(3, 1, 3, 2, DATE_SUB(NOW(), INTERVAL 49 HOUR), '카드 한도를 초과했습니다.', 'FAILED', DATE_SUB(NOW(), INTERVAL 1 HOUR), 'EXCEED_MAX_CARD_LIMIT', '카드 한도를 초과했습니다.'),
-(3, 1, 3, 3, DATE_SUB(NOW(), INTERVAL 1 HOUR), '카드 한도를 초과했습니다.', 'SUCCESS', NULL, NULL, NULL),
-(4, 1, 4, 1, DATE_SUB(NOW(), INTERVAL 169 HOUR), NULL, 'FAILED', DATE_SUB(NOW(), INTERVAL 145 HOUR), 'CARD_SUSPENDED', '카드가 정지되었습니다.'),
-(4, 1, 4, 2, DATE_SUB(NOW(), INTERVAL 145 HOUR), '카드가 정지되었습니다.', 'FAILED', DATE_SUB(NOW(), INTERVAL 97 HOUR), 'CARD_SUSPENDED', '카드가 정지되었습니다.'),
-(4, 1, 4, 3, DATE_SUB(NOW(), INTERVAL 97 HOUR), '카드가 정지되었습니다.', 'FAILED', DATE_SUB(NOW(), INTERVAL 25 HOUR), 'CARD_SUSPENDED', '카드가 정지되었습니다.'),
-(4, 1, 4, 4, DATE_SUB(NOW(), INTERVAL 25 HOUR), '카드가 정지되었습니다.', 'SUCCESS', NULL, NULL, NULL),
-(5, 2, 5, 1, DATE_SUB(NOW(), INTERVAL 169 HOUR), NULL, 'FAILED', DATE_SUB(NOW(), INTERVAL 145 HOUR), 'CARD_LOST', '분실 신고된 카드입니다.'),
-(5, 2, 5, 2, DATE_SUB(NOW(), INTERVAL 145 HOUR), '분실 신고된 카드입니다.', 'FAILED', DATE_SUB(NOW(), INTERVAL 97 HOUR), 'CARD_LOST', '분실 신고된 카드입니다.'),
-(5, 2, 5, 3, DATE_SUB(NOW(), INTERVAL 97 HOUR), '분실 신고된 카드입니다.', 'FAILED', DATE_SUB(NOW(), INTERVAL 25 HOUR), 'CARD_LOST', '분실 신고된 카드입니다.'),
-(5, 2, 5, 4, DATE_SUB(NOW(), INTERVAL 25 HOUR), '분실 신고된 카드입니다.', 'FAILED', NULL, 'CARD_LOST', '분실 신고된 카드입니다. (최종 실패)');
+    PAYMENT_ID,
+    PARTY_ID,
+    PARTY_MEMBER_ID,
+    ATTEMPT_NUMBER,
+    ATTEMPT_DATE,
+    RETRY_REASON,
+    RETRY_STATUS,
+    NEXT_RETRY_DATE,
+    ERROR_CODE,
+    ERROR_MESSAGE
+)
+SELECT
+    p.PAYMENT_ID,
+    p.PARTY_ID,
+    p.PARTY_MEMBER_ID,
+    1 AS ATTEMPT_NUMBER,
+    DATE_SUB(NOW(), INTERVAL (24 + p.PAYMENT_ID % 24) HOUR) AS ATTEMPT_DATE,
+    NULL AS RETRY_REASON,
+    CASE
+        WHEN p.PAYMENT_ID % 3 = 0 THEN 'FAILED'
+        ELSE 'SUCCESS'
+    END AS RETRY_STATUS,
+    CASE
+        WHEN p.PAYMENT_ID % 3 = 0
+        THEN DATE_SUB(NOW(), INTERVAL (12 + p.PAYMENT_ID % 12) HOUR)
+        ELSE NULL
+    END AS NEXT_RETRY_DATE,
+    CASE
+        WHEN p.PAYMENT_ID % 3 = 0 THEN 'INSUFFICIENT_FUNDS'
+        ELSE NULL
+    END AS ERROR_CODE,
+    CASE
+        WHEN p.PAYMENT_ID % 3 = 0 THEN '잔액이 부족합니다.'
+        ELSE NULL
+    END AS ERROR_MESSAGE
+FROM PAYMENT p;
+
+
+
+
+
+INSERT INTO PAYMENT_RETRY_HISTORY (
+    PAYMENT_ID,
+    PARTY_ID,
+    PARTY_MEMBER_ID,
+    ATTEMPT_NUMBER,
+    ATTEMPT_DATE,
+    RETRY_REASON,
+    RETRY_STATUS,
+    NEXT_RETRY_DATE,
+    ERROR_CODE,
+    ERROR_MESSAGE
+)
+SELECT
+    h.PAYMENT_ID,
+    h.PARTY_ID,
+    h.PARTY_MEMBER_ID,
+    2 AS ATTEMPT_NUMBER,
+    h.NEXT_RETRY_DATE AS ATTEMPT_DATE,
+    h.ERROR_MESSAGE AS RETRY_REASON,
+    CASE
+        WHEN h.PAYMENT_ID % 2 = 0 THEN 'SUCCESS'
+        ELSE 'FAILED'
+    END AS RETRY_STATUS,
+    CASE
+        WHEN h.PAYMENT_ID % 2 = 1
+        THEN DATE_SUB(NOW(), INTERVAL 1 HOUR)
+        ELSE NULL
+    END AS NEXT_RETRY_DATE,
+    CASE
+        WHEN h.PAYMENT_ID % 2 = 1 THEN 'EXCEED_MAX_CARD_LIMIT'
+        ELSE NULL
+    END AS ERROR_CODE,
+    CASE
+        WHEN h.PAYMENT_ID % 2 = 1 THEN '카드 한도를 초과했습니다.'
+        ELSE NULL
+    END AS ERROR_MESSAGE
+FROM PAYMENT_RETRY_HISTORY h
+WHERE h.ATTEMPT_NUMBER = 1
+  AND h.RETRY_STATUS = 'FAILED';
+  
+  
+  INSERT INTO PAYMENT_RETRY_HISTORY (
+    PAYMENT_ID,
+    PARTY_ID,
+    PARTY_MEMBER_ID,
+    ATTEMPT_NUMBER,
+    ATTEMPT_DATE,
+    RETRY_REASON,
+    RETRY_STATUS,
+    NEXT_RETRY_DATE,
+    ERROR_CODE,
+    ERROR_MESSAGE
+)
+SELECT
+    h.PAYMENT_ID,
+    h.PARTY_ID,
+    h.PARTY_MEMBER_ID,
+    3 AS ATTEMPT_NUMBER,
+    h.NEXT_RETRY_DATE AS ATTEMPT_DATE,
+    h.ERROR_MESSAGE AS RETRY_REASON,
+    CASE
+        WHEN h.PAYMENT_ID % 4 = 0 THEN 'SUCCESS'
+        ELSE 'FAILED'
+    END AS RETRY_STATUS,
+    NULL AS NEXT_RETRY_DATE,
+    CASE
+        WHEN h.PAYMENT_ID % 4 <> 0 THEN 'CARD_SUSPENDED'
+        ELSE NULL
+    END AS ERROR_CODE,
+    CASE
+        WHEN h.PAYMENT_ID % 4 <> 0 THEN '카드가 정지되었습니다.'
+        ELSE NULL
+    END AS ERROR_MESSAGE
+FROM PAYMENT_RETRY_HISTORY h
+WHERE h.ATTEMPT_NUMBER = 2
+  AND h.RETRY_STATUS = 'FAILED';
+
 
 -- ============================================
 -- 7. 정산 데이터
@@ -478,51 +1843,366 @@ INSERT INTO PAYMENT_RETRY_HISTORY (
 
 -- SETTLEMENT: 정산 5건
 INSERT INTO SETTLEMENT (
-    SETTLEMENT_ID, PARTY_ID, PARTY_LEADER_ID, ACCOUNT_ID, 
-    SETTLEMENT_MONTH, TOTAL_AMOUNT, COMMISSION_AMOUNT, NET_AMOUNT, 
-    SETTLEMENT_STATUS, SETTLEMENT_DATE, BANK_TRAN_ID
-) VALUES 
-(1, 1, 'user001@gmail.com', 1, '2024-05', 17000, 2550, 14450, 'COMPLETED', '2024-06-05 10:00:00', 'T202406050001'),
-(2, 2, 'user003@daum.net', 3, '2024-05', 10900, 1635, 9265, 'COMPLETED', '2024-06-05 10:30:00', 'T202406050002'),
-(3, 3, 'user005@naver.com', 5, '2024-05', 7900, 1185, 6715, 'COMPLETED', '2024-06-05 11:00:00', 'T202406050003'),
-(4, 4, 'user007@gmail.com', 7, '2024-06', 13900, 2085, 11815, 'COMPLETED', '2024-07-05 11:00:00', 'T202407050001'),
-(5, 5, 'user009@daum.net', 9, '2024-06', 29000, 4350, 24650, 'COMPLETED', '2024-07-05 11:30:00', 'T202407050002');
+    PARTY_ID,
+    PARTY_LEADER_ID,
+    ACCOUNT_ID,
+    SETTLEMENT_MONTH,
+    TOTAL_AMOUNT,
+    COMMISSION_AMOUNT,
+    NET_AMOUNT,
+    SETTLEMENT_STATUS,
+    SETTLEMENT_DATE,
+    BANK_TRAN_ID
+)
+SELECT
+    p.PARTY_ID,
+    p.PARTY_LEADER_ID,
+    p.ACCOUNT_ID,
+
+    DATE_FORMAT(p.START_DATE, '%Y-%m') AS SETTLEMENT_MONTH,
+
+    p.MONTHLY_FEE AS TOTAL_AMOUNT,
+
+    FLOOR(p.MONTHLY_FEE * 0.15) AS COMMISSION_AMOUNT,
+
+    p.MONTHLY_FEE - FLOOR(p.MONTHLY_FEE * 0.15) AS NET_AMOUNT,
+
+    'COMPLETED' AS SETTLEMENT_STATUS,
+
+    DATE_ADD(p.START_DATE, INTERVAL 1 MONTH) AS SETTLEMENT_DATE,
+
+    CONCAT(
+        'T',
+        DATE_FORMAT(DATE_ADD(p.START_DATE, INTERVAL 1 MONTH), '%Y%m%d'),
+        LPAD(p.PARTY_ID, 4, '0')
+    ) AS BANK_TRAN_ID
+FROM PARTY p
+WHERE p.PARTY_STATUS = 'ACTIVE'
+  AND p.ACCOUNT_ID IS NOT NULL
+  AND NOT EXISTS (
+      SELECT 1
+      FROM SETTLEMENT s
+      WHERE s.PARTY_ID = p.PARTY_ID
+  )
+LIMIT 5;
+
 
 -- REFUND_RETRY_HISTORY: 보증금 환불 재시도 이력
 INSERT INTO REFUND_RETRY_HISTORY (
-    DEPOSIT_ID, TOSS_PAYMENT_KEY, ATTEMPT_NUMBER, ATTEMPT_DATE, RETRY_STATUS, RETRY_TYPE,
-    NEXT_RETRY_DATE, REFUND_AMOUNT, REFUND_REASON,
-    ERROR_CODE, ERROR_MESSAGE
-) VALUES
-(2, 'toss_dep_002', 1, DATE_SUB(NOW(), INTERVAL 2 HOUR), 'SUCCESS', 'REFUND', NULL, 4250, '파티 정상 종료', NULL, NULL),
-(3, 'toss_dep_003', 1, DATE_SUB(NOW(), INTERVAL 26 HOUR), 'FAILED', 'REFUND', DATE_SUB(NOW(), INTERVAL 2 HOUR), 4250, '파티 정상 종료', 'ALREADY_CANCELED', '이미 취소된 결제입니다.'),
-(3, 'toss_dep_003', 2, DATE_SUB(NOW(), INTERVAL 2 HOUR), 'SUCCESS', 'REFUND', NULL, 4250, '파티 정상 종료', NULL, NULL),
-(4, 'toss_dep_004', 1, DATE_SUB(NOW(), INTERVAL 74 HOUR), 'FAILED', 'REFUND', DATE_SUB(NOW(), INTERVAL 50 HOUR), 4250, '중도 탈퇴 (50% 환불)', 'CANCEL_AMOUNT_EXCEED', '취소 가능 금액을 초과했습니다.'),
-(4, 'toss_dep_004', 2, DATE_SUB(NOW(), INTERVAL 50 HOUR), 'FAILED', 'REFUND', DATE_SUB(NOW(), INTERVAL 2 HOUR), 2125, '중도 탈퇴 (50% 환불)', 'PAYMENT_NOT_FOUND', '결제 정보를 찾을 수 없습니다.'),
-(4, 'toss_dep_004', 3, DATE_SUB(NOW(), INTERVAL 2 HOUR), 'SUCCESS', 'REFUND', NULL, 2125, '중도 탈퇴 (50% 환불)', NULL, NULL),
-(5, 'toss_dep_005', 1, DATE_SUB(NOW(), INTERVAL 26 HOUR), 'FAILED', 'REFUND', DATE_ADD(NOW(), INTERVAL 2 HOUR), 10900, '파티 정상 종료', 'TEMPORARY_ERROR', '일시적인 오류가 발생했습니다.'),
-(6, 'toss_dep_006', 1, DATE_SUB(NOW(), INTERVAL 170 HOUR), 'FAILED', 'COMPENSATION', DATE_SUB(NOW(), INTERVAL 146 HOUR), 2725, '파티장 탈퇴', 'INVALID_PAYMENT_KEY', '유효하지 않은 결제 키입니다.'),
-(6, 'toss_dep_006', 2, DATE_SUB(NOW(), INTERVAL 146 HOUR), 'FAILED', 'COMPENSATION', DATE_SUB(NOW(), INTERVAL 98 HOUR), 2725, '파티장 탈퇴', 'INVALID_PAYMENT_KEY', '유효하지 않은 결제 키입니다.'),
-(6, 'toss_dep_006', 3, DATE_SUB(NOW(), INTERVAL 98 HOUR), 'FAILED', 'COMPENSATION', DATE_SUB(NOW(), INTERVAL 26 HOUR), 2725, '파티장 탈퇴', 'INVALID_PAYMENT_KEY', '유효하지 않은 결제 키입니다.'),
-(6, 'toss_dep_006', 4, DATE_SUB(NOW(), INTERVAL 26 HOUR), 'FAILED', 'COMPENSATION', NULL, 2725, '파티장 탈퇴 (최종 실패)', 'INVALID_PAYMENT_KEY', '유효하지 않은 결제 키입니다.');
+    DEPOSIT_ID,
+    TOSS_PAYMENT_KEY,
+    ATTEMPT_NUMBER,
+    ATTEMPT_DATE,
+    RETRY_STATUS,
+    RETRY_TYPE,
+    NEXT_RETRY_DATE,
+    REFUND_AMOUNT,
+    REFUND_REASON,
+    ERROR_CODE,
+    ERROR_MESSAGE
+)
+SELECT
+    d.DEPOSIT_ID,
+    d.TOSS_PAYMENT_KEY,
+    1 AS ATTEMPT_NUMBER,
+    DATE_SUB(NOW(), INTERVAL (12 + d.DEPOSIT_ID % 24) HOUR) AS ATTEMPT_DATE,
+    CASE
+        WHEN d.DEPOSIT_ID % 3 = 0 THEN 'FAILED'
+        ELSE 'SUCCESS'
+    END AS RETRY_STATUS,
+    CASE
+        WHEN d.DEPOSIT_TYPE = 'LEADER' THEN 'COMPENSATION'
+        ELSE 'REFUND'
+    END AS RETRY_TYPE,
+    CASE
+        WHEN d.DEPOSIT_ID % 3 = 0
+        THEN DATE_SUB(NOW(), INTERVAL (2 + d.DEPOSIT_ID % 6) HOUR)
+        ELSE NULL
+    END AS NEXT_RETRY_DATE,
+    COALESCE(d.REFUND_AMOUNT, d.DEPOSIT_AMOUNT) AS REFUND_AMOUNT,
+    CASE
+        WHEN d.DEPOSIT_STATUS IN ('REFUNDED', 'PARTIAL_REFUNDED')
+        THEN '파티 정상 종료'
+        ELSE '중도 탈퇴'
+    END AS REFUND_REASON,
+    CASE
+        WHEN d.DEPOSIT_ID % 3 = 0 THEN 'TEMPORARY_ERROR'
+        ELSE NULL
+    END AS ERROR_CODE,
+    CASE
+        WHEN d.DEPOSIT_ID % 3 = 0 THEN '일시적인 오류가 발생했습니다.'
+        ELSE NULL
+    END AS ERROR_MESSAGE
+FROM DEPOSIT d
+WHERE d.DEPOSIT_STATUS IN ('REFUNDED', 'PARTIAL_REFUNDED');
+
+
+INSERT INTO REFUND_RETRY_HISTORY (
+    DEPOSIT_ID,
+    TOSS_PAYMENT_KEY,
+    ATTEMPT_NUMBER,
+    ATTEMPT_DATE,
+    RETRY_STATUS,
+    RETRY_TYPE,
+    NEXT_RETRY_DATE,
+    REFUND_AMOUNT,
+    REFUND_REASON,
+    ERROR_CODE,
+    ERROR_MESSAGE
+)
+SELECT
+    h.DEPOSIT_ID,
+    h.TOSS_PAYMENT_KEY,
+    2 AS ATTEMPT_NUMBER,
+    h.NEXT_RETRY_DATE AS ATTEMPT_DATE,
+    CASE
+        WHEN h.DEPOSIT_ID % 2 = 0 THEN 'SUCCESS'
+        ELSE 'FAILED'
+    END AS RETRY_STATUS,
+    h.RETRY_TYPE,
+    CASE
+        WHEN h.DEPOSIT_ID % 2 = 1
+        THEN DATE_SUB(NOW(), INTERVAL 2 HOUR)
+        ELSE NULL
+    END AS NEXT_RETRY_DATE,
+    h.REFUND_AMOUNT,
+    h.REFUND_REASON,
+    CASE
+        WHEN h.DEPOSIT_ID % 2 = 1 THEN 'INVALID_PAYMENT_KEY'
+        ELSE NULL
+    END AS ERROR_CODE,
+    CASE
+        WHEN h.DEPOSIT_ID % 2 = 1 THEN '유효하지 않은 결제 키입니다.'
+        ELSE NULL
+    END AS ERROR_MESSAGE
+FROM REFUND_RETRY_HISTORY h
+WHERE h.ATTEMPT_NUMBER = 1
+  AND h.RETRY_STATUS = 'FAILED';
+
+
+
+INSERT INTO REFUND_RETRY_HISTORY (
+    DEPOSIT_ID,
+    TOSS_PAYMENT_KEY,
+    ATTEMPT_NUMBER,
+    ATTEMPT_DATE,
+    RETRY_STATUS,
+    RETRY_TYPE,
+    NEXT_RETRY_DATE,
+    REFUND_AMOUNT,
+    REFUND_REASON,
+    ERROR_CODE,
+    ERROR_MESSAGE
+)
+SELECT
+    h.DEPOSIT_ID,
+    h.TOSS_PAYMENT_KEY,
+    3 AS ATTEMPT_NUMBER,
+    h.NEXT_RETRY_DATE AS ATTEMPT_DATE,
+    CASE
+        WHEN h.DEPOSIT_ID % 4 = 0 THEN 'SUCCESS'
+        ELSE 'FAILED'
+    END AS RETRY_STATUS,
+    h.RETRY_TYPE,
+    NULL AS NEXT_RETRY_DATE,
+    h.REFUND_AMOUNT,
+    h.REFUND_REASON,
+    CASE
+        WHEN h.DEPOSIT_ID % 4 <> 0 THEN 'PAYMENT_NOT_FOUND'
+        ELSE NULL
+    END AS ERROR_CODE,
+    CASE
+        WHEN h.DEPOSIT_ID % 4 <> 0 THEN '결제 정보를 찾을 수 없습니다.'
+        ELSE NULL
+    END AS ERROR_MESSAGE
+FROM REFUND_RETRY_HISTORY h
+WHERE h.ATTEMPT_NUMBER = 2
+  AND h.RETRY_STATUS = 'FAILED';
 
 -- SETTLEMENT_RETRY_HISTORY: 정산 이체 재시도 이력
 INSERT INTO SETTLEMENT_RETRY_HISTORY (
-    SETTLEMENT_ID, ATTEMPT_NUMBER, ATTEMPT_DATE, RETRY_REASON, RETRY_STATUS,
-    NEXT_RETRY_DATE, TRANSFER_AMOUNT,
-    ERROR_CODE, ERROR_MESSAGE, BANK_RSP_CODE, BANK_RSP_MESSAGE, BANK_TRAN_ID
-) VALUES
-(1, 1, '2024-06-05 09:55:00', NULL, 'SUCCESS', NULL, 14450, NULL, NULL, '000', '정상처리', 'T202406050001'),
-(2, 1, '2024-06-05 10:25:00', NULL, 'FAILED', '2024-06-05 12:25:00', 9265, 'A0003', '수취인 계좌 오류', '301', '수취계좌오류', NULL),
-(2, 2, '2024-06-05 10:30:00', '수취인 계좌 오류', 'SUCCESS', NULL, 9265, NULL, NULL, '000', '정상처리', 'T202406050002'),
-(3, 1, '2024-06-05 10:55:00', NULL, 'FAILED', '2024-06-05 12:55:00', 6715, 'A0005', '출금 한도 초과', '512', '출금한도초과', NULL),
-(3, 2, '2024-06-05 12:55:00', '출금 한도 초과', 'FAILED', '2024-06-05 14:55:00', 6715, 'A0005', '출금 한도 초과', '512', '출금한도초과', NULL),
-(3, 3, '2024-06-05 11:00:00', '출금 한도 초과', 'SUCCESS', NULL, 6715, NULL, NULL, '000', '정상처리', 'T202406050003'),
-(4, 1, DATE_SUB(NOW(), INTERVAL 26 HOUR), NULL, 'FAILED', DATE_ADD(NOW(), INTERVAL 2 HOUR), 11815, 'A0007', '계좌 동결 상태', '560', '계좌동결상태', NULL),
-(5, 1, '2024-07-05 11:25:00', NULL, 'FAILED', '2024-07-05 13:25:00', 24650, 'A0001', '계좌번호 없음', '115', '해당계좌없음', NULL),
-(5, 2, '2024-07-05 13:25:00', '계좌번호 없음', 'FAILED', '2024-07-05 15:25:00', 24650, 'A0001', '계좌번호 없음', '115', '해당계좌없음', NULL),
-(5, 3, '2024-07-05 15:25:00', '계좌번호 없음', 'FAILED', '2024-07-05 17:25:00', 24650, 'A0001', '계좌번호 없음', '115', '해당계좌없음', NULL),
-(5, 4, '2024-07-05 17:25:00', '계좌번호 없음 (최종 실패)', 'FAILED', NULL, 24650, 'A0001', '계좌번호 없음 - 수동 처리 필요', '115', '해당계좌없음', NULL);
+    SETTLEMENT_ID,
+    ATTEMPT_NUMBER,
+    ATTEMPT_DATE,
+    RETRY_REASON,
+    RETRY_STATUS,
+    NEXT_RETRY_DATE,
+    TRANSFER_AMOUNT,
+    ERROR_CODE,
+    ERROR_MESSAGE,
+    BANK_RSP_CODE,
+    BANK_RSP_MESSAGE,
+    BANK_TRAN_ID
+)
+SELECT
+    s.SETTLEMENT_ID,
+    1 AS ATTEMPT_NUMBER,
+    DATE_SUB(s.SETTLEMENT_DATE, INTERVAL 5 MINUTE) AS ATTEMPT_DATE,
+    NULL AS RETRY_REASON,
+    CASE
+        WHEN s.SETTLEMENT_ID % 3 = 0 THEN 'FAILED'
+        ELSE 'SUCCESS'
+    END AS RETRY_STATUS,
+    CASE
+        WHEN s.SETTLEMENT_ID % 3 = 0
+        THEN DATE_ADD(s.SETTLEMENT_DATE, INTERVAL 2 HOUR)
+        ELSE NULL
+    END AS NEXT_RETRY_DATE,
+    s.NET_AMOUNT AS TRANSFER_AMOUNT,
+    CASE
+        WHEN s.SETTLEMENT_ID % 3 = 0 THEN 'A0003'
+        ELSE NULL
+    END AS ERROR_CODE,
+    CASE
+        WHEN s.SETTLEMENT_ID % 3 = 0 THEN '수취인 계좌 오류'
+        ELSE NULL
+    END AS ERROR_MESSAGE,
+    CASE
+        WHEN s.SETTLEMENT_ID % 3 = 0 THEN '301'
+        ELSE '000'
+    END AS BANK_RSP_CODE,
+    CASE
+        WHEN s.SETTLEMENT_ID % 3 = 0 THEN '수취계좌오류'
+        ELSE '정상처리'
+    END AS BANK_RSP_MESSAGE,
+    CASE
+        WHEN s.SETTLEMENT_ID % 3 <> 0
+        THEN CONCAT(
+            'T',
+            DATE_FORMAT(s.SETTLEMENT_DATE, '%Y%m%d'),
+            LPAD(s.SETTLEMENT_ID, 4, '0')
+        )
+        ELSE NULL
+    END AS BANK_TRAN_ID
+FROM SETTLEMENT s
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM SETTLEMENT_RETRY_HISTORY h
+    WHERE h.SETTLEMENT_ID = s.SETTLEMENT_ID
+      AND h.ATTEMPT_NUMBER = 1
+);
+
+
+
+
+
+
+INSERT INTO SETTLEMENT_RETRY_HISTORY (
+    SETTLEMENT_ID,
+    ATTEMPT_NUMBER,
+    ATTEMPT_DATE,
+    RETRY_REASON,
+    RETRY_STATUS,
+    NEXT_RETRY_DATE,
+    TRANSFER_AMOUNT,
+    ERROR_CODE,
+    ERROR_MESSAGE,
+    BANK_RSP_CODE,
+    BANK_RSP_MESSAGE,
+    BANK_TRAN_ID
+)
+SELECT
+    h.SETTLEMENT_ID,
+    2 AS ATTEMPT_NUMBER,
+    h.NEXT_RETRY_DATE AS ATTEMPT_DATE,
+    h.ERROR_MESSAGE AS RETRY_REASON,
+    CASE
+        WHEN h.SETTLEMENT_ID % 2 = 0 THEN 'SUCCESS'
+        ELSE 'FAILED'
+    END AS RETRY_STATUS,
+    CASE
+        WHEN h.SETTLEMENT_ID % 2 = 1
+        THEN DATE_ADD(h.NEXT_RETRY_DATE, INTERVAL 2 HOUR)
+        ELSE NULL
+    END AS NEXT_RETRY_DATE,
+    h.TRANSFER_AMOUNT,
+    CASE
+        WHEN h.SETTLEMENT_ID % 2 = 1 THEN 'A0005'
+        ELSE NULL
+    END AS ERROR_CODE,
+    CASE
+        WHEN h.SETTLEMENT_ID % 2 = 1 THEN '출금 한도 초과'
+        ELSE NULL
+    END AS ERROR_MESSAGE,
+    CASE
+        WHEN h.SETTLEMENT_ID % 2 = 1 THEN '512'
+        ELSE '000'
+    END AS BANK_RSP_CODE,
+    CASE
+        WHEN h.SETTLEMENT_ID % 2 = 1 THEN '출금한도초과'
+        ELSE '정상처리'
+    END AS BANK_RSP_MESSAGE,
+    CASE
+        WHEN h.SETTLEMENT_ID % 2 = 0
+        THEN CONCAT(
+            'T',
+            DATE_FORMAT(h.ATTEMPT_DATE, '%Y%m%d'),
+            LPAD(h.SETTLEMENT_ID, 4, '0')
+        )
+        ELSE NULL
+    END AS BANK_TRAN_ID
+FROM SETTLEMENT_RETRY_HISTORY h
+WHERE h.ATTEMPT_NUMBER = 1
+  AND h.RETRY_STATUS = 'FAILED';
+
+
+
+
+
+INSERT INTO SETTLEMENT_RETRY_HISTORY (
+    SETTLEMENT_ID,
+    ATTEMPT_NUMBER,
+    ATTEMPT_DATE,
+    RETRY_REASON,
+    RETRY_STATUS,
+    NEXT_RETRY_DATE,
+    TRANSFER_AMOUNT,
+    ERROR_CODE,
+    ERROR_MESSAGE,
+    BANK_RSP_CODE,
+    BANK_RSP_MESSAGE,
+    BANK_TRAN_ID
+)
+SELECT
+    h.SETTLEMENT_ID,
+    3 AS ATTEMPT_NUMBER,
+    h.NEXT_RETRY_DATE AS ATTEMPT_DATE,
+    h.ERROR_MESSAGE AS RETRY_REASON,
+    CASE
+        WHEN h.SETTLEMENT_ID % 4 = 0 THEN 'SUCCESS'
+        ELSE 'FAILED'
+    END AS RETRY_STATUS,
+    NULL AS NEXT_RETRY_DATE,
+    h.TRANSFER_AMOUNT,
+    CASE
+        WHEN h.SETTLEMENT_ID % 4 <> 0 THEN 'A0001'
+        ELSE NULL
+    END AS ERROR_CODE,
+    CASE
+        WHEN h.SETTLEMENT_ID % 4 <> 0 THEN '계좌번호 없음 - 수동 처리 필요'
+        ELSE NULL
+    END AS ERROR_MESSAGE,
+    CASE
+        WHEN h.SETTLEMENT_ID % 4 <> 0 THEN '115'
+        ELSE '000'
+    END AS BANK_RSP_CODE,
+    CASE
+        WHEN h.SETTLEMENT_ID % 4 <> 0 THEN '해당계좌없음'
+        ELSE '정상처리'
+    END AS BANK_RSP_MESSAGE,
+    CASE
+        WHEN h.SETTLEMENT_ID % 4 = 0
+        THEN CONCAT(
+            'T',
+            DATE_FORMAT(h.ATTEMPT_DATE, '%Y%m%d'),
+            LPAD(h.SETTLEMENT_ID, 4, '0')
+        )
+        ELSE NULL
+    END AS BANK_TRAN_ID
+FROM SETTLEMENT_RETRY_HISTORY h
+WHERE h.ATTEMPT_NUMBER = 2
+  AND h.RETRY_STATUS = 'FAILED';
+
 
 -- ============================================
 -- 8. 게시판 데이터
@@ -530,20 +2210,156 @@ INSERT INTO SETTLEMENT_RETRY_HISTORY (
 
 -- COMMUNITY: 공지사항 3건 + 문의 7건
 INSERT INTO COMMUNITY (
-    USER_ID, COMMUNITY_CODE_ID, TITLE, CONTENT,
-    CREATED_AT, VIEW_COUNT, FILE_ORIGINAL, FILE_UUID,
-    ANSWER_CONTENT, ANSWERED_AT, ANSWER_STATUS
-) VALUES
-('admin@moa.com', 10, '[공지-시스템] MOA 서비스 정식 오픈 안내', 'MOA OTT 구독 공유 서비스가 정식 오픈하였습니다.', '2024-04-01 09:00:00', 1523, NULL, NULL, NULL, NULL, NULL),
-('admin@moa.com', 4, '[FAQ] 파티 가입 방법이 궁금해요', '원하는 OTT 서비스를 선택한 후 모집 중인 파티에 가입하세요.', '2024-04-01 10:00:00', 3421, NULL, NULL, NULL, NULL, NULL),
-('admin@moa.com', 4, '[FAQ] 보증금은 언제 환불되나요?', '파티 정상 종료 시 보증금 전액이 환불됩니다.', '2024-04-01 10:30:00', 2876, NULL, NULL, NULL, NULL, NULL),
-('user001@gmail.com', 1, '휴대폰 번호 변경 후 본인인증이 안돼요', '최근 휴대폰 번호를 변경했는데 본인인증이 계속 실패합니다.', '2024-11-25 09:30:00', NULL, NULL, NULL, '번호 변경 시 통신사 정보 업데이트에 최대 24시간이 소요될 수 있습니다.', '2024-11-25 14:00:00', '답변완료'),
-('user002@naver.com', 1, '프로필 이미지 업로드가 안됩니다', '프로필 이미지를 변경하려고 하는데 계속 오류가 발생합니다.', '2024-11-26 10:15:00', NULL, 'profile_error.png', 'uuid_profile_001.png', '이미지 형식을 JPG 또는 PNG로 변경 후 다시 시도해주세요.', '2024-11-26 15:30:00', '답변완료'),
-('user003@daum.net', 2, '이번 달 결제가 두 번 됐어요', '11월 1일에 결제가 끝났는데 11월 3일에 또 결제가 되었습니다.', '2024-11-05 08:30:00', NULL, 'payment_double.png', 'uuid_payment_001.png', '확인 결과 11월 1일 결제 실패 후 3일에 재결제가 진행되었습니다.', '2024-11-05 11:00:00', '답변완료'),
-('user004@gmail.com', 3, '파티장이 계정 정보를 안 알려줘요', '파티에 가입했는데 파티장이 OTT 계정 정보를 공유하지 않습니다.', '2024-11-08 09:00:00', NULL, NULL, NULL, '파티장에게 알림을 발송하였습니다.', '2024-11-08 10:30:00', '답변완료'),
-('user005@naver.com', 3, '파티원이 비밀번호를 변경했어요', '파티원 중 한 명이 OTT 비밀번호를 임의로 변경해서 접속이 안 됩니다.', '2024-11-12 14:00:00', NULL, NULL, NULL, '해당 파티원에게 경고 조치하였습니다.', '2024-11-12 16:00:00', '답변완료'),
-('user006@daum.net', 3, '이번 달 정산금이 입금되지 않았어요', '매월 5일에 정산금이 들어오는데 오늘 10일인데도 입금이 안 됐습니다.', '2024-11-10 09:00:00', NULL, NULL, NULL, '확인 결과 계좌번호 오류로 입금이 반려되었습니다.', '2024-11-10 11:00:00', '답변완료'),
-('user007@gmail.com', 3, '앱이 자꾸 튕겨요', '앱을 실행하면 메인 화면에서 계속 튕깁니다.', '2024-11-15 09:00:00', NULL, NULL, NULL, '앱 삭제 후 재설치를 시도해주세요.', '2024-11-15 11:30:00', '답변완료');
+    USER_ID,
+    COMMUNITY_CODE_ID,
+    TITLE,
+    CONTENT,
+    CREATED_AT,
+    VIEW_COUNT,
+    FILE_ORIGINAL,
+    FILE_UUID,
+    ANSWER_CONTENT,
+    ANSWERED_AT,
+    ANSWER_STATUS
+)
+SELECT
+    u.USER_ID,
+    c.COMMUNITY_CODE_ID,
+    c.TITLE,
+    c.CONTENT,
+    c.CREATED_AT,
+    c.VIEW_COUNT,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL
+FROM (
+    SELECT USER_ID
+    FROM USERS
+    WHERE ROLE = 'ADMIN'
+    LIMIT 1
+) u
+JOIN (
+    SELECT 10 AS COMMUNITY_CODE_ID,
+           '[공지-시스템] MOA 서비스 정식 오픈 안내' AS TITLE,
+           'MOA OTT 구독 공유 서비스가 정식 오픈하였습니다.' AS CONTENT,
+           '2024-04-01 09:00:00' AS CREATED_AT,
+           1523 AS VIEW_COUNT
+    UNION ALL
+    SELECT 4,
+           '[FAQ] 파티 가입 방법이 궁금해요',
+           '원하는 OTT 서비스를 선택한 후 모집 중인 파티에 가입하세요.',
+           '2024-04-01 10:00:00',
+           3421
+    UNION ALL
+    SELECT 4,
+           '[FAQ] 보증금은 언제 환불되나요?',
+           '파티 정상 종료 시 보증금 전액이 환불됩니다.',
+           '2024-04-01 10:30:00',
+           2876
+) c;
+
+
+
+
+INSERT INTO COMMUNITY (
+    USER_ID,
+    COMMUNITY_CODE_ID,
+    TITLE,
+    CONTENT,
+    CREATED_AT,
+    VIEW_COUNT,
+    FILE_ORIGINAL,
+    FILE_UUID,
+    ANSWER_CONTENT,
+    ANSWERED_AT,
+    ANSWER_STATUS
+)
+SELECT
+    u.USER_ID,
+    q.COMMUNITY_CODE_ID,
+    q.TITLE,
+    q.CONTENT,
+    q.CREATED_AT,
+    NULL AS VIEW_COUNT,
+    q.FILE_ORIGINAL,
+    q.FILE_UUID,
+    q.ANSWER_CONTENT,
+    q.ANSWERED_AT,
+    '답변완료' AS ANSWER_STATUS
+FROM (
+    SELECT USER_ID
+    FROM USERS
+    WHERE ROLE = 'USER'
+    ORDER BY USER_ID
+    LIMIT 7
+) u
+JOIN (
+    SELECT 1 AS COMMUNITY_CODE_ID,
+           '휴대폰 번호 변경 후 본인인증이 안돼요' AS TITLE,
+           '최근 휴대폰 번호를 변경했는데 본인인증이 계속 실패합니다.' AS CONTENT,
+           '2024-11-25 09:30:00' AS CREATED_AT,
+           NULL AS FILE_ORIGINAL,
+           NULL AS FILE_UUID,
+           '번호 변경 시 통신사 정보 업데이트에 최대 24시간이 소요될 수 있습니다.' AS ANSWER_CONTENT,
+           '2024-11-25 14:00:00' AS ANSWERED_AT
+    UNION ALL
+    SELECT 1,
+           '프로필 이미지 업로드가 안됩니다',
+           '프로필 이미지를 변경하려고 하는데 계속 오류가 발생합니다.',
+           '2024-11-26 10:15:00',
+           'profile_error.png',
+           'uuid_profile_001.png',
+           '이미지 형식을 JPG 또는 PNG로 변경 후 다시 시도해주세요.',
+           '2024-11-26 15:30:00'
+    UNION ALL
+    SELECT 2,
+           '이번 달 결제가 두 번 됐어요',
+           '11월 1일에 결제가 끝났는데 11월 3일에 또 결제가 되었습니다.',
+           '2024-11-05 08:30:00',
+           'payment_double.png',
+           'uuid_payment_001.png',
+           '확인 결과 11월 1일 결제 실패 후 3일에 재결제가 진행되었습니다.',
+           '2024-11-05 11:00:00'
+    UNION ALL
+    SELECT 3,
+           '파티장이 계정 정보를 안 알려줘요',
+           '파티에 가입했는데 파티장이 OTT 계정 정보를 공유하지 않습니다.',
+           '2024-11-08 09:00:00',
+           NULL,
+           NULL,
+           '파티장에게 알림을 발송하였습니다.',
+           '2024-11-08 10:30:00'
+    UNION ALL
+    SELECT 3,
+           '파티원이 비밀번호를 변경했어요',
+           '파티원 중 한 명이 OTT 비밀번호를 임의로 변경해서 접속이 안 됩니다.',
+           '2024-11-12 14:00:00',
+           NULL,
+           NULL,
+           '해당 파티원에게 경고 조치하였습니다.',
+           '2024-11-12 16:00:00'
+    UNION ALL
+    SELECT 3,
+           '이번 달 정산금이 입금되지 않았어요',
+           '매월 5일에 정산금이 들어오는데 오늘 10일인데도 입금이 안 됐습니다.',
+           '2024-11-10 09:00:00',
+           NULL,
+           NULL,
+           '확인 결과 계좌번호 오류로 입금이 반려되었습니다.',
+           '2024-11-10 11:00:00'
+    UNION ALL
+    SELECT 3,
+           '앱이 자꾸 튕겨요',
+           '앱을 실행하면 메인 화면에서 계속 튕깁니다.',
+           '2024-11-15 09:00:00',
+           NULL,
+           NULL,
+           '앱 삭제 후 재설치를 시도해주세요.',
+           '2024-11-15 11:30:00'
+) q
+ON TRUE;
 
 -- ============================================
 -- 9. 푸시 알림 데이터
@@ -551,19 +2367,170 @@ INSERT INTO COMMUNITY (
 
 -- PUSH: 푸시 알림 10건
 INSERT INTO PUSH (
-    RECEIVER_ID, PUSH_CODE, TITLE, CONTENT,
-    MODULE_ID, MODULE_TYPE, SENT_AT, READ_AT, IS_READ, IS_DELETED
-) VALUES
-('user001@gmail.com', 'PAYMENT_SUCCESS', '결제 완료', '사용자001님의 Google AI Pro 파티 월회비 4,250원 결제가 완료되었습니다.', '1', 'PAYMENT', '2024-05-01 00:05:00', '2024-05-01 08:30:00', 'Y', 'N'),
-('user002@naver.com', 'PAYMENT_SUCCESS', '결제 완료', '사용자002님의 Google AI Pro 파티 월회비 4,250원 결제가 완료되었습니다.', '2', 'PAYMENT', '2024-05-01 00:05:00', '2024-05-01 09:00:00', 'Y', 'N'),
-('user003@daum.net', 'PAYMENT_SUCCESS', '결제 완료', '사용자003님의 디즈니+ 스탠다드 파티 월회비 2,725원 결제가 완료되었습니다.', '5', 'PAYMENT', '2024-05-15 00:05:00', NULL, 'N', 'N'),
-('user001@gmail.com', 'PARTY_START', '파티 시작', 'Google AI Pro 파티가 시작되었습니다. OTT 계정 정보를 확인하세요.', '1', 'PARTY', '2024-04-05 00:00:00', '2024-04-05 07:00:00', 'Y', 'N'),
-('user003@daum.net', 'PARTY_START', '파티 시작', '디즈니+ 스탠다드 파티가 시작되었습니다. OTT 계정 정보를 확인하세요.', '2', 'PARTY', '2024-04-15 00:00:00', '2024-04-15 08:30:00', 'Y', 'N'),
-('user002@naver.com', 'PARTY_JOIN', '파티 가입 완료', '사용자002님, Google AI Pro 파티에 성공적으로 참여하셨습니다.', '1', 'PARTY', '2024-04-02 14:25:00', '2024-04-02 15:00:00', 'Y', 'N'),
-('user004@gmail.com', 'PARTY_JOIN', '파티 가입 완료', '사용자004님, 디즈니+ 스탠다드 파티에 성공적으로 참여하셨습니다.', '2', 'PARTY', '2024-04-11 10:05:00', '2024-04-11 11:00:00', 'Y', 'N'),
-('user001@gmail.com', 'SETTLEMENT_MONTHLY', '월간 정산 완료', '5월 정산 금액 14,450원이 입금될 예정입니다.', '1', 'SETTLEMENT', '2024-06-05 10:00:00', '2024-06-05 11:00:00', 'Y', 'N'),
-('user003@daum.net', 'SETTLEMENT_MONTHLY', '월간 정산 완료', '5월 정산 금액 9,265원이 입금될 예정입니다.', '2', 'SETTLEMENT', '2024-06-05 10:30:00', '2024-06-05 12:00:00', 'Y', 'N'),
-('user001@gmail.com', 'INQUIRY_ANSWER', '문의 답변 완료', '사용자001님이 남기신 문의에 답변이 등록되었습니다.', '4', 'COMMUNITY', '2024-11-25 14:00:00', '2024-11-25 15:00:00', 'Y', 'N');
+    RECEIVER_ID,
+    PUSH_CODE,
+    TITLE,
+    CONTENT,
+    MODULE_ID,
+    MODULE_TYPE,
+    SENT_AT,
+    READ_AT,
+    IS_READ,
+    IS_DELETED
+)
+SELECT
+    p.USER_ID AS RECEIVER_ID,
+    'PAY_SUCCESS' AS PUSH_CODE,
+    '결제 완료' AS TITLE,
+    CONCAT(
+        DATE_FORMAT(p.PAYMENT_DATE, '%Y-%m'),
+        ' 구독료 ',
+        FORMAT(p.AMOUNT, 0),
+        '원이 결제되었습니다.'
+    ) AS CONTENT,
+    p.PAYMENT_ID AS MODULE_ID,
+    'PAYMENT' AS MODULE_TYPE,
+    p.PAYMENT_DATE AS SENT_AT,
+    CASE
+        WHEN p.PAYMENT_ID % 2 = 0
+        THEN DATE_ADD(p.PAYMENT_DATE, INTERVAL 8 HOUR)
+        ELSE NULL
+    END AS READ_AT,
+    CASE
+        WHEN p.PAYMENT_ID % 2 = 0 THEN 'Y'
+        ELSE 'N'
+    END AS IS_READ,
+    'N' AS IS_DELETED
+FROM PAYMENT p;
+
+
+
+
+
+INSERT INTO PUSH (
+    RECEIVER_ID,
+    PUSH_CODE,
+    TITLE,
+    CONTENT,
+    MODULE_ID,
+    MODULE_TYPE,
+    SENT_AT,
+    READ_AT,
+    IS_READ,
+    IS_DELETED
+)
+SELECT
+    pm.USER_ID AS RECEIVER_ID,
+    'PARTY_START' AS PUSH_CODE,
+    '파티 시작' AS TITLE,
+    '참여 중인 파티가 시작되었습니다. OTT 계정 정보를 확인하세요.' AS CONTENT,
+    p.PARTY_ID AS MODULE_ID,
+    'PARTY' AS MODULE_TYPE,
+    p.START_DATE AS SENT_AT,
+    CASE
+        WHEN pm.PARTY_MEMBER_ID % 2 = 0
+        THEN DATE_ADD(p.START_DATE, INTERVAL 7 HOUR)
+        ELSE NULL
+    END AS READ_AT,
+    CASE
+        WHEN pm.PARTY_MEMBER_ID % 2 = 0 THEN 'Y'
+        ELSE 'N'
+    END AS IS_READ,
+    'N' AS IS_DELETED
+FROM PARTY p
+JOIN PARTY_MEMBER pm
+  ON pm.PARTY_ID = p.PARTY_ID
+WHERE p.PARTY_STATUS = 'ACTIVE';
+
+
+
+INSERT INTO PUSH (
+    RECEIVER_ID,
+    PUSH_CODE,
+    TITLE,
+    CONTENT,
+    MODULE_ID,
+    MODULE_TYPE,
+    SENT_AT,
+    READ_AT,
+    IS_READ,
+    IS_DELETED
+)
+SELECT
+    pm.USER_ID AS RECEIVER_ID,
+    'PARTY_JOIN' AS PUSH_CODE,
+    '파티 가입 완료' AS TITLE,
+    '파티 가입이 성공적으로 완료되었습니다.' AS CONTENT,
+    pm.PARTY_ID AS MODULE_ID,
+    'PARTY' AS MODULE_TYPE,
+    pm.JOIN_DATE AS SENT_AT,
+    DATE_ADD(pm.JOIN_DATE, INTERVAL 30 MINUTE) AS READ_AT,
+    'Y' AS IS_READ,
+    'N' AS IS_DELETED
+FROM PARTY_MEMBER pm
+WHERE pm.MEMBER_ROLE = 'MEMBER';
+
+
+
+INSERT INTO PUSH (
+    RECEIVER_ID,
+    PUSH_CODE,
+    TITLE,
+    CONTENT,
+    MODULE_ID,
+    MODULE_TYPE,
+    SENT_AT,
+    READ_AT,
+    IS_READ,
+    IS_DELETED
+)
+SELECT
+    s.PARTY_LEADER_ID AS RECEIVER_ID,
+    'SETTLE_COMPLETED' AS PUSH_CODE,
+    '정산 입금 완료' AS TITLE,
+    CONCAT(
+        s.SETTLEMENT_MONTH,
+        ' 정산금 ',
+        FORMAT(s.NET_AMOUNT, 0),
+        '원이 입금되었습니다.'
+    ) AS CONTENT,
+    s.SETTLEMENT_ID AS MODULE_ID,
+    'SETTLEMENT' AS MODULE_TYPE,
+    s.SETTLEMENT_DATE AS SENT_AT,
+    DATE_ADD(s.SETTLEMENT_DATE, INTERVAL 1 HOUR) AS READ_AT,
+    'Y' AS IS_READ,
+    'N' AS IS_DELETED
+FROM SETTLEMENT s
+WHERE s.SETTLEMENT_STATUS = 'COMPLETED';
+
+
+
+INSERT INTO PUSH (
+    RECEIVER_ID,
+    PUSH_CODE,
+    TITLE,
+    CONTENT,
+    MODULE_ID,
+    MODULE_TYPE,
+    SENT_AT,
+    READ_AT,
+    IS_READ,
+    IS_DELETED
+)
+SELECT
+    c.USER_ID AS RECEIVER_ID,
+    'INQUIRY_ANSWER' AS PUSH_CODE,
+    '문의 답변 완료' AS TITLE,
+    '등록하신 문의에 답변이 완료되었습니다.' AS CONTENT,
+    c.COMMUNITY_ID AS MODULE_ID,
+    'COMMUNITY' AS MODULE_TYPE,
+    c.ANSWERED_AT AS SENT_AT,
+    DATE_ADD(c.ANSWERED_AT, INTERVAL 1 HOUR) AS READ_AT,
+    'Y' AS IS_READ,
+    'N' AS IS_DELETED
+FROM COMMUNITY c
+WHERE c.ANSWER_STATUS = '답변완료';
+
 
 -- ============================================
 -- 10. 계좌 인증 및 이체 거래 데이터
@@ -571,27 +2538,197 @@ INSERT INTO PUSH (
 
 -- ACCOUNT_VERIFICATION: 1원 인증 세션 (다양한 상태)
 INSERT INTO ACCOUNT_VERIFICATION (
-    USER_ID, BANK_TRAN_ID, BANK_CODE, ACCOUNT_NUM, ACCOUNT_HOLDER,
-    VERIFY_CODE, ATTEMPT_COUNT, STATUS, EXPIRED_AT, CREATED_AT
-) VALUES
-('user001@gmail.com', 'T202412091001', '004', '100100010001', '사용자001', '1234', 1, 'VERIFIED', DATE_ADD(NOW(), INTERVAL 5 MINUTE), DATE_SUB(NOW(), INTERVAL 10 MINUTE)),
-('user003@daum.net', 'T202412091002', '020', '100100010003', '사용자003', '5678', 1, 'VERIFIED', DATE_ADD(NOW(), INTERVAL 5 MINUTE), DATE_SUB(NOW(), INTERVAL 8 MINUTE)),
-('user005@naver.com', 'T202412091003', '003', '100100010005', '사용자005', '9012', 1, 'VERIFIED', DATE_ADD(NOW(), INTERVAL 5 MINUTE), DATE_SUB(NOW(), INTERVAL 6 MINUTE)),
-('user007@gmail.com', 'T202412091004', '004', '100100010007', '사용자007', '3456', 0, 'PENDING', DATE_ADD(NOW(), INTERVAL 3 MINUTE), NOW()),
-('user009@daum.net', 'T202412091005', '020', '100100010009', '사용자009', '7890', 0, 'PENDING', DATE_ADD(NOW(), INTERVAL 4 MINUTE), NOW()),
-('user011@naver.com', 'T202412091006', '003', '100100010011', '사용자011', '2345', 3, 'FAILED', DATE_ADD(NOW(), INTERVAL 5 MINUTE), DATE_SUB(NOW(), INTERVAL 2 MINUTE)),
-('user013@gmail.com', 'T202412091007', '004', '100100010013', '사용자013', '6789', 0, 'EXPIRED', DATE_SUB(NOW(), INTERVAL 10 MINUTE), DATE_SUB(NOW(), INTERVAL 15 MINUTE));
+    USER_ID,
+    BANK_TRAN_ID,
+    BANK_CODE,
+    ACCOUNT_NUM,
+    ACCOUNT_HOLDER,
+    VERIFY_CODE,
+    ATTEMPT_COUNT,
+    STATUS,
+    EXPIRED_AT,
+    CREATED_AT
+)
+SELECT
+    a.USER_ID,
+
+    CONCAT(
+        'T',
+        DATE_FORMAT(NOW(), '%Y%m%d'),
+        LPAD(a.ACCOUNT_ID, 4, '0')
+    ) AS BANK_TRAN_ID,
+
+    a.BANK_CODE,
+    a.ACCOUNT_NUMBER AS ACCOUNT_NUM,
+    a.ACCOUNT_HOLDER,
+
+    LPAD((a.ACCOUNT_ID * 137) % 10000, 4, '0') AS VERIFY_CODE,
+
+    CASE
+        WHEN a.ACCOUNT_ID % 4 = 0 THEN 0
+        WHEN a.ACCOUNT_ID % 4 = 1 THEN 1
+        WHEN a.ACCOUNT_ID % 4 = 2 THEN 3
+        ELSE 0
+    END AS ATTEMPT_COUNT,
+
+    CASE
+        WHEN a.ACCOUNT_ID % 4 = 0 THEN 'PENDING'
+        WHEN a.ACCOUNT_ID % 4 = 1 THEN 'VERIFIED'
+        WHEN a.ACCOUNT_ID % 4 = 2 THEN 'FAILED'
+        ELSE 'EXPIRED'
+    END AS STATUS,
+
+    CASE
+        WHEN a.ACCOUNT_ID % 4 = 3
+        THEN DATE_SUB(NOW(), INTERVAL 5 MINUTE)
+        ELSE DATE_ADD(NOW(), INTERVAL 5 MINUTE)
+    END AS EXPIRED_AT,
+
+    CASE
+        WHEN a.ACCOUNT_ID % 4 = 1
+        THEN DATE_SUB(NOW(), INTERVAL 10 MINUTE)
+        WHEN a.ACCOUNT_ID % 4 = 2
+        THEN DATE_SUB(NOW(), INTERVAL 2 MINUTE)
+        ELSE NOW()
+    END AS CREATED_AT
+FROM ACCOUNT a
+JOIN USERS u
+  ON u.USER_ID = a.USER_ID
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM ACCOUNT_VERIFICATION v
+    WHERE v.USER_ID = a.USER_ID
+);
+
+INSERT INTO DEPOSIT (
+    PARTY_ID,
+    PARTY_MEMBER_ID,
+    USER_ID,
+    DEPOSIT_TYPE,
+    DEPOSIT_AMOUNT,
+    DEPOSIT_STATUS,
+    PAYMENT_DATE,
+    REFUND_DATE,
+    REFUND_AMOUNT,
+    TOSS_PAYMENT_KEY,
+    ORDER_ID
+)
+SELECT
+    pm.PARTY_ID,
+    pm.PARTY_MEMBER_ID,
+    pm.USER_ID,
+
+    CASE
+        WHEN pm.MEMBER_ROLE = 'LEADER' THEN 'LEADER'
+        ELSE 'SECURITY'
+    END AS DEPOSIT_TYPE,
+
+    CASE
+        WHEN pm.MEMBER_ROLE = 'LEADER' THEN 20000
+        ELSE 5000
+    END AS DEPOSIT_AMOUNT,
+
+    CASE
+        WHEN pm.PARTY_MEMBER_ID % 4 = 0 THEN 'REFUNDED'
+        WHEN pm.PARTY_MEMBER_ID % 4 = 1 THEN 'PAID'
+        WHEN pm.PARTY_MEMBER_ID % 4 = 2 THEN 'PARTIAL_REFUNDED'
+        ELSE 'PENDING'
+    END AS DEPOSIT_STATUS,
+
+    DATE_ADD(p.REG_DATE, INTERVAL 5 DAY) AS PAYMENT_DATE,
+
+    CASE
+        WHEN pm.PARTY_MEMBER_ID % 4 IN (0,2)
+        THEN DATE_ADD(p.REG_DATE, INTERVAL 30 DAY)
+    END AS REFUND_DATE,
+
+    CASE
+        WHEN pm.PARTY_MEMBER_ID % 4 = 0 THEN
+            CASE WHEN pm.MEMBER_ROLE = 'LEADER' THEN 20000 ELSE 5000 END
+        WHEN pm.PARTY_MEMBER_ID % 4 = 2 THEN
+            CASE WHEN pm.MEMBER_ROLE = 'LEADER' THEN 10000 ELSE 2500 END
+    END AS REFUND_AMOUNT,
+
+    CONCAT('toss_dep_', LPAD(pm.PARTY_MEMBER_ID, 4, '0')) AS TOSS_PAYMENT_KEY,
+    CONCAT('ORD_DEP_', LPAD(pm.PARTY_MEMBER_ID, 4, '0')) AS ORDER_ID
+
+FROM PARTY_MEMBER pm
+JOIN PARTY p
+  ON p.PARTY_ID = pm.PARTY_ID
+WHERE pm.PARTY_ID BETWEEN 6 AND 55
+LIMIT 50;
+
+
 
 -- TRANSFER_TRANSACTION: 입금이체 거래 기록
 INSERT INTO TRANSFER_TRANSACTION (
-    SETTLEMENT_ID, BANK_TRAN_ID, FINTECH_USE_NUM, TRAN_AMT,
-    PRINT_CONTENT, REQ_CLIENT_NAME, RSP_CODE, RSP_MESSAGE, STATUS, CREATED_AT
-) VALUES
-(1, 'T202406050001', '100000000001', 14450, 'MOA정산금', '사용자001', '000', '정상처리', 'SUCCESS', '2024-06-05 10:00:00'),
-(2, 'T202406050002', '100000000003', 9265, 'MOA정산금', '사용자003', '000', '정상처리', 'SUCCESS', '2024-06-05 10:30:00'),
-(3, 'T202406050003', '100000000005', 6715, 'MOA정산금', '사용자005', '000', '정상처리', 'SUCCESS', '2024-06-05 11:00:00'),
-(4, NULL, '100000000007', 11815, 'MOA정산금', '사용자007', NULL, NULL, 'PENDING', DATE_SUB(NOW(), INTERVAL 1 HOUR)),
-(5, NULL, '100000000009', 24650, 'MOA정산금', '사용자009', '115', '해당계좌없음', 'FAILED', '2024-07-05 17:25:00');
+    SETTLEMENT_ID,
+    BANK_TRAN_ID,
+    FINTECH_USE_NUM,
+    TRAN_AMT,
+    PRINT_CONTENT,
+    REQ_CLIENT_NAME,
+    RSP_CODE,
+    RSP_MESSAGE,
+    STATUS,
+    CREATED_AT
+)
+SELECT
+    s.SETTLEMENT_ID,
+
+    CASE
+        WHEN s.SETTLEMENT_ID % 3 <> 0
+        THEN CONCAT(
+            'T',
+            DATE_FORMAT(s.SETTLEMENT_DATE, '%Y%m%d'),
+            LPAD(s.SETTLEMENT_ID, 4, '0')
+        )
+        ELSE NULL
+    END AS BANK_TRAN_ID,
+
+    CONCAT(
+        '100000000',
+        LPAD(a.ACCOUNT_ID, 3, '0')
+    ) AS FINTECH_USE_NUM,
+
+    s.NET_AMOUNT AS TRAN_AMT,
+
+    'MOA정산금' AS PRINT_CONTENT,
+
+    a.ACCOUNT_HOLDER AS REQ_CLIENT_NAME,
+
+    CASE
+        WHEN s.SETTLEMENT_ID % 3 = 1 THEN '000'
+        WHEN s.SETTLEMENT_ID % 3 = 2 THEN NULL
+        ELSE '115'
+    END AS RSP_CODE,
+
+    CASE
+        WHEN s.SETTLEMENT_ID % 3 = 1 THEN '정상처리'
+        WHEN s.SETTLEMENT_ID % 3 = 2 THEN NULL
+        ELSE '해당계좌없음'
+    END AS RSP_MESSAGE,
+
+    CASE
+        WHEN s.SETTLEMENT_ID % 3 = 1 THEN 'SUCCESS'
+        WHEN s.SETTLEMENT_ID % 3 = 2 THEN 'PENDING'
+        ELSE 'FAILED'
+    END AS STATUS,
+
+    CASE
+        WHEN s.SETTLEMENT_ID % 3 = 2
+        THEN DATE_SUB(NOW(), INTERVAL 1 HOUR)
+        ELSE s.SETTLEMENT_DATE
+    END AS CREATED_AT
+FROM SETTLEMENT s
+JOIN ACCOUNT a
+  ON a.ACCOUNT_ID = s.ACCOUNT_ID
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM TRANSFER_TRANSACTION t
+    WHERE t.SETTLEMENT_ID = s.SETTLEMENT_ID
+);
+
 
 -- ============================================
 -- 샘플 데이터 입력 완료
