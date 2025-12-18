@@ -1499,7 +1499,7 @@ INSERT INTO `PRODUCT` (`PRODUCT_ID`, `CATEGORY_ID`, `PRODUCT_NAME`, `PRODUCT_STA
 
    (15, 3, 'Skillshare Monthly', 'ACTIVE', 20600, '/uploads/product-image/skillshare_logo.png', NULL),
    (16, 3, 'LinkedIn Learning Monthly', 'ACTIVE', 58900, '/uploads/product-image/linkedinlearning_logo.png', NULL),
-   (17, 2, 'Disney+ + TVING Bundle', 'ACTIVE', 18000, '/uploads/product-image/disneyplus_logo.png', NULL),
+   (17, 2, 'Disney+ + TVING Bundle', 'ACTIVE', 18000, '/uploads/product-image/disneyplustving_logo.png', NULL),
    (18, 2, 'Netflix Basic', 'ACTIVE', 9500, '/uploads/product-image/netflix_logo.png', NULL),
    (19, 2, 'Netflix Standard', 'ACTIVE', 14500, '/uploads/product-image/netflix_logo.png', NULL),
    (20, 2, 'Netflix Premium', 'ACTIVE', 19000, '/uploads/product-image/netflix_logo.png', NULL),
