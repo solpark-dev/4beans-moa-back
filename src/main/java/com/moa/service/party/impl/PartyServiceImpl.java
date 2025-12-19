@@ -117,31 +117,58 @@ public class PartyServiceImpl implements PartyService {
 			throw new BusinessException(ErrorCode.INVALID_PARTY_STATUS);
 		}
 
-		// 1. 빌링키 발급 및 저장 (authKey는 PaymentRequest를 통해 전달받는다고 가정)
-		Map<String, Object> billingData = tossPaymentService.issueBillingKey(paymentRequest.getAuthKey(), userId);
-		String billingKey = (String) billingData.get("billingKey");
-		Map<String, Object> cardInfo = (Map<String, Object>) billingData.get("card");
-
-		UserCard newUserCard = UserCard.builder()
-				.userId(userId)
-				.billingKey(billingKey)
-				.cardCompany((String) cardInfo.get("company"))
-				.cardNumber((String) cardInfo.get("number"))
-				.regDate(LocalDateTime.now())
-				.build();
-		userCardDao.findByUserId(userId).ifPresentOrElse(
-				existingCard -> userCardDao.updateUserCard(newUserCard),
-				() -> userCardDao.insertUserCard(newUserCard));
-
-		// 2. 빌링키로 보증금 결제
 		int depositAmount = party.getMonthlyFee() * party.getMaxMembers();
-		String orderId = "DEPOSIT_" + partyId + "_" + userId + "_" + System.currentTimeMillis();
-		String paymentKey = tossPaymentService.payWithBillingKey(billingKey, orderId, depositAmount, "MOA 파티장 보증금", userId);
+		String paymentKey;
+		String orderId;
+		
+		// Case 1: 일반 결제 (tossPaymentKey가 있는 경우) - 파티 생성 시 카드 미등록 사용자
+		if (paymentRequest.getTossPaymentKey() != null && !paymentRequest.getTossPaymentKey().isEmpty()) {
+			paymentKey = paymentRequest.getTossPaymentKey();
+			orderId = paymentRequest.getOrderId();
+			
+			// 토스페이먼츠 일반 결제 승인
+			tossPaymentService.confirmPayment(paymentKey, orderId, paymentRequest.getAmount());
+			log.info("일반 결제 승인 완료: partyId={}, userId={}, paymentKey={}", partyId, userId, paymentKey);
+		}
+		// Case 2: 빌링키 결제 (기존 카드 사용 또는 새 카드 등록)
+		else {
+			String billingKey;
+			
+			// authKey가 있으면 새 빌링키 발급
+			if (paymentRequest.getAuthKey() != null && !paymentRequest.getAuthKey().isEmpty()) {
+				Map<String, Object> billingData = tossPaymentService.issueBillingKey(paymentRequest.getAuthKey(), userId);
+				billingKey = (String) billingData.get("billingKey");
+				Map<String, Object> cardInfo = (Map<String, Object>) billingData.get("card");
 
-		// 3. Deposit 기록 생성 (새로운 createDeposit 메소드 호출)
+				UserCard newUserCard = UserCard.builder()
+						.userId(userId)
+						.billingKey(billingKey)
+						.cardCompany((String) cardInfo.get("company"))
+						.cardNumber((String) cardInfo.get("number"))
+						.regDate(LocalDateTime.now())
+						.build();
+				userCardDao.findByUserId(userId).ifPresentOrElse(
+						existingCard -> userCardDao.updateUserCard(newUserCard),
+						() -> userCardDao.insertUserCard(newUserCard));
+				log.info("새 빌링키 발급 완료: userId={}", userId);
+			} else {
+				// 기존 빌링키 사용 (재결제 또는 등록된 카드 사용)
+				UserCard existingCard = userCardDao.findByUserId(userId)
+						.orElseThrow(() -> new BusinessException(ErrorCode.BILLING_KEY_NOT_FOUND));
+				billingKey = existingCard.getBillingKey();
+				log.info("기존 빌링키 사용: userId={}", userId);
+			}
+
+			// 빌링키로 보증금 결제
+			orderId = "DEPOSIT_" + partyId + "_" + userId + "_" + System.currentTimeMillis();
+			paymentKey = tossPaymentService.payWithBillingKey(billingKey, orderId, depositAmount, "MOA 파티장 보증금", userId);
+			log.info("빌링키 결제 완료: partyId={}, userId={}, paymentKey={}", partyId, userId, paymentKey);
+		}
+
+		// Deposit 기록 생성
 		depositService.createDeposit(partyId, partyMemberDao.findByPartyIdAndUserId(partyId, userId).get().getPartyMemberId(), userId, depositAmount, paymentKey, orderId, "CARD");
 
-		// 4. 상태 변경
+		// 상태 변경
 		PartyMember leaderMember = partyMemberDao.findByPartyIdAndUserId(partyId, userId)
 				.orElseThrow(() -> new BusinessException(ErrorCode.PARTY_MEMBER_NOT_FOUND));
 		leaderMember.setMemberStatus(MemberStatus.ACTIVE);
