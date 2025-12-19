@@ -1,32 +1,29 @@
 package com.moa.dto.community.request;
 
-import com.moa.domain.Community;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Getter
+@Setter
 public class InquiryRequest {
-    
+
+    @NotBlank
     private String userId;
+
+    @NotNull
     private Integer communityCodeId;
+
+    @NotBlank
+    @Size(max = 200, message = "제목은 200자를 초과할 수 없습니다.")
     private String title;
+
+    @NotBlank
+    @Size(max = 500, message = "내용은 500자를 초과할 수 없습니다.")
     private String content;
-    private String fileOriginal;
-    private String fileUuid;
-    
-    public Community toEntity() {
-        return Community.builder()
-                .userId(this.userId)
-                .communityCodeId(this.communityCodeId)
-                .title(this.title)
-                .content(this.content)
-                .fileOriginal(this.fileOriginal)
-                .fileUuid(this.fileUuid)
-                .build();
-    }
+
+    private MultipartFile file;
 }

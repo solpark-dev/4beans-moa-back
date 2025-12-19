@@ -164,10 +164,12 @@ public class CommunityServiceImpl implements CommunityService {
     
     @Override
     @Transactional
-    public void addInquiry(String userId, Integer communityCodeId, String title, String content, MultipartFile file) {
+    public void addInquiry(InquiryRequest request) {
         String fileOriginal = null;
         String fileUuid = null;
         
+        MultipartFile file = request.getFile();
+
         if (file != null && !file.isEmpty()) {
             fileOriginal = file.getOriginalFilename();
             String extension = fileOriginal.substring(fileOriginal.lastIndexOf("."));
@@ -186,10 +188,10 @@ public class CommunityServiceImpl implements CommunityService {
         }
         
         Community community = Community.builder()
-                .userId(userId)
-                .communityCodeId(communityCodeId)
-                .title(title)
-                .content(content)
+                .userId(request.getUserId())
+                .communityCodeId(request.getCommunityCodeId())
+                .title(request.getTitle())
+                .content(request.getContent())
                 .fileOriginal(fileOriginal)
                 .fileUuid(fileUuid)
                 .build();

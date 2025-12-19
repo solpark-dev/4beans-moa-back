@@ -32,7 +32,7 @@ public interface CommunityService {
     
     InquiryResponse getInquiry(Integer communityId);
     
-    void addInquiry(String userId, Integer communityCodeId, String title, String content, MultipartFile file);
+    void addInquiry(InquiryRequest request);
     
     void addAnswer(AnswerRequest request);
     

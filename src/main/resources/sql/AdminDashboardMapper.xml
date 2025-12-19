@@ -137,4 +137,136 @@
         LIMIT 5
     </select>
 
+    <!-- ==================== Phase 1: 월별 매출 ==================== -->
+    <select id="getMonthlyRevenues" resultType="map">
+        SELECT
+            DATE_FORMAT(dates.month, '%Y-%m') as month,
+            CONCAT(MONTH(dates.month), '월') as label,
+            COALESCE(SUM(p.PAYMENT_AMOUNT), 0) as amount
+        FROM (
+            SELECT DATE_FORMAT(CURDATE(), '%Y-%m-01') as month
+            UNION SELECT DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 1 MONTH), '%Y-%m-01')
+            UNION SELECT DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 2 MONTH), '%Y-%m-01')
+            UNION SELECT DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 3 MONTH), '%Y-%m-01')
+            UNION SELECT DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 4 MONTH), '%Y-%m-01')
+            UNION SELECT DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 5 MONTH), '%Y-%m-01')
+        ) dates
+        LEFT JOIN PAYMENT p ON DATE_FORMAT(p.PAYMENT_DATE, '%Y-%m') = DATE_FORMAT(dates.month, '%Y-%m')
+            AND p.PAYMENT_STATUS = 'COMPLETED'
+        GROUP BY dates.month
+        ORDER BY dates.month ASC
+    </select>
+
+    <!-- ==================== Phase 2: 증감률 계산용 ==================== -->
+    <!-- 지난 달 매출 -->
+    <select id="getLastMonthRevenue" resultType="long">
+        SELECT COALESCE(SUM(PAYMENT_AMOUNT), 0)
+        FROM PAYMENT
+        WHERE PAYMENT_STATUS = 'COMPLETED'
+          AND YEAR(PAYMENT_DATE) = YEAR(DATE_SUB(CURDATE(), INTERVAL 1 MONTH))
+          AND MONTH(PAYMENT_DATE) = MONTH(DATE_SUB(CURDATE(), INTERVAL 1 MONTH))
+    </select>
+
+    <!-- 지난 달 말 기준 회원 수 -->
+    <select id="getLastMonthUserCount" resultType="long">
+        SELECT COUNT(*)
+        FROM USERS
+        WHERE REG_DATE &lt; DATE_FORMAT(CURDATE(), '%Y-%m-01')
+          AND USER_STATUS != 'WITHDRAWN'
+    </select>
+
+    <!-- 어제 신규 가입 -->
+    <select id="getYesterdayNewUsers" resultType="long">
+        SELECT COUNT(*)
+        FROM USERS
+        WHERE DATE(REG_DATE) = DATE_SUB(CURDATE(), INTERVAL 1 DAY)
+          AND USER_STATUS != 'WITHDRAWN'
+    </select>
+
+    <!-- ==================== Phase 3: 주간 사용자 추이 ==================== -->
+    <!-- 최근 4주간 신규 가입자 -->
+    <select id="getWeeklyNewUsers" resultType="map">
+        SELECT
+            CONCAT(weekIndex + 1, '주 전') as week,
+            weekIndex,
+            count
+        FROM (
+            SELECT
+                FLOOR(DATEDIFF(CURDATE(), DATE(REG_DATE)) / 7) as weekIndex,
+                COUNT(*) as count
+            FROM USERS
+            WHERE REG_DATE >= DATE_SUB(CURDATE(), INTERVAL 4 WEEK)
+              AND USER_STATUS != 'WITHDRAWN'
+            GROUP BY FLOOR(DATEDIFF(CURDATE(), DATE(REG_DATE)) / 7)
+        ) AS weekly_stats
+        ORDER BY weekIndex DESC
+        LIMIT 4
+    </select>
+
+    <!-- 최근 4주간 활성 사용자 (로그인 기록 기반) -->
+    <select id="getWeeklyActiveUsers" resultType="map">
+        SELECT
+            CONCAT(weekIndex + 1, '주 전') as week,
+            weekIndex,
+            count
+        FROM (
+            SELECT
+                FLOOR(DATEDIFF(CURDATE(), DATE(LOGIN_AT)) / 7) as weekIndex,
+                COUNT(DISTINCT USER_ID) as count
+            FROM LOGIN_HISTORY
+            WHERE LOGIN_AT >= DATE_SUB(CURDATE(), INTERVAL 4 WEEK)
+              AND SUCCESS = TRUE
+            GROUP BY FLOOR(DATEDIFF(CURDATE(), DATE(LOGIN_AT)) / 7)
+        ) AS weekly_stats
+        ORDER BY weekIndex DESC
+        LIMIT 4
+    </select>
+
+    <!-- ==================== Phase 4: 실시간 알림 ==================== -->
+    <!-- 최근 24시간 결제 실패 내역 -->
+    <select id="getRecentFailedPayments" resultType="map">
+        SELECT
+            p.USER_ID as userId,
+            p.PAYMENT_AMOUNT as amount,
+            TIMESTAMPDIFF(MINUTE, p.PAYMENT_DATE, NOW()) as minutesAgo
+        FROM PAYMENT p
+        WHERE p.PAYMENT_STATUS = 'FAILED'
+          AND p.PAYMENT_DATE >= DATE_SUB(NOW(), INTERVAL 24 HOUR)
+        ORDER BY p.PAYMENT_DATE DESC
+        LIMIT 5
+    </select>
+
+    <!-- 이번 주 만료 예정 파티 -->
+    <select id="getExpiringParties" resultType="map">
+        SELECT
+            pr.PRODUCT_NAME as ottName,
+            COUNT(*) as count
+        FROM PARTY p
+        JOIN PRODUCT pr ON p.PRODUCT_ID = pr.PRODUCT_ID
+        WHERE p.PARTY_STATUS = 'ACTIVE'
+          AND p.END_DATE BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 7 DAY)
+        GROUP BY pr.PRODUCT_NAME
+    </select>
+
+    <!-- ==================== 월 목표 관리 ==================== -->
+    <!-- 월 목표 조회 -->
+    <select id="getMonthlyGoal" parameterType="string" resultType="java.lang.Long">
+        SELECT GOAL_AMOUNT
+        FROM ADMIN_MONTHLY_GOAL
+        WHERE TARGET_MONTH = #{targetMonth}
+    </select>
+
+    <!-- 월 목표 삽입 -->
+    <insert id="insertMonthlyGoal">
+        INSERT INTO ADMIN_MONTHLY_GOAL (TARGET_MONTH, GOAL_AMOUNT, CREATED_AT, UPDATED_AT)
+        VALUES (#{targetMonth}, #{goalAmount}, NOW(), NOW())
+    </insert>
+
+    <!-- 월 목표 수정 -->
+    <update id="updateMonthlyGoal">
+        UPDATE ADMIN_MONTHLY_GOAL
+        SET GOAL_AMOUNT = #{goalAmount}, UPDATED_AT = NOW()
+        WHERE TARGET_MONTH = #{targetMonth}
+    </update>
+
 </mapper>

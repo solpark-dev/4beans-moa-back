@@ -9,8 +9,10 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
 
 import java.net.MalformedURLException;
 import java.nio.file.Path;
@@ -113,13 +115,8 @@ public class CommunityRestController {
     }
     
     @PostMapping("/inquiry")
-    public ResponseEntity<Void> addInquiry(
-            @RequestParam String userId,
-            @RequestParam Integer communityCodeId,
-            @RequestParam String title,
-            @RequestParam String content,
-            @RequestParam(required = false) MultipartFile file) {
-        communityService.addInquiry(userId, communityCodeId, title, content, file);
+    public ResponseEntity<Void> addInquiry(@ModelAttribute @Valid InquiryRequest request) {
+        communityService.addInquiry(request);
         return ResponseEntity.ok().build();
     }
     
