@@ -91,8 +91,8 @@ public enum ErrorCode {
 	ACCOUNT_BLOCKED("B403", "블랙리스트 계정입니다. 이용이 제한되었습니다.", HttpStatus.FORBIDDEN),
 	INVALID_LOGIN("N401", "아이디 또는 비밀번호가 올바르지 않습니다.", HttpStatus.UNAUTHORIZED),
 	INVALID_PARAMETER("E400", "잘못된 요청 파라미터입니다.", HttpStatus.BAD_REQUEST),
-	INVALID_INPUT_VALUE("E444", "잘못된 입력값입니다.", HttpStatus.BAD_REQUEST);
-
+	INVALID_INPUT_VALUE("E444", "잘못된 입력값입니다.", HttpStatus.BAD_REQUEST),
+	INVALID_REQUEST("E445", "이메일을 입력해주세요.",HttpStatus.NOT_FOUND);
 	private final String code;
 	private final String message;
 	private final HttpStatus httpStatus;

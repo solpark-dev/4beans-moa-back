@@ -229,6 +229,29 @@ public class AuthRestController {
 		return ApiResponse.success(null);
 	}
 
+	@PostMapping("/exists-by-email")
+	public ApiResponse<Void> existsByEmail(@RequestBody Map<String, String> body) {
+
+		String email = body.get("email");
+
+		if (email == null || email.isBlank()) {
+			throw new BusinessException(ErrorCode.INVALID_REQUEST, "이메일을 입력해주세요.");
+		}
+
+		try {
+			userService.unlockByCertification(email, "__CHECK_ONLY__",
+					null);
+		} catch (BusinessException e) {
+
+			if (e.getErrorCode() == ErrorCode.USER_NOT_FOUND) {
+				throw e;
+			}
+
+		}
+
+		return ApiResponse.success(null);
+	}
+
 	private String extractClientIp(HttpServletRequest request) {
 		String ip = request.getHeader("X-Forwarded-For");
 		if (ip != null && !ip.isBlank() && !"unknown".equalsIgnoreCase(ip)) {
