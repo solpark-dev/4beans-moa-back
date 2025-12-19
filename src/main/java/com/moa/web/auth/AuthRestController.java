@@ -231,18 +231,25 @@ public class AuthRestController {
 
 	private String extractClientIp(HttpServletRequest request) {
 		String ip = request.getHeader("X-Forwarded-For");
-		if (ip != null && !ip.isBlank()) {
+		if (ip != null && !ip.isBlank() && !"unknown".equalsIgnoreCase(ip)) {
 			int commaIndex = ip.indexOf(',');
 			if (commaIndex > 0) {
-				return ip.substring(0, commaIndex).trim();
+				ip = ip.substring(0, commaIndex);
 			}
 			return ip.trim();
 		}
+
 		ip = request.getHeader("X-Real-IP");
-		if (ip != null && !ip.isBlank()) {
+		if (ip != null && !ip.isBlank() && !"unknown".equalsIgnoreCase(ip)) {
 			return ip.trim();
 		}
-		return request.getRemoteAddr();
+
+		ip = request.getRemoteAddr();
+		if ("0:0:0:0:0:0:0:1".equals(ip)) {
+			return "127.0.0.1";
+		}
+
+		return ip;
 	}
 
 	private String extractUserIdFromLoginRequest(LoginRequest request) {
@@ -296,15 +303,8 @@ public class AuthRestController {
 		String userAgent = httpRequest.getHeader("User-Agent");
 		loginHistoryService.recordSuccess(userId, "RESTORE", clientIp, userAgent);
 
-		return ApiResponse.success(
-		        Map.of(
-		                "restored", true,
-		                "userId", userId,
-		                "accessToken", token.getAccessToken(),
-		                "refreshToken", token.getRefreshToken(),
-		                "accessTokenExpiresIn", token.getAccessTokenExpiresIn()
-		        )
-		);
+		return ApiResponse.success(Map.of("restored", true, "userId", userId, "accessToken", token.getAccessToken(),
+				"refreshToken", token.getRefreshToken(), "accessTokenExpiresIn", token.getAccessTokenExpiresIn()));
 	}
 
 }
