@@ -71,7 +71,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 		if (request.getCookies() != null) {
 			for (var c : request.getCookies()) {
-				if ("accessToken".equals(c.getName()) && StringUtils.hasText(c.getValue())) {
+				String name = c.getName();
+				if (("ACCESS_TOKEN".equals(name) || "accessToken".equals(name)) && StringUtils.hasText(c.getValue())) {
 					return c.getValue();
 				}
 			}
@@ -79,4 +80,5 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 		return null;
 	}
+
 }

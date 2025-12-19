@@ -133,11 +133,20 @@ public class OAuthRestController {
 
 			loginHistoryService.recordSuccess(oauth.getUserId(), "KAKAO", null, null);
 
-			ResponseCookie accessCookie = ResponseCookie.from("accessToken", token.getAccessToken()).httpOnly(true)
-					.secure(true).sameSite("None").path("/").maxAge(token.getAccessTokenExpiresIn()).build();
-
-			ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", token.getRefreshToken()).httpOnly(true)
-					.secure(true).sameSite("None").path("/").maxAge(60 * 60 * 24 * 14).build();
+			ResponseCookie accessCookie = ResponseCookie.from("ACCESS_TOKEN", token.getAccessToken())
+			        .httpOnly(true)
+			        .secure(true)
+			        .sameSite("None")
+			        .path("/")
+			        .maxAge(token.getAccessTokenExpiresIn())
+			        .build();
+			ResponseCookie refreshCookie = ResponseCookie.from("REFRESH_TOKEN", token.getRefreshToken())
+			        .httpOnly(true)
+			        .secure(true)
+			        .sameSite("None")
+			        .path("/")
+			        .maxAge(60 * 60 * 24 * 14)
+			        .build();
 
 			return ResponseEntity.status(HttpStatus.FOUND).header(HttpHeaders.SET_COOKIE, accessCookie.toString())
 					.header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
@@ -226,11 +235,11 @@ public class OAuthRestController {
 
 			return ResponseEntity.status(HttpStatus.FOUND).header(HttpHeaders.LOCATION, redirectBase + "?status=LOGIN")
 					.header(HttpHeaders.SET_COOKIE,
-							ResponseCookie.from("accessToken", jwt.getAccessToken()).httpOnly(true).secure(true)
+							ResponseCookie.from("ACCESS_TOKEN", jwt.getAccessToken()).httpOnly(true).secure(true)
 									.sameSite("None").path("/").maxAge(jwt.getAccessTokenExpiresIn()).build()
 									.toString())
 					.header(HttpHeaders.SET_COOKIE,
-							ResponseCookie.from("refreshToken", jwt.getRefreshToken()).httpOnly(true).secure(true)
+							ResponseCookie.from("REFRESH_TOKEN", jwt.getRefreshToken()).httpOnly(true).secure(true)
 									.sameSite("None").path("/").maxAge(60 * 60 * 24 * 14).build().toString())
 					.build();
 		}

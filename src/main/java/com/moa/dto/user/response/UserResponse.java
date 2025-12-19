@@ -40,30 +40,45 @@ public class UserResponse {
 		return from(user, oauthAccounts, false);
 	}
 
-	public static UserResponse from(User user, List<OAuthAccount> oauthAccounts, Boolean hasBillingKey) {
-		List<OAuthConnectionResponse> connections = null;
-		if (oauthAccounts != null && !oauthAccounts.isEmpty()) {
-			connections = oauthAccounts.stream()
-					.map(OAuthConnectionResponse::from)
-					.collect(Collectors.toList());
-		}
+	public static UserResponse from(
+	        User user,
+	        List<OAuthAccount> oauthAccounts,
+	        Boolean hasBillingKey
+	) {
+	    List<OAuthConnectionResponse> connections = null;
 
-		return UserResponse.builder()
-				.userId(user.getUserId())
-				.nickname(user.getNickname())
-				.phone(user.getPhone())
-				.profileImage(user.getProfileImage())
-				.status(user.getStatus() != null ? user.getStatus().name() : null)
-				.role(user.getRole())
-				.regDate(user.getRegDate() != null ? user.getRegDate().toLocalDate() : null)
-				.lastLoginDate(user.getLastLoginDate() != null ? user.getLastLoginDate().toLocalDate() : null)
-				.loginProvider(user.getProvider())
-				.oauthConnections(connections)
-				.agreeMarketing(user.getAgreeMarketing())
-				.blacklisted(false)
-				.otpEnabled(user.getOtpEnabled())
-				.hasBillingKey(hasBillingKey)
-				.provider(user.getProvider())
-				.build();
+	    if (oauthAccounts != null && !oauthAccounts.isEmpty()) {
+	        connections = oauthAccounts.stream()
+	                .map(OAuthConnectionResponse::from)
+	                .collect(Collectors.toList());
+	    }
+
+	    String loginProvider =
+	            oauthAccounts != null
+	                    ? oauthAccounts.stream()
+	                        .filter(o -> o.getReleaseDate() == null)
+	                        .map(OAuthAccount::getProvider)
+	                        .findFirst()
+	                        .orElse("email")
+	                    : "email";
+
+	    return UserResponse.builder()
+	            .userId(user.getUserId())
+	            .nickname(user.getNickname())
+	            .phone(user.getPhone())
+	            .profileImage(user.getProfileImage())
+	            .status(user.getStatus() != null ? user.getStatus().name() : null)
+	            .role(user.getRole())
+	            .regDate(user.getRegDate() != null ? user.getRegDate().toLocalDate() : null)
+	            .lastLoginDate(user.getLastLoginDate() != null ? user.getLastLoginDate().toLocalDate() : null)
+	            .loginProvider(loginProvider)
+	            .oauthConnections(connections)
+	            .agreeMarketing(user.getAgreeMarketing())
+	            .blacklisted(false)
+	            .otpEnabled(user.getOtpEnabled())
+	            .hasBillingKey(hasBillingKey)
+	            .build();
 	}
+
+
 }
