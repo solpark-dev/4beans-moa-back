@@ -90,6 +90,7 @@ public class SecurityConfig {
 						.requestMatchers(HttpMethod.GET, "/api/push/subscribe").authenticated()
 						.requestMatchers(HttpMethod.POST, "/api/signup/pass/**").permitAll()
 						.requestMatchers(HttpMethod.GET, "/api/signup/pass/**").permitAll()
+						.requestMatchers(HttpMethod.GET, "/api/users/check-nickname").permitAll()
 						
 						.requestMatchers(HttpMethod.POST, "/api/community/notice/**").hasAuthority("ADMIN")
 						.requestMatchers(HttpMethod.PUT, "/api/community/notice/**").hasAuthority("ADMIN")

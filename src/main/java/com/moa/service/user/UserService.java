@@ -24,6 +24,8 @@ import com.moa.dto.user.response.UserResponse;
 public interface UserService {
 
 	CommonCheckResponse check(CommonCheckRequest request);
+	
+	boolean existsByNickname(String nickname);
 
 	void validatePasswordRule(String password);
 

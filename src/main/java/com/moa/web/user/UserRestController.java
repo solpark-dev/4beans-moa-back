@@ -146,6 +146,12 @@ public class UserRestController {
 		return ApiResponse.success(null);
 	}
 
+	@GetMapping("/check-nickname")
+	public ApiResponse<Map<String, Object>> checkNickname(@RequestParam String nickname) {
+		boolean exists = userService.existsByNickname(nickname);
+		return ApiResponse.success(Map.of("nickname", nickname, "available", !exists));
+	}
+
 	@GetMapping("/me/account")
 	public ApiResponse<Account> getMyAccount() {
 		String userId = getCurrentUserId();
@@ -217,13 +223,9 @@ public class UserRestController {
 			}
 		}
 
-		UserCard newUserCard = UserCard.builder()
-				.userId(userId)
-				.billingKey(billingKey)
+		UserCard newUserCard = UserCard.builder().userId(userId).billingKey(billingKey)
 				.cardCompany(cardCompany != null ? cardCompany : "카드")
-				.cardNumber(cardNumber != null ? cardNumber : "****")
-				.regDate(java.time.LocalDateTime.now())
-				.build();
+				.cardNumber(cardNumber != null ? cardNumber : "****").regDate(java.time.LocalDateTime.now()).build();
 
 		try {
 			Optional<UserCard> existingUserCard = userCardDao.findByUserId(userId);
@@ -236,8 +238,7 @@ public class UserRestController {
 			// DB 저장 실패 시 로깅 및 예외 처리
 			// 참고: 빌링키는 토스페이먼츠에 이미 발급됨. 수동 처리 필요할 수 있음.
 			System.err.println("카드 정보 저장 실패 - userId: " + userId + ", error: " + e.getMessage());
-			throw new BusinessException(ErrorCode.INTERNAL_ERROR,
-					"카드 정보 저장에 실패했습니다. 다시 시도해주세요.");
+			throw new BusinessException(ErrorCode.INTERNAL_ERROR, "카드 정보 저장에 실패했습니다. 다시 시도해주세요.");
 		}
 
 		return ApiResponse.success(newUserCard);

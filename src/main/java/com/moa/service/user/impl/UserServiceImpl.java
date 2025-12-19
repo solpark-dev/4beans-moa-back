@@ -126,6 +126,11 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
+	public boolean existsByNickname(String nickname) {
+		return userDao.existsByNickname(nickname.trim()) > 0;
+	}
+
+	@Override
 	public void updatePassword(String userId, PasswordUpdateRequest request) {
 		validatePasswordRule(request.getNewPassword());
 		validatePasswordConfirm(request.getNewPassword(), request.getNewPasswordConfirm());
