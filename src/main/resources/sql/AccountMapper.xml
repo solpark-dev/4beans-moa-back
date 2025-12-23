@@ -31,6 +31,21 @@
 		)
 	</insert>
 
+	<!-- 기존 계좌 정보 업데이트 (유저당 1개 계좌) -->
+	<update id="updateAccountByUserId">
+		UPDATE ACCOUNT
+		SET BANK_CODE = #{bankCode},
+			BANK_NAME = #{bankName},
+			ACCOUNT_NUMBER = #{accountNumber},
+			ACCOUNT_HOLDER = #{accountHolder},
+			FINTECH_USE_NUM = #{fintechUseNum},
+			STATUS = #{status},
+			IS_VERIFIED = #{isVerified},
+			VERIFY_DATE = NOW()
+		WHERE USER_ID = #{userId}
+	</update>
+
+
 	<select id="findByUserId" resultMap="AccountResultMap">
 		SELECT * FROM ACCOUNT WHERE USER_ID = #{userId}
 	</select>

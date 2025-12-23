@@ -34,17 +34,17 @@ public class BankAccountServiceImpl implements BankAccountService {
 
 	private String getBankName(String bankCode) {
 		return switch (bankCode) {
-		case "004" -> "KB국민은행";
-		case "011" -> "NH농협은행";
-		case "020" -> "우리은행";
-		case "023" -> "SC제일은행";
-		case "027" -> "한국씨티은행";
-		case "081" -> "하나은행";
-		case "088" -> "신한은행";
-		case "089" -> "케이뱅크";
-		case "090" -> "카카오뱅크";
-		case "092" -> "토스뱅크";
-		default -> "기타은행";
+			case "004" -> "KB국민은행";
+			case "011" -> "NH농협은행";
+			case "020" -> "우리은행";
+			case "023" -> "SC제일은행";
+			case "027" -> "한국씨티은행";
+			case "081" -> "하나은행";
+			case "088" -> "신한은행";
+			case "089" -> "케이뱅크";
+			case "090" -> "카카오뱅크";
+			case "092" -> "토스뱅크";
+			default -> "기타은행";
 		};
 	}
 
@@ -63,6 +63,12 @@ public class BankAccountServiceImpl implements BankAccountService {
 	public InquiryReceiveResponse requestVerification(String userId, String bankCode, String accountNum,
 			String accountHolder) {
 		log.info("[계좌인증] 1원 인증 요청 - 사용자: {}, 은행: {}", userId, bankCode);
+
+		// 기존 PENDING 세션 무효화 (이전 인증 중단 후 재시도 시 문제 방지)
+		int expiredCount = verificationMapper.expirePendingByUserId(userId);
+		if (expiredCount > 0) {
+			log.info("[계좌인증] 기존 PENDING 세션 {} 건 무효화 - 사용자: {}", expiredCount, userId);
+		}
 
 		String verifyCode = mockOpenBankingService.generateVerifyCode();
 		String bankTranId = "MOCK" + System.currentTimeMillis();
@@ -126,20 +132,38 @@ public class BankAccountServiceImpl implements BankAccountService {
 
 		String fintechUseNum = java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 24);
 		verificationMapper.updateStatus(verification.getVerificationId(), "VERIFIED");
-		Optional<Account> existingAccount = accountDao.findActiveByUserId(userId);
-		existingAccount.ifPresent(account -> {
-			accountDao.updateStatus(account.getAccountId(), "INACTIVE");
-			log.info("[계좌인증] 기존 계좌 비활성화 - accountId: {}", account.getAccountId());
-		});
 
-		Account newAccount = Account.builder().userId(userId).bankCode(verification.getBankCode())
-				.bankName(getBankName(verification.getBankCode())).accountNumber(verification.getAccountNum())
-				.accountHolder(verification.getAccountHolder()).fintechUseNum(fintechUseNum).status("ACTIVE")
-				.isVerified("Y").build();
-
-		accountDao.insertAccount(newAccount);
-
-		log.info("[계좌인증] 계좌 등록 완료 - 사용자: {}, 핀테크번호: {}", userId, fintechUseNum);
+		// 기존 계좌가 있으면 UPDATE, 없으면 INSERT
+		Optional<Account> existingAccount = accountDao.findByUserId(userId);
+		if (existingAccount.isPresent()) {
+			// 기존 계좌 정보 업데이트
+			Account updateAccount = Account.builder()
+					.userId(userId)
+					.bankCode(verification.getBankCode())
+					.bankName(getBankName(verification.getBankCode()))
+					.accountNumber(verification.getAccountNum())
+					.accountHolder(verification.getAccountHolder())
+					.fintechUseNum(fintechUseNum)
+					.status("ACTIVE")
+					.isVerified("Y")
+					.build();
+			accountDao.updateAccountByUserId(updateAccount);
+			log.info("[계좌인증] 기존 계좌 업데이트 완료 - 사용자: {}, 핀테크번호: {}", userId, fintechUseNum);
+		} else {
+			// 새 계좌 등록
+			Account newAccount = Account.builder()
+					.userId(userId)
+					.bankCode(verification.getBankCode())
+					.bankName(getBankName(verification.getBankCode()))
+					.accountNumber(verification.getAccountNum())
+					.accountHolder(verification.getAccountHolder())
+					.fintechUseNum(fintechUseNum)
+					.status("ACTIVE")
+					.isVerified("Y")
+					.build();
+			accountDao.insertAccount(newAccount);
+			log.info("[계좌인증] 새 계좌 등록 완료 - 사용자: {}, 핀테크번호: {}", userId, fintechUseNum);
+		}
 
 		return InquiryVerifyResponse.success(fintechUseNum);
 	}

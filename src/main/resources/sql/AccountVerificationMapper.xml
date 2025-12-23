@@ -66,4 +66,12 @@
         WHERE STATUS = 'PENDING' AND EXPIRED_AT &lt; NOW()
     </update>
 
+    <!-- 사용자의 PENDING 세션 일괄 만료 처리 -->
+    <update id="expirePendingByUserId">
+        UPDATE ACCOUNT_VERIFICATION
+        SET STATUS = 'EXPIRED', UPDATED_AT = NOW()
+        WHERE USER_ID = #{userId} AND STATUS = 'PENDING'
+    </update>
+
 </mapper>
+

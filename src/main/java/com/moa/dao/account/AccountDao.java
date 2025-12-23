@@ -21,5 +21,10 @@ public interface AccountDao {
 
     int updateStatus(@Param("accountId") Integer accountId, @Param("status") String status);
 
+    /**
+     * 기존 계좌 정보 업데이트 (유저당 1개 계좌)
+     */
+    int updateAccountByUserId(Account account);
+
     int deleteByUserId(@Param("userId") String userId);
 }

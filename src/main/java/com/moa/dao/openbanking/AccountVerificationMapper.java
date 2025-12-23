@@ -19,4 +19,9 @@ public interface AccountVerificationMapper {
 	void incrementAttemptCount(@Param("verificationId") Long verificationId);
 
 	int updateExpiredSessions();
+
+	/**
+	 * 사용자의 PENDING 상태 세션을 모두 EXPIRED로 변경
+	 */
+	int expirePendingByUserId(@Param("userId") String userId);
 }
